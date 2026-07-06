@@ -33,9 +33,6 @@
     </div>
 
     <script>
-        // ============================================
-        // ADMIN LOGIN - LOCAL STORAGE
-        // ============================================
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -50,46 +47,34 @@
             loginBtn.disabled = true;
             
             try {
-                // Get admin users from local storage
                 const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-                
-                // Check if admin exists
                 const admin = admins.find(a => a.email === email && a.password === password);
                 
                 if (admin) {
-                    // Save admin session
                     localStorage.setItem('adminSession', JSON.stringify(admin));
                     alert('✅ Admin login successful!');
                     window.location.href = 'admin-dashboard.html';
-                } else {
-                    // Check default admin
-                    if (email === 'admin@break-tracker.com' && password === '535680') {
-                        // Create default admin if not exists
-                        const defaultAdmin = {
-                            id: Date.now().toString(),
-                            name: 'Admin User',
-                            email: 'admin@break-tracker.com',
-                            password: '535680',
-                            role: 'admin',
-                            department: 'Management',
-                            created_at: new Date().toISOString()
-                        };
-                        
-                        // Save to admin list if not exists
-                        if (!admins.find(a => a.email === defaultAdmin.email)) {
-                            admins.push(defaultAdmin);
-                            localStorage.setItem('adminUsers', JSON.stringify(admins));
-                        }
-                        
-                        localStorage.setItem('adminSession', JSON.stringify(defaultAdmin));
-                        alert('✅ Admin login successful!');
-                        window.location.href = 'admin-dashboard.html';
-                    } else {
-                        throw new Error('Invalid admin credentials!');
+                } else if (email === 'admin@break-tracker.com' && password === '535680') {
+                    const defaultAdmin = {
+                        id: Date.now().toString(),
+                        name: 'Admin User',
+                        email: 'admin@break-tracker.com',
+                        password: '535680',
+                        role: 'admin',
+                        department: 'Management',
+                        created_at: new Date().toISOString()
+                    };
+                    if (!admins.find(a => a.email === defaultAdmin.email)) {
+                        admins.push(defaultAdmin);
+                        localStorage.setItem('adminUsers', JSON.stringify(admins));
                     }
+                    localStorage.setItem('adminSession', JSON.stringify(defaultAdmin));
+                    alert('✅ Admin login successful!');
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    throw new Error('Invalid admin credentials!');
                 }
             } catch (error) {
-                console.error('Admin login error:', error);
                 errorMsg.textContent = '❌ ' + error.message;
                 errorMsg.style.display = 'block';
                 loginBtn.textContent = 'Login as Admin';
