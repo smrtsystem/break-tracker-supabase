@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Break Tracker</title>
+    <title>Break Tracker - Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,277 +11,78 @@
         <div class="nav-brand">🕐 Break Tracker</div>
         <div class="nav-right">
             <span id="userDisplay">Welcome!</span>
+            <span id="userRole" class="badge" style="background: #667eea;">Employee</span>
             <button id="logoutBtn" class="btn-outline">Logout</button>
         </div>
     </nav>
 
     <div class="container">
-        <!-- Stats Cards -->
+        <!-- Stats Cards - Only Active & Today's Breaks -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Total Employees</h3>
-                <p id="totalEmployees">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>Active Breaks</h3>
+                <h3>🔴 Active Breaks</h3>
                 <p id="activeBreaks">0</p>
             </div>
             <div class="stat-card">
-                <h3>Today's Breaks</h3>
+                <h3>📊 Today's Breaks</h3>
                 <p id="todayBreaks">0</p>
             </div>
         </div>
 
-        <!-- Active Breaks -->
+        <!-- Active Breaks Wall - Show Who's On Break -->
         <div class="card">
-            <h2>🔴 Active Breaks</h2>
+            <h2>🔴 Currently On Break</h2>
             <div id="activeBreaksList">
-                <p class="empty">No active breaks</p>
+                <p class="empty">No one is on break right now</p>
             </div>
         </div>
 
-        <!-- Employees -->
+        <!-- Break History (User's Own Breaks) -->
         <div class="card">
-            <div class="card-header">
-                <h2>👥 Employees</h2>
-                <button id="addEmployeeBtn" class="btn-primary">+ Add Employee</button>
-            </div>
-            <div class="filters">
-                <input type="text" id="searchInput" placeholder="Search employees...">
-            </div>
-            <div id="employeesList"></div>
-        </div>
-
-        <!-- Break History -->
-        <div class="card">
-            <h2>📊 Break History</h2>
+            <h2>📊 My Break History</h2>
             <div id="breakHistory">
-                <p class="empty">No breaks recorded</p>
+                <p class="empty">No break history</p>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div id="employeeModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modalTitle">Add Employee</h2>
-            <form id="employeeForm">
-                <input type="hidden" id="editId">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="empName" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="empEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Department</label>
-                    <select id="empDepartment">
-                        <option value="Engineering">Engineering</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Sales">Sales</option>
-                        <option value="HR">HR</option>
-                        <option value="Finance">Finance</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Position</label>
-                    <input type="text" id="empPosition" placeholder="e.g., Developer">
-                </div>
-                <button type="submit" class="btn-primary">Save Employee</button>
-            </form>
         </div>
     </div>
 
     <script>
         // ============================================
-        // USER DASHBOARD - LOCAL STORAGE
+        // USER DASHBOARD - Active Breaks Only
         // ============================================
         
-        // Check if user is logged in
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         
         if (!currentUser) {
             window.location.href = 'login.html';
         }
         
-        // Display user name
         document.getElementById('userDisplay').textContent = `👋 ${currentUser.name || 'User'}`;
+        document.getElementById('userRole').textContent = currentUser.role || 'Employee';
+        document.getElementById('userRole').style.background = currentUser.role === 'admin' ? '#ff6b6b' : '#667eea';
         
-        // Logout function
         function logout() {
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
         }
-        
         document.getElementById('logoutBtn').addEventListener('click', logout);
 
         // ============================================
-        // BREAK TRACKER FUNCTIONS (Local Storage)
+        // DATA FUNCTIONS
         // ============================================
         
-        // Get employees from localStorage
         function getEmployees() {
             return JSON.parse(localStorage.getItem('employees') || '[]');
         }
 
-        // Save employees to localStorage
-        function saveEmployees(employees) {
-            localStorage.setItem('employees', JSON.stringify(employees));
-        }
-
-        // Get breaks from localStorage
         function getBreaks() {
             return JSON.parse(localStorage.getItem('breaks') || '[]');
         }
 
-        // Save breaks to localStorage
-        function saveBreaks(breaks) {
-            localStorage.setItem('breaks', JSON.stringify(breaks));
+        function getSettings() {
+            return JSON.parse(localStorage.getItem('breakSettings') || '{"maxBreakMinutes":30}');
         }
 
-        // Load employees
-        function loadEmployees() {
-            const employees = getEmployees();
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            const filtered = employees.filter(emp => 
-                emp.name.toLowerCase().includes(searchTerm) ||
-                emp.department.toLowerCase().includes(searchTerm)
-            );
-            
-            const list = document.getElementById('employeesList');
-            
-            if (filtered.length === 0) {
-                list.innerHTML = '<p class="empty">No employees found</p>';
-                return;
-            }
-            
-            let html = '<div class="employee-grid">';
-            filtered.forEach(emp => {
-                const statusColor = emp.status === 'on_break' ? 'orange' : 'green';
-                html += `
-                    <div class="employee-card">
-                        <div class="employee-header">
-                            <div>
-                                <h3>${emp.name}</h3>
-                                <span class="badge" style="background:${statusColor}">${emp.status || 'active'}</span>
-                            </div>
-                            <div class="employee-actions">
-                                <button class="btn-small btn-edit" data-id="${emp.id}">✏️</button>
-                                <button class="btn-small btn-delete" data-id="${emp.id}">🗑️</button>
-                            </div>
-                        </div>
-                        <p class="employee-detail">📧 ${emp.email}</p>
-                        <p class="employee-detail">🏢 ${emp.department}</p>
-                        <p class="employee-detail">💼 ${emp.position || 'No position'}</p>
-                        ${emp.status !== 'on_break' ? 
-                            `<button class="btn-break" data-id="${emp.id}">☕ Start Break</button>` :
-                            `<button class="btn-break disabled" disabled>⏳ On Break</button>`
-                        }
-                    </div>
-                `;
-            });
-            html += '</div>';
-            list.innerHTML = html;
-            
-            // Add event listeners
-            document.querySelectorAll('.btn-break:not(.disabled)').forEach(btn => {
-                btn.addEventListener('click', () => handleStartBreak(btn.dataset.id));
-            });
-            
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', () => openEditModal(btn.dataset.id));
-            });
-            
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', () => handleDeleteEmployee(btn.dataset.id));
-            });
-        }
-
-        // Load active breaks
-        function loadActiveBreaks() {
-            const breaks = getBreaks();
-            const active = breaks.filter(b => b.status === 'active');
-            const list = document.getElementById('activeBreaksList');
-            
-            if (active.length === 0) {
-                list.innerHTML = '<p class="empty">✅ No active breaks</p>';
-                return;
-            }
-            
-            let html = '<div class="break-list">';
-            active.forEach(b => {
-                const employees = getEmployees();
-                const emp = employees.find(e => e.id === b.employee_id);
-                html += `
-                    <div class="break-item">
-                        <div>
-                            <strong>${emp?.name || 'Unknown'}</strong>
-                            <span class="badge">${emp?.department || 'N/A'}</span>
-                        </div>
-                        <div>
-                            <span>⏱️ ${formatDuration(b.start_time)}</span>
-                            <button class="btn-end-break" data-id="${b.id}" data-employee="${b.employee_id}">
-                                End Break
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            list.innerHTML = html;
-            
-            document.querySelectorAll('.btn-end-break').forEach(btn => {
-                btn.addEventListener('click', () => handleEndBreak(btn.dataset.id, btn.dataset.employee));
-            });
-        }
-
-        // Load break history
-        function loadBreakHistory() {
-            const breaks = getBreaks();
-            const completed = breaks.filter(b => b.status === 'completed').slice(-20).reverse();
-            const list = document.getElementById('breakHistory');
-            
-            if (completed.length === 0) {
-                list.innerHTML = '<p class="empty">No break history</p>';
-                return;
-            }
-            
-            let html = '<table class="history-table"><thead><tr><th>Employee</th><th>Start</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
-            completed.forEach(b => {
-                const employees = getEmployees();
-                const emp = employees.find(e => e.id === b.employee_id);
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                html += `
-                    <tr>
-                        <td>${emp?.name || 'Unknown'}</td>
-                        <td>${new Date(b.start_time).toLocaleTimeString()}</td>
-                        <td>${duration}</td>
-                        <td><span class="badge green">${b.status}</span></td>
-                    </tr>
-                `;
-            });
-            html += '</tbody></table>';
-            list.innerHTML = html;
-        }
-
-        // Update stats
-        function updateStats() {
-            const employees = getEmployees();
-            const breaks = getBreaks();
-            const activeBreaks = breaks.filter(b => b.status === 'active');
-            const today = new Date().toISOString().split('T')[0];
-            const todayBreaks = breaks.filter(b => b.created_at && b.created_at.startsWith(today));
-            
-            document.getElementById('totalEmployees').textContent = employees.length;
-            document.getElementById('activeBreaks').textContent = activeBreaks.length;
-            document.getElementById('todayBreaks').textContent = todayBreaks.length;
-        }
-
-        // Format duration
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
             const end = endTime ? new Date(endTime) : new Date();
@@ -292,233 +93,112 @@
         }
 
         // ============================================
-        // CRUD OPERATIONS
+        // LOAD ACTIVE BREAKS (Visible to Everyone)
         // ============================================
-
-        // Add employee
-        function addEmployee(data) {
-            const employees = getEmployees();
-            const newEmp = {
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                ...data,
-                status: 'active',
-                created_at: new Date().toISOString()
-            };
-            employees.push(newEmp);
-            saveEmployees(employees);
-            return newEmp;
-        }
-
-        // Update employee
-        function updateEmployee(id, data) {
-            const employees = getEmployees();
-            const index = employees.findIndex(e => e.id === id);
-            if (index === -1) return null;
-            employees[index] = { ...employees[index], ...data };
-            saveEmployees(employees);
-            return employees[index];
-        }
-
-        // Delete employee
-        function deleteEmployee(id) {
-            let employees = getEmployees();
-            employees = employees.filter(e => e.id !== id);
-            saveEmployees(employees);
-        }
-
-        // Start break
-        function startBreak(employeeId) {
+        function loadActiveBreaks() {
             const breaks = getBreaks();
-            // Check if already on break
-            if (breaks.find(b => b.employee_id === employeeId && b.status === 'active')) {
-                alert('Employee is already on break!');
-                return null;
-            }
-            
-            const newBreak = {
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                employee_id: employeeId,
-                start_time: new Date().toISOString(),
-                status: 'active',
-                created_at: new Date().toISOString()
-            };
-            breaks.push(newBreak);
-            saveBreaks(breaks);
-            
-            // Update employee status
             const employees = getEmployees();
-            const emp = employees.find(e => e.id === employeeId);
-            if (emp) {
-                emp.status = 'on_break';
-                saveEmployees(employees);
+            const active = breaks.filter(b => b.status === 'active');
+            const list = document.getElementById('activeBreaksList');
+            
+            document.getElementById('activeBreaks').textContent = active.length;
+            
+            if (active.length === 0) {
+                list.innerHTML = '<p class="empty">✅ No one is on break right now</p>';
+                return;
             }
             
-            return newBreak;
+            let html = '<div class="break-wall">';
+            active.forEach(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                const duration = formatDuration(b.start_time);
+                const timeElapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                const settings = getSettings();
+                const maxMinutes = settings.maxBreakMinutes || 30;
+                const isOverdue = timeElapsed > maxMinutes;
+                
+                html += `
+                    <div class="break-card ${isOverdue ? 'overdue' : ''}">
+                        <div class="break-card-header">
+                            <div class="employee-avatar">👤</div>
+                            <div>
+                                <h3>${emp?.name || 'Unknown'}</h3>
+                                <span class="badge ${isOverdue ? 'red' : 'green'}">${emp?.department || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="break-card-body">
+                            <p>⏱️ Break Time: <strong>${duration}</strong></p>
+                            <p>⏰ Started: ${new Date(b.start_time).toLocaleTimeString()}</p>
+                            ${isOverdue ? `<p class="overdue-text">⚠️ Overdue! (${timeElapsed}/${maxMinutes} min)</p>` : `<p class="on-time">✅ Within limit (${timeElapsed}/${maxMinutes} min)</p>`}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            list.innerHTML = html;
         }
 
-        // End break
-        function endBreak(breakId, employeeId) {
+        // ============================================
+        // LOAD TODAY'S BREAKS
+        // ============================================
+        function loadTodayBreaks() {
             const breaks = getBreaks();
-            const index = breaks.findIndex(b => b.id === breakId);
-            if (index === -1) return null;
-            
-            const endTime = new Date().toISOString();
-            const startTime = new Date(breaks[index].start_time);
-            const duration = Math.floor((new Date(endTime) - startTime) / 1000);
-            
-            breaks[index] = {
-                ...breaks[index],
-                end_time: endTime,
-                status: 'completed',
-                duration: duration
-            };
-            saveBreaks(breaks);
-            
-            // Update employee status
+            const today = new Date().toISOString().split('T')[0];
+            const todayBreaks = breaks.filter(b => b.created_at && b.created_at.startsWith(today));
+            document.getElementById('todayBreaks').textContent = todayBreaks.length;
+        }
+
+        // ============================================
+        // LOAD USER'S BREAK HISTORY
+        // ============================================
+        function loadUserHistory() {
+            const breaks = getBreaks();
             const employees = getEmployees();
-            const emp = employees.find(e => e.id === employeeId);
-            if (emp) {
-                emp.status = 'active';
-                saveEmployees(employees);
+            
+            // Find employee ID for current user
+            const emp = employees.find(e => e.email === currentUser.email);
+            if (!emp) {
+                document.getElementById('breakHistory').innerHTML = '<p class="empty">No breaks found for you</p>';
+                return;
             }
             
-            return breaks[index];
-        }
-
-        // ============================================
-        // HANDLERS
-        // ============================================
-
-        function handleStartBreak(employeeId) {
-            const result = startBreak(employeeId);
-            if (result) {
-                loadEmployees();
-                loadActiveBreaks();
-                updateStats();
-            }
-        }
-
-        function handleEndBreak(breakId, employeeId) {
-            const result = endBreak(breakId, employeeId);
-            if (result) {
-                loadEmployees();
-                loadActiveBreaks();
-                loadBreakHistory();
-                updateStats();
-            }
-        }
-
-        function handleDeleteEmployee(id) {
-            if (!confirm('Are you sure you want to delete this employee?')) return;
-            deleteEmployee(id);
-            loadEmployees();
-            updateStats();
-        }
-
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
-
-        function openAddModal() {
-            document.getElementById('modalTitle').textContent = 'Add Employee';
-            document.getElementById('editId').value = '';
-            document.getElementById('employeeForm').reset();
-            document.getElementById('employeeModal').style.display = 'block';
-        }
-
-        function openEditModal(id) {
-            const employees = getEmployees();
-            const emp = employees.find(e => e.id === id);
-            if (!emp) return;
+            const userBreaks = breaks.filter(b => b.employee_id === emp.id && b.status === 'completed').slice(-20).reverse();
+            const list = document.getElementById('breakHistory');
             
-            document.getElementById('modalTitle').textContent = 'Edit Employee';
-            document.getElementById('editId').value = id;
-            document.getElementById('empName').value = emp.name;
-            document.getElementById('empEmail').value = emp.email;
-            document.getElementById('empDepartment').value = emp.department;
-            document.getElementById('empPosition').value = emp.position || '';
-            document.getElementById('employeeModal').style.display = 'block';
-        }
-
-        function handleEmployeeSubmit(e) {
-            e.preventDefault();
-            
-            const id = document.getElementById('editId').value;
-            const data = {
-                name: document.getElementById('empName').value,
-                email: document.getElementById('empEmail').value,
-                department: document.getElementById('empDepartment').value,
-                position: document.getElementById('empPosition').value
-            };
-            
-            if (id) {
-                updateEmployee(id, data);
-            } else {
-                addEmployee(data);
+            if (userBreaks.length === 0) {
+                list.innerHTML = '<p class="empty">No break history</p>';
+                return;
             }
             
-            document.getElementById('employeeModal').style.display = 'none';
-            loadEmployees();
-            updateStats();
+            let html = '<table class="history-table"><thead><tr><th>Start</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
+            userBreaks.forEach(b => {
+                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                html += `
+                    <tr>
+                        <td>${new Date(b.start_time).toLocaleString()}</td>
+                        <td>${duration}</td>
+                        <td><span class="badge green">Completed</span></td>
+                    </tr>
+                `;
+            });
+            html += '</tbody></table>';
+            list.innerHTML = html;
         }
 
         // ============================================
-        // EVENT LISTENERS
+        // AUTO REFRESH
         // ============================================
-
-        document.getElementById('addEmployeeBtn').addEventListener('click', openAddModal);
-        
-        document.querySelector('.close').addEventListener('click', () => {
-            document.getElementById('employeeModal').style.display = 'none';
-        });
-        
-        window.addEventListener('click', (e) => {
-            if (e.target === document.getElementById('employeeModal')) {
-                document.getElementById('employeeModal').style.display = 'none';
-            }
-        });
-        
-        document.getElementById('employeeForm').addEventListener('submit', handleEmployeeSubmit);
-        document.getElementById('searchInput').addEventListener('input', loadEmployees);
-
-        // ============================================
-        // INITIALIZE
-        // ============================================
-
-        // Add sample employees if none exist
-        if (getEmployees().length === 0) {
-            saveEmployees([
-                {
-                    id: 'emp1',
-                    name: 'Alice Johnson',
-                    email: 'alice@company.com',
-                    department: 'Engineering',
-                    position: 'Senior Developer',
-                    status: 'active',
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 'emp2',
-                    name: 'Bob Smith',
-                    email: 'bob@company.com',
-                    department: 'Marketing',
-                    position: 'Marketing Manager',
-                    status: 'active',
-                    created_at: new Date().toISOString()
-                }
-            ]);
-        }
-
-        loadEmployees();
-        loadActiveBreaks();
-        loadBreakHistory();
-        updateStats();
-
-        // Auto-refresh active breaks every 10 seconds
-        setInterval(() => {
+        function refreshAll() {
             loadActiveBreaks();
-            updateStats();
-        }, 10000);
+            loadTodayBreaks();
+            loadUserHistory();
+        }
+
+        // Refresh every 10 seconds
+        setInterval(refreshAll, 10000);
+        
+        // Initial load
+        refreshAll();
     </script>
 </body>
 </html>
