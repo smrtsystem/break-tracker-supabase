@@ -12,9 +12,8 @@ import {
     getBreakHistory,
     getStats,
     subscribeToBreaks,
-    formatDuration,
-    getBreakType
-} from '../src/supabase.js'
+    formatDuration
+} from './supabase.js'
 
 // ============================================
 // DOM ELEMENTS
@@ -45,14 +44,12 @@ const elements = {
 // INITIALIZATION
 // ============================================
 async function init() {
-    // Check authentication
     const user = await getCurrentUser()
     if (!user) {
         window.location.href = 'login.html'
         return
     }
     
-    // Get user profile
     const { data: profile } = await supabase
         .from('users')
         .select('name')
@@ -61,20 +58,17 @@ async function init() {
     
     elements.userDisplay.textContent = `👋 ${profile?.name || user.email}`
     
-    // Load data
     await loadEmployees()
     await loadActiveBreaks()
     await loadBreakHistory()
     await updateStats()
     
-    // Setup realtime
     subscribeToBreaks((payload) => {
         console.log('Break update:', payload)
         loadActiveBreaks()
         updateStats()
     })
     
-    // Setup event listeners
     setupEventListeners()
 }
 
@@ -92,9 +86,7 @@ async function loadEmployees() {
         )
         
         if (filtered.length === 0) {
-            elements.employeesList.innerHTML = `
-                <p class="empty">No employees found</p>
-            `
+            elements.employeesList.innerHTML = `<p class="empty">No employees found</p>`
             return
         }
         
@@ -126,7 +118,6 @@ async function loadEmployees() {
         html += '</div>'
         elements.employeesList.innerHTML = html
         
-        // Add event listeners to buttons
         document.querySelectorAll('.btn-break:not(.disabled)').forEach(btn => {
             btn.addEventListener('click', () => handleStartBreak(btn.dataset.id))
         })
@@ -150,9 +141,7 @@ async function loadActiveBreaks() {
         const breaks = await getActiveBreaks()
         
         if (breaks.length === 0) {
-            elements.activeBreaksList.innerHTML = `
-                <p class="empty">✅ No active breaks</p>
-            `
+            elements.activeBreaksList.innerHTML = `<p class="empty">✅ No active breaks</p>`
             return
         }
         
@@ -177,13 +166,9 @@ async function loadActiveBreaks() {
         html += '</div>'
         elements.activeBreaksList.innerHTML = html
         
-        // Add event listeners
         document.querySelectorAll('.btn-end-break').forEach(btn => {
             btn.addEventListener('click', () => handleEndBreak(btn.dataset.id, btn.dataset.employee))
         })
-        
-        // Update timers every second
-        updateTimers()
         
     } catch (error) {
         console.error('Error loading active breaks:', error)
@@ -322,25 +307,13 @@ async function handleEmployeeSubmit(e) {
     }
 }
 
-function updateTimers() {
-    setInterval(() => {
-        document.querySelectorAll('.break-item').forEach(item => {
-            // Update timers if needed
-        })
-    }, 1000)
-}
-
 // ============================================
 // EVENT LISTENERS
 // ============================================
 function setupEventListeners() {
-    // Logout
     elements.logoutBtn.addEventListener('click', signOut)
-    
-    // Add employee
     elements.addEmployeeBtn.addEventListener('click', openAddModal)
     
-    // Close modal
     elements.closeModal.addEventListener('click', () => {
         elements.employeeModal.style.display = 'none'
     })
@@ -351,10 +324,7 @@ function setupEventListeners() {
         }
     })
     
-    // Employee form
     elements.employeeForm.addEventListener('submit', handleEmployeeSubmit)
-    
-    // Search
     elements.searchInput.addEventListener('input', loadEmployees)
 }
 
