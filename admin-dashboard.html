@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Break Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin-dashboard.css">
 </head>
 <body>
     <!-- Navbar -->
@@ -18,7 +19,7 @@
     </nav>
 
     <div class="container">
-        <!-- ========== STATS - LEFT SIDE ========== -->
+        <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card" style="border-left-color:#667eea;">
                 <h3>👥 Total Employees</h3>
@@ -39,20 +40,20 @@
             </div>
         </div>
 
-        <!-- ========== TABS ========== -->
+        <!-- Tabs -->
         <div class="admin-tabs">
             <button class="tab-btn active" data-tab="employees">👥 Employees</button>
             <button class="tab-btn" data-tab="users">👤 Users</button>
             <button class="tab-btn" data-tab="departments">🏢 Departments</button>
             <button class="tab-btn" data-tab="roles">👔 Roles</button>
             <button class="tab-btn" data-tab="breakstatus">⏱️ Break Status</button>
+            <button class="tab-btn" data-tab="breaklog">📋 Break Log</button>
+            <button class="tab-btn" data-tab="vacation">🏖️ Vacation</button>
             <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
             <button class="tab-btn" data-tab="reports">📊 Reports</button>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 1: EMPLOYEES -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 1: EMPLOYEES ======== -->
         <div id="tab-employees" class="tab-content active">
             <div class="card">
                 <div class="card-header">
@@ -79,9 +80,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 2: USERS -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 2: USERS ======== -->
         <div id="tab-users" class="tab-content">
             <div class="card">
                 <div class="card-header">
@@ -95,9 +94,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 3: DEPARTMENTS -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 3: DEPARTMENTS ======== -->
         <div id="tab-departments" class="tab-content">
             <div class="card">
                 <div class="card-header">
@@ -108,9 +105,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 4: ROLES -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 4: ROLES ======== -->
         <div id="tab-roles" class="tab-content">
             <div class="card">
                 <div class="card-header">
@@ -121,9 +116,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 5: BREAK STATUS -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 5: BREAK STATUS ======== -->
         <div id="tab-breakstatus" class="tab-content">
             <div class="card">
                 <div class="card-header">
@@ -134,9 +127,69 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 6: SETTINGS -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 6: BREAK LOG ======== -->
+        <div id="tab-breaklog" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📋 Break Log</h2>
+                    <div>
+                        <button id="exportBreakLogBtn" class="btn-outline">📥 Export CSV</button>
+                        <button id="clearBreakLogBtn" class="btn-danger" style="margin-left:8px;">🗑️ Clear All</button>
+                    </div>
+                </div>
+                <div class="break-log-filters">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="breakLogStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="breakLogEndDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Employee</label>
+                        <select id="breakLogEmployee"><option value="all">All</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="breakLogStatus">
+                            <option value="all">All</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;">
+                        <button id="applyBreakLogFilter" class="btn-primary" style="width:100%;">Apply Filter</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div id="breakLogList"><p class="empty">Loading break log...</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======== TAB 7: VACATION ======== -->
+        <div id="tab-vacation" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🏖️ Vacation Management</h2>
+                    <div>
+                        <button id="addVacationBtn" class="btn-primary">+ Add Vacation Request</button>
+                    </div>
+                </div>
+                
+                <!-- Vacation Type Tabs -->
+                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                    <button class="vacation-tab-btn active" data-vacation-type="expat">🌍 Expat Vacation</button>
+                    <button class="vacation-tab-btn" data-vacation-type="local">🏠 Local Vacation</button>
+                </div>
+                
+                <div id="vacationList"><p class="empty">Loading vacation requests...</p></div>
+            </div>
+        </div>
+
+        <!-- ======== TAB 8: SETTINGS ======== -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>⚙️ Break Settings</h2>
@@ -168,9 +221,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 7: REPORTS -->
-        <!-- ========================================== -->
+        <!-- ======== TAB 9: REPORTS ======== -->
         <div id="tab-reports" class="tab-content">
             <div class="card">
                 <div class="card-header">
@@ -331,12 +382,61 @@
         </div>
     </div>
 
+    <!-- Add Vacation Modal -->
+    <div id="vacationModal" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('vacationModal')">&times;</button>
+            <h2>Add Vacation Request</h2>
+            <form id="vacationForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Employee</label>
+                        <select id="vacationEmployee" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Vacation Type</label>
+                        <select id="vacationType" required>
+                            <option value="Expat">🌍 Expat Vacation</option>
+                            <option value="Local">🏠 Local Vacation</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="vacationStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="vacationEndDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="vacationStatus">
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="vacationNotes" rows="3" style="width:100%;padding:10px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;" placeholder="Additional notes..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('vacationModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Vacation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Report Modal -->
     <div id="reportModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('reportModal')">&times;</button>
             <h2>📊 Generate Report</h2>
-            <div class="report-filters" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="report-filters">
                 <div class="form-group">
                     <label>Start Date</label>
                     <input type="date" id="reportStartDate">
@@ -392,7 +492,7 @@
 
     <script>
         // ============================================
-        // ADMIN DASHBOARD - COMPLETE
+        // ADMIN DASHBOARD - COMPLETE SCRIPT
         // ============================================
 
         let deleteTarget = null;
@@ -440,6 +540,8 @@
         function saveRoles(r) { localStorage.setItem('roles', JSON.stringify(r)); }
         function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"localBreakMinutes":30,"expatBreakMinutes":45,"warningMinutes":5}'); }
         function saveSettings(s) { localStorage.setItem('breakSettings', JSON.stringify(s)); }
+        function getVacations() { return JSON.parse(localStorage.getItem('vacations') || '[]'); }
+        function saveVacations(v) { localStorage.setItem('vacations', JSON.stringify(v)); }
 
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
@@ -451,6 +553,14 @@
             if (mins === 0) return `${secs}s`;
             if (secs === 0) return `${mins}m`;
             return `${mins}m ${secs}s`;
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
         }
 
         // ============================================
@@ -468,7 +578,20 @@
                 else if (tab === 'departments') loadDepartments();
                 else if (tab === 'roles') loadRoles();
                 else if (tab === 'breakstatus') loadBreakStatus();
+                else if (tab === 'breaklog') loadBreakLog();
+                else if (tab === 'vacation') loadVacations();
                 else if (tab === 'settings') loadSettings();
+            });
+        });
+
+        // ============================================
+        // VACATION TABS
+        // ============================================
+        document.querySelectorAll('.vacation-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.vacation-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadVacations(this.dataset.vacationType);
             });
         });
 
@@ -485,7 +608,7 @@
         });
 
         // ============================================
-        // STATS - LEFT SIDE
+        // STATS
         // ============================================
         function loadStats() {
             const employees = getEmployees();
@@ -516,7 +639,7 @@
         }
 
         // ============================================
-        // EMPLOYEES - With all columns
+        // EMPLOYEES
         // ============================================
         function loadEmployees() {
             const employees = getEmployees();
@@ -1022,6 +1145,171 @@
         }
 
         // ============================================
+        // BREAK LOG
+        // ============================================
+        function loadBreakLog() {
+            const breaks = getBreaks();
+            const employees = getEmployees();
+            
+            // Populate employee filter
+            const empFilter = document.getElementById('breakLogEmployee');
+            empFilter.innerHTML = '<option value="all">All</option>';
+            employees.forEach(e => {
+                empFilter.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+            });
+            
+            // Apply filters
+            const startDate = document.getElementById('breakLogStartDate').value;
+            const endDate = document.getElementById('breakLogEndDate').value;
+            const employeeId = document.getElementById('breakLogEmployee').value;
+            const status = document.getElementById('breakLogStatus').value;
+            
+            let filtered = [...breaks];
+            if (startDate) filtered = filtered.filter(b => b.start_time >= startDate);
+            if (endDate) { const d = new Date(endDate); d.setDate(d.getDate() + 1); filtered = filtered.filter(b => new Date(b.start_time) <= d); }
+            if (employeeId !== 'all') filtered = filtered.filter(b => b.employee_id === employeeId);
+            if (status !== 'all') filtered = filtered.filter(b => b.status === status);
+            
+            filtered.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+            
+            const list = document.getElementById('breakLogList');
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty">No break records found</p>';
+                return;
+            }
+            
+            const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Type</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+                
+            filtered.forEach(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                const statusColor = b.status === 'active' ? 'badge-orange' : 'badge-green';
+                html += `<tr>
+                    <td>${emp?.name || 'Unknown'}</td>
+                    <td>${emp?.department || 'N/A'}</td>
+                    <td>${breakLabels[b.break_type] || 'Short'}</td>
+                    <td>${new Date(b.start_time).toLocaleString()}</td>
+                    <td>${b.end_time ? new Date(b.end_time).toLocaleString() : '-'}</td>
+                    <td>${duration}</td>
+                    <td><span class="badge ${statusColor}">${b.status}</span></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        }
+
+        // ============================================
+        // VACATION
+        // ============================================
+        function loadVacations(type = 'expat') {
+            const vacations = getVacations();
+            const employees = getEmployees();
+            
+            const filtered = vacations.filter(v => {
+                const emp = employees.find(e => e.id === v.employee_id);
+                const empType = emp?.employeeType || 'Local';
+                const vacationType = type === 'expat' ? 'Expat' : 'Local';
+                return empType === vacationType;
+            });
+            
+            const list = document.getElementById('vacationList');
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty">No vacation requests found</p>';
+                return;
+            }
+            
+            let html = '<div class="vacation-grid">';
+            filtered.forEach(v => {
+                const emp = employees.find(e => e.id === v.employee_id);
+                const statusClass = v.status === 'approved' ? 'status-approved' : (v.status === 'rejected' ? 'status-rejected' : 'status-pending');
+                
+                html += `<div class="vacation-card">
+                    <div class="emp-name">${emp?.name || 'Unknown'}</div>
+                    <div class="emp-dept">${emp?.department || 'N/A'} • ${emp?.employeeType || 'Local'}</div>
+                    <div class="vacation-dates">
+                        <strong>From:</strong> ${formatDate(v.startDate)}<br>
+                        <strong>To:</strong> ${formatDate(v.endDate)}
+                    </div>
+                    <div style="margin-top:8px;">
+                        <span class="status-badge ${statusClass}">${v.status || 'Pending'}</span>
+                        ${v.notes ? `<div style="font-size:12px;color:#666;margin-top:4px;">📝 ${v.notes}</div>` : ''}
+                    </div>
+                    <div class="action-buttons" style="margin-top:8px;">
+                        <button class="btn-sm btn-approve" onclick="updateVacationStatus('${v.id}','approved')">✅ Approve</button>
+                        <button class="btn-sm btn-pending" onclick="updateVacationStatus('${v.id}','pending')">⏳ Pending</button>
+                        <button class="btn-sm btn-reject" onclick="updateVacationStatus('${v.id}','rejected')">❌ Reject</button>
+                        <button class="btn-sm btn-danger" onclick="deleteVacation('${v.id}')">🗑️</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            list.innerHTML = html;
+        }
+
+        function updateVacationStatus(id, status) {
+            let vacations = getVacations();
+            const index = vacations.findIndex(v => v.id === id);
+            if (index === -1) return;
+            vacations[index].status = status;
+            saveVacations(vacations);
+            loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'expat');
+            alert(`✅ Vacation ${status}!`);
+        }
+
+        function deleteVacation(id) {
+            if (!confirm('Delete this vacation request?')) return;
+            let vacations = getVacations();
+            vacations = vacations.filter(v => v.id !== id);
+            saveVacations(vacations);
+            loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'expat');
+            alert('✅ Vacation deleted!');
+        }
+
+        function addVacation(data) {
+            const vacations = getVacations();
+            const newVacation = { 
+                id: 'vac_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                ...data,
+                created_at: new Date().toISOString()
+            };
+            vacations.push(newVacation);
+            saveVacations(vacations);
+            return newVacation;
+        }
+
+        document.getElementById('vacationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                employee_id: document.getElementById('vacationEmployee').value,
+                vacationType: document.getElementById('vacationType').value,
+                startDate: document.getElementById('vacationStartDate').value,
+                endDate: document.getElementById('vacationEndDate').value,
+                status: document.getElementById('vacationStatus').value,
+                notes: document.getElementById('vacationNotes').value
+            };
+            
+            addVacation(data);
+            closeModal('vacationModal');
+            this.reset();
+            loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'expat');
+            alert('✅ Vacation request added!');
+        });
+
+        // ============================================
         // SETTINGS
         // ============================================
         function loadSettings() {
@@ -1159,6 +1447,7 @@
         function loadDropdowns() {
             const depts = getDepartments();
             const roles = getRoles();
+            const employees = getEmployees();
             
             ['empDepartment', 'userDepartment'].forEach(id => {
                 const select = document.getElementById(id);
@@ -1177,6 +1466,15 @@
                     if (r.name !== 'Admin' && r.name !== 'admin') { 
                         userRoleSelect.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`; 
                     } 
+                });
+            }
+            
+            // Vacation employee dropdown
+            const vacEmpSelect = document.getElementById('vacationEmployee');
+            if (vacEmpSelect) {
+                vacEmpSelect.innerHTML = '';
+                employees.forEach(e => {
+                    vacEmpSelect.innerHTML += `<option value="${e.id}">${e.name} (${e.department})</option>`;
                 });
             }
         }
@@ -1213,12 +1511,19 @@
             openModal('roleModal');
         });
 
+        document.getElementById('addVacationBtn').addEventListener('click', function() {
+            document.getElementById('vacationForm').reset();
+            openModal('vacationModal');
+        });
+
         document.getElementById('deleteSelectedUsersBtn').addEventListener('click', deleteSelectedUsers);
         
         document.getElementById('refreshBreakStatus').addEventListener('click', function() { 
             loadBreakStatus(); 
             alert('✅ Break status refreshed!'); 
         });
+
+        document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
 
         document.getElementById('openReportBtn').addEventListener('click', function() {
             loadReportEmployees();
@@ -1243,6 +1548,47 @@
         document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
 
         // ============================================
+        // EXPORT BREAK LOG CSV
+        // ============================================
+        document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
+            const breaks = getBreaks();
+            const employees = getEmployees();
+            
+            if (breaks.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+            
+            let csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
+            breaks.forEach(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                const breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
+                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${breakLabels[b.break_type] || 'Short'},${new Date(b.start_time).toLocaleString()},${b.end_time ? new Date(b.end_time).toLocaleString() : '-'},${duration},${b.status}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `break_log_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ============================================
+        // CLEAR BREAK LOG
+        // ============================================
+        document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
+            if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
+                saveBreaks([]);
+                loadBreakLog();
+                loadStats();
+                alert('✅ All break records cleared!');
+            }
+        });
+
+        // ============================================
         // INITIALIZE
         // ============================================
         if (checkAuth()) {
@@ -1259,6 +1605,9 @@
                     { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
                 ]);
             }
+            if (!localStorage.getItem('vacations')) {
+                saveVacations([]);
+            }
             
             loadDropdowns();
             loadStats();
@@ -1267,6 +1616,8 @@
             loadDepartments();
             loadRoles();
             loadBreakStatus();
+            loadBreakLog();
+            loadVacations();
             loadSettings();
             loadReportEmployees();
             
