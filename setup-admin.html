@@ -36,73 +36,51 @@
         </div>
     </div>
 
-    <script type="module">
-        import { supabase } from './supabase.js'
-        
-        const form = document.getElementById('setupForm')
-        const errorMsg = document.getElementById('errorMsg')
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
+    <script>
+        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
+
+        document.getElementById('setupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            const name = document.getElementById('name').value
-            const email = document.getElementById('email').value
-            const password = document.getElementById('password').value
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
             
-            errorMsg.textContent = ''
-            errorMsg.style.display = 'none'
+            errorMsg.textContent = '';
+            errorMsg.style.display = 'none';
             
             try {
-                // Step 1: Create auth user
-                const { data: authData, error: authError } = await supabase.auth.signUp({
+                // Store admin in localStorage for now
+                const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+                
+                // Check if admin already exists
+                if (admins.find(a => a.email === email)) {
+                    errorMsg.textContent = '⚠️ Admin already exists!';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                
+                // Add new admin
+                admins.push({
+                    name: name,
                     email: email,
                     password: password,
-                    options: {
-                        data: {
-                            name: name,
-                            role: 'admin'
-                        }
-                    }
-                })
+                    role: 'admin',
+                    created: new Date().toISOString()
+                });
                 
-                if (authError) throw authError
+                localStorage.setItem('adminUsers', JSON.stringify(admins));
                 
-                if (!authData.user) {
-                    throw new Error('Failed to create user')
-                }
-                
-                // Step 2: Create user profile
-                const { error: userError } = await supabase
-                    .from('users')
-                    .insert([{
-                        id: authData.user.id,
-                        email: email,
-                        name: name,
-                        role: 'admin'
-                    }])
-                
-                if (userError) throw userError
-                
-                // Step 3: Update admin password setting
-                await supabase
-                    .from('admin_settings')
-                    .upsert({
-                        setting_key: 'admin_password',
-                        setting_value: password
-                    })
-                
-                alert('✅ Admin account created successfully!\n\nEmail: ' + email + '\nPassword: ' + password)
-                window.location.href = 'admin-login.html'
+                alert('✅ Admin account created successfully!\n\nEmail: ' + email + '\nPassword: ' + password);
+                window.location.href = 'admin-login.html';
                 
             } catch (error) {
-                if (error.message.includes('already registered')) {
-                    errorMsg.textContent = '⚠️ This email is already registered. Try logging in or use a different email.'
-                } else {
-                    errorMsg.textContent = 'Error: ' + error.message
-                }
-                errorMsg.style.display = 'block'
+                errorMsg.textContent = 'Error: ' + error.message;
+                errorMsg.style.display = 'block';
             }
-        })
+        });
     </script>
 </body>
 </html>
