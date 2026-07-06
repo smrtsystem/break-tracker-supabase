@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <!-- My Break Section -->
+        <!-- My Break Section - Direct Break (No Employee Selection) -->
         <div class="my-break-section">
             <h2>☕ My Break</h2>
             <div class="break-actions">
@@ -41,7 +41,7 @@
                 </div>
             </div>
             
-            <!-- Break Info (shows when on break) -->
+            <!-- Break Info -->
             <div id="breakInfo" class="break-info">
                 <p><strong>⏱️ Current Break:</strong> <span id="myBreakDuration">0m 0s</span></p>
                 <p><strong>⏰ Started:</strong> <span id="myBreakStartTime">-</span></p>
@@ -83,19 +83,21 @@
 
     <script>
         // ============================================
-        // USER DASHBOARD - COMPLETE
+        // USER DASHBOARD - DIRECT BREAK
         // ============================================
         
+        // Get logged in user
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         if (!currentUser) window.location.href = 'login.html';
 
-        // Set user info
+        // Set user info (shows logged in user's name)
         document.getElementById('userAvatar').textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
         document.getElementById('userNameDisplay').textContent = currentUser.name || 'User';
         document.getElementById('userDisplay').textContent = `👋 ${currentUser.name || 'User'}`;
         document.getElementById('userRole').textContent = currentUser.role || 'Employee';
         document.getElementById('userRole').style.background = currentUser.role === 'admin' ? '#ff6b6b' : '#667eea';
 
+        // Logout
         document.getElementById('logoutBtn').addEventListener('click', function() {
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
@@ -121,13 +123,18 @@
             return `${mins}m ${secs}s`;
         }
 
-        function formatTime(date) { return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+        function formatTime(date) { 
+            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); 
+        }
 
+        // Get logged in user's employee record (automatically uses the logged in user)
         function getMyEmployee() {
             const employees = getEmployees();
+            // Find employee with matching email (logged in user's email)
             return employees.find(e => e.email === currentUser.email);
         }
 
+        // Get logged in user's active break
         function getMyActiveBreak() {
             const emp = getMyEmployee();
             if (!emp) return null;
@@ -136,19 +143,55 @@
         }
 
         // ============================================
-        // BREAK ACTIONS
+        // BREAK ACTIONS - Direct (No Selection)
         // ============================================
         let breakTimer = null;
 
         function startMyBreak() {
             const emp = getMyEmployee();
-            if (!emp) { alert('No employee record found. Contact admin.'); return; }
-            if (getMyActiveBreak()) { alert('You are already on break!'); return; }
+            
+            // If employee doesn't exist, create one automatically
+            if (!emp) {
+                // Create employee record for logged in user
+                const employees = getEmployees();
+                const newEmp = {
+                    id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    name: currentUser.name || 'User',
+                    email: currentUser.email,
+                    department: currentUser.department || 'Engineering',
+                    position: 'Employee',
+                    status: 'active',
+                    created_at: new Date().toISOString()
+                };
+                employees.push(newEmp);
+                localStorage.setItem('employees', JSON.stringify(employees));
+                
+                // Now get the newly created employee
+                const newEmpRecord = getMyEmployee();
+                if (!newEmpRecord) {
+                    alert('Error creating employee record. Please contact admin.');
+                    return;
+                }
+                
+                // Start break for this employee
+                performStartBreak(newEmpRecord.id);
+                return;
+            }
 
+            // Check if already on break
+            if (getMyActiveBreak()) { 
+                alert('You are already on break!'); 
+                return; 
+            }
+
+            performStartBreak(emp.id);
+        }
+
+        function performStartBreak(employeeId) {
             const breaks = getBreaks();
             const newBreak = {
                 id: 'brk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                employee_id: emp.id,
+                employee_id: employeeId,
                 break_type: 'short',
                 start_time: new Date().toISOString(),
                 status: 'active',
@@ -157,9 +200,13 @@
             breaks.push(newBreak);
             saveBreaks(breaks);
 
+            // Update employee status
             const employees = getEmployees();
-            const empIndex = employees.findIndex(e => e.id === emp.id);
-            if (empIndex !== -1) { employees[empIndex].status = 'on_break'; localStorage.setItem('employees', JSON.stringify(employees)); }
+            const empIndex = employees.findIndex(e => e.id === employeeId);
+            if (empIndex !== -1) { 
+                employees[empIndex].status = 'on_break'; 
+                localStorage.setItem('employees', JSON.stringify(employees)); 
+            }
 
             updateBreakUI();
             refreshAll();
@@ -168,7 +215,11 @@
 
         function endMyBreak() {
             const activeBreak = getMyActiveBreak();
-            if (!activeBreak) { alert('You are not on break!'); return; }
+            if (!activeBreak) { 
+                alert('You are not on break!'); 
+                return; 
+            }
+            
             const emp = getMyEmployee();
             if (!emp) return;
 
@@ -180,12 +231,21 @@
             const startTime = new Date(breaks[index].start_time);
             const duration = Math.floor((new Date(endTime) - startTime) / 1000);
 
-            breaks[index] = { ...breaks[index], end_time: endTime, status: 'completed', duration: duration };
+            breaks[index] = { 
+                ...breaks[index], 
+                end_time: endTime, 
+                status: 'completed', 
+                duration: duration 
+            };
             saveBreaks(breaks);
 
+            // Update employee status
             const employees = getEmployees();
             const empIndex = employees.findIndex(e => e.id === emp.id);
-            if (empIndex !== -1) { employees[empIndex].status = 'active'; localStorage.setItem('employees', JSON.stringify(employees)); }
+            if (empIndex !== -1) { 
+                employees[empIndex].status = 'active'; 
+                localStorage.setItem('employees', JSON.stringify(employees)); 
+            }
 
             updateBreakUI();
             refreshAll();
@@ -234,15 +294,19 @@
                 statusText.className = 'status-badge available';
                 breakInfo.className = 'break-info';
                 breakInfo.style.display = 'none';
-                if (breakTimer) { clearInterval(breakTimer); breakTimer = null; }
+                if (breakTimer) { 
+                    clearInterval(breakTimer); 
+                    breakTimer = null; 
+                }
             }
         }
 
+        // Event Listeners for Break Buttons
         document.getElementById('startBreakBtn').addEventListener('click', startMyBreak);
         document.getElementById('endBreakBtn').addEventListener('click', endMyBreak);
 
         // ============================================
-        // LOAD ACTIVE BREAKS
+        // LOAD ACTIVE BREAKS (Shows who is on break)
         // ============================================
         function loadActiveBreaks() {
             const breaks = getBreaks();
@@ -251,7 +315,10 @@
             const list = document.getElementById('activeBreaksList');
             
             document.getElementById('activeBreaks').textContent = active.length;
-            const names = active.map(b => { const emp = employees.find(e => e.id === b.employee_id); return emp?.name || 'Unknown'; });
+            const names = active.map(b => { 
+                const emp = employees.find(e => e.id === b.employee_id); 
+                return emp?.name || 'Unknown'; 
+            });
             document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
 
             if (active.length === 0) {
@@ -271,10 +338,16 @@
                 const colors = ['#667eea','#4ecdc4','#ff6b6b','#ffd93d','#a29bfe','#fd79a8'];
                 const colorIndex = emp?.id ? parseInt(emp.id.slice(-2), 16) % colors.length : 0;
 
-                html += `<div class="break-card ${isOverdue ? 'overdue' : ''}">
+                // Check if this is the logged in user
+                const isMe = emp?.email === currentUser.email;
+
+                html += `<div class="break-card ${isOverdue ? 'overdue' : ''}" style="${isMe ? 'border: 2px solid #667eea;' : ''}">
                     <div class="card-header">
                         <div class="avatar" style="background:${colors[colorIndex]};">${initials}</div>
-                        <div><h3>${emp?.name || 'Unknown'}</h3><span class="badge ${isOverdue ? 'badge-red' : 'badge-green'}">${emp?.department || 'N/A'}</span></div>
+                        <div>
+                            <h3>${emp?.name || 'Unknown'} ${isMe ? '👈 (You)' : ''}</h3>
+                            <span class="badge ${isOverdue ? 'badge-red' : 'badge-green'}">${emp?.department || 'N/A'}</span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <p>⏱️ <strong>${duration}</strong> elapsed</p>
@@ -335,11 +408,12 @@
             updateBreakUI();
         }
 
+        // Refresh every 10 seconds
         setInterval(refreshAll, 10000);
         refreshAll();
 
         console.log('✅ User Dashboard loaded');
-        console.log('👤 Logged in as:', currentUser.email);
+        console.log('👤 Logged in as:', currentUser.name, '(', currentUser.email, ')');
         console.log('🔄 Auto-refresh every 10 seconds');
     </script>
 </body>
