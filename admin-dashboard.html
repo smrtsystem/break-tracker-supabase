@@ -7,88 +7,58 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-brand">🛡️ Admin Dashboard</div>
         <div class="nav-right">
             <span id="adminName">👋 Admin</span>
+            <span id="adminRole" class="badge" style="background:#ff6b6b;">Admin</span>
             <button id="logoutBtn" class="btn-outline">Logout</button>
         </div>
     </nav>
 
     <div class="container">
-        <!-- Admin Stats -->
+        <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Users</h3>
-                <p id="totalUsers">0</p>
-            </div>
-            <div class="stat-card">
+            <div class="stat-card" style="border-top-color:#667eea;">
                 <h3>Total Employees</h3>
                 <p id="totalEmployees">0</p>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="border-top-color:#4ecdc4;">
                 <h3>Active Breaks</h3>
                 <p id="activeBreaks">0</p>
+                <div class="sub-text" id="activeBreakUsers"></div>
             </div>
-            <div class="stat-card">
-                <h3>Admins</h3>
-                <p id="adminCount">0</p>
+            <div class="stat-card" style="border-top-color:#ff6b6b;">
+                <h3>Overdue Breaks</h3>
+                <p id="overdueBreaks">0</p>
+            </div>
+            <div class="stat-card" style="border-top-color:#ffd93d;">
+                <h3>Total Users</h3>
+                <p id="totalUsers">0</p>
             </div>
         </div>
 
-        <!-- Admin Tabs -->
+        <!-- Tabs -->
         <div class="admin-tabs">
             <button class="tab-btn active" data-tab="employees">👥 Employees</button>
             <button class="tab-btn" data-tab="users">👤 Users</button>
+            <button class="tab-btn" data-tab="departments">🏢 Departments</button>
+            <button class="tab-btn" data-tab="roles">👔 Roles</button>
+            <button class="tab-btn" data-tab="breakstatus">⏱️ Break Status</button>
             <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
             <button class="tab-btn" data-tab="reports">📊 Reports</button>
         </div>
 
-        <!-- ============================================ -->
-        <!-- TAB 1: EMPLOYEES -->
-        <!-- ============================================ -->
+        <!-- ======== TAB 1: EMPLOYEES ======== -->
         <div id="tab-employees" class="tab-content active">
-            <div class="card">
-                <h2>➕ Add Employee</h2>
-                <form id="addEmployeeForm" class="admin-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="empName" required placeholder="John Doe">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="empEmail" required placeholder="john@company.com">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Department</label>
-                            <select id="empDepartment" required>
-                                <option value="Engineering">Engineering</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Sales">Sales</option>
-                                <option value="HR">HR</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Position</label>
-                            <input type="text" id="empPosition" placeholder="e.g., Senior Developer">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn-primary">Add Employee</button>
-                </form>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h2>👥 All Employees</h2>
-                    <button id="refreshEmployeesBtn" class="btn-outline">🔄 Refresh</button>
+                    <button id="addEmployeeBtn" class="btn-primary">+ Add Employee</button>
                 </div>
                 <div class="filters">
-                    <input type="text" id="empSearchInput" placeholder="Search employees...">
+                    <input type="text" id="empSearch" placeholder="Search employees...">
                     <select id="empStatusFilter">
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
@@ -96,157 +66,287 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div id="employeesList">
-                    <p class="empty">Loading employees...</p>
+                <div class="table-container">
+                    <div id="employeesList"><p class="empty">Loading...</p></div>
                 </div>
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!-- TAB 2: USERS -->
-        <!-- ============================================ -->
+        <!-- ======== TAB 2: USERS ======== -->
         <div id="tab-users" class="tab-content">
-            <div class="card">
-                <h2>➕ Create User Account</h2>
-                <form id="createUserForm" class="admin-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="userName" required placeholder="John Doe">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="userEmail" required placeholder="john@company.com">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="text" id="userPassword" required placeholder="Enter password" value="123456">
-                        </div>
-                        <div class="form-group">
-                            <label>Role</label>
-                            <select id="userRole" required>
-                                <option value="employee">Employee</option>
-                                <option value="manager">Manager</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Department</label>
-                        <select id="userDepartment" required>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Sales">Sales</option>
-                            <option value="HR">HR</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Operations">Operations</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-primary">Create User</button>
-                </form>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h2>👤 All Users</h2>
-                    <button id="deleteAllUsersBtn" class="btn-danger">🗑️ Delete All Users</button>
+                    <div>
+                        <button id="addUserBtn" class="btn-primary">+ Add User</button>
+                        <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
+                    </div>
                 </div>
-                <div id="usersList">
-                    <p class="empty">Loading users...</p>
-                </div>
+                <div id="usersList"><p class="empty">Loading...</p></div>
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!-- TAB 3: SETTINGS -->
-        <!-- ============================================ -->
+        <!-- ======== TAB 3: DEPARTMENTS ======== -->
+        <div id="tab-departments" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🏢 Departments</h2>
+                    <button id="addDeptBtn" class="btn-primary">+ Add Department</button>
+                </div>
+                <div id="departmentsList"><p class="empty">Loading...</p></div>
+            </div>
+        </div>
+
+        <!-- ======== TAB 4: ROLES ======== -->
+        <div id="tab-roles" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>👔 Roles</h2>
+                    <button id="addRoleBtn" class="btn-primary">+ Add Role</button>
+                </div>
+                <div id="rolesList"><p class="empty">Loading...</p></div>
+            </div>
+        </div>
+
+        <!-- ======== TAB 5: BREAK STATUS ======== -->
+        <div id="tab-breakstatus" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>⏱️ Current Break Status</h2>
+                    <button id="refreshBreakStatus" class="btn-outline">🔄 Refresh</button>
+                </div>
+                <div id="breakStatusList"><p class="empty">Loading...</p></div>
+            </div>
+        </div>
+
+        <!-- ======== TAB 6: SETTINGS ======== -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>⚙️ Break Settings</h2>
-                <form id="settingsForm" class="admin-form">
-                    <div class="form-group">
-                        <label>Maximum Break Duration (Minutes)</label>
-                        <input type="number" id="maxBreakMinutes" required min="1" max="120" value="30">
-                        <small style="color: #666;">Employees will be marked overdue after this time</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Break Warning Time (Minutes before overdue)</label>
-                        <input type="number" id="warningMinutes" required min="1" max="30" value="5">
-                        <small style="color: #666;">Show warning when break is this close to overdue</small>
+                <form id="settingsForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Maximum Break Duration (Minutes)</label>
+                            <input type="number" id="maxBreakMinutes" required min="1" max="120" value="30">
+                        </div>
+                        <div class="form-group">
+                            <label>Warning Time (Minutes before overdue)</label>
+                            <input type="number" id="warningMinutes" required min="1" max="30" value="5">
+                        </div>
                     </div>
                     <button type="submit" class="btn-primary">Save Settings</button>
                 </form>
             </div>
-
             <div class="card">
                 <h2>📊 Current Settings</h2>
-                <div id="currentSettings">
-                    <p>Loading...</p>
-                </div>
+                <div id="currentSettings"><p class="empty">Loading...</p></div>
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!-- TAB 4: REPORTS -->
-        <!-- ============================================ -->
+        <!-- ======== TAB 7: REPORTS ======== -->
         <div id="tab-reports" class="tab-content">
             <div class="card">
-                <h2>📊 Break Reports</h2>
-                <div class="report-filters">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Date Range</label>
-                        <input type="date" id="reportStartDate">
+                <div class="card-header">
+                    <h2>📊 Reports</h2>
+                    <button id="openReportBtn" class="btn-primary">📄 Generate Report</button>
+                </div>
+                <div id="reportResults"><p class="empty">Click Generate Report to start</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODALS -->
+    <!-- ========================================== -->
+
+    <!-- Add/Edit Employee Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
+            <h2 id="employeeModalTitle">Add Employee</h2>
+            <form id="employeeForm">
+                <input type="hidden" id="editEmpId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="empName" required placeholder="John Doe">
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>To</label>
-                        <input type="date" id="reportEndDate">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="empEmail" required placeholder="john@company.com">
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Employee</label>
-                        <select id="reportEmployee">
-                            <option value="all">All Employees</option>
-                        </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="empDepartment" required></select>
                     </div>
-                    <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                        <button id="generateReportBtn" class="btn-primary" style="width: 100%;">Generate Report</button>
+                    <div class="form-group">
+                        <label>Position</label>
+                        <input type="text" id="empPosition" placeholder="e.g., Developer">
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('employeeModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+            <h2 id="userModalTitle">Create User</h2>
+            <form id="userForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="userName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="userEmail" required placeholder="john@company.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="text" id="userPassword" required placeholder="Enter password" value="123456">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="userRole" required></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="userDepartment" required></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('userModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Department Modal -->
+    <div id="deptModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
+            <h2 id="deptModalTitle">Add Department</h2>
+            <form id="deptForm">
+                <input type="hidden" id="editDeptId">
+                <div class="form-group">
+                    <label>Department Name</label>
+                    <input type="text" id="deptName" required placeholder="e.g., Engineering">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('deptModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Role Modal -->
+    <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('roleModal')">&times;</button>
+            <h2 id="roleModalTitle">Add Role</h2>
+            <form id="roleForm">
+                <input type="hidden" id="editRoleId">
+                <div class="form-group">
+                    <label>Role Name</label>
+                    <input type="text" id="roleName" required placeholder="e.g., Sub-Admin">
+                </div>
+                <div class="form-group">
+                    <label>Permissions</label>
+                    <div style="display:flex;flex-direction:column;gap:8px;padding:8px 0;">
+                        <label><input type="checkbox" id="permCreateUser"> Create Users</label>
+                        <label><input type="checkbox" id="permDeleteUser"> Delete Users</label>
+                        <label><input type="checkbox" id="permViewAll"> View All Data</label>
+                        <label><input type="checkbox" id="permManageSettings"> Manage Settings</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('roleModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('reportModal')">&times;</button>
+            <h2>📊 Generate Report</h2>
+            <div class="report-filters">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="reportStartDate">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="reportEndDate">
+                </div>
+                <div class="form-group">
+                    <label>Employee</label>
+                    <select id="reportEmployee">
+                        <option value="all">All Employees</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Break Type</label>
+                    <select id="reportType">
+                        <option value="all">All Types</option>
+                        <option value="short">Short Break</option>
+                        <option value="lunch">Lunch Break</option>
+                        <option value="personal">Personal Break</option>
+                        <option value="meeting">Meeting</option>
+                    </select>
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h2>📋 Report Results</h2>
-                    <div>
-                        <button id="exportReportBtn" class="btn-outline">📥 Export CSV</button>
-                    </div>
-                </div>
-                <div id="reportResults">
-                    <p class="empty">Select filters and click Generate Report</p>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('reportModal')">Cancel</button>
+                <button id="generateReportBtn" class="btn-primary">Generate Report</button>
+            </div>
+            <div id="reportPreview" style="margin-top:20px;max-height:400px;overflow-y:auto;">
+                <p class="empty">Select filters and click Generate Report</p>
             </div>
         </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-content" style="max-width:400px;">
             <h2>⚠️ Confirm Delete</h2>
             <p id="deleteMessage">Are you sure you want to delete this?</p>
-            <div style="display: flex; gap: 12px; margin-top: 20px;">
-                <button id="confirmDeleteBtn" class="btn-danger" style="flex: 1;">Delete</button>
-                <button id="cancelDeleteBtn" class="btn-outline" style="flex: 1;">Cancel</button>
+            <div class="modal-footer">
+                <button id="cancelDeleteBtn" class="btn-outline">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn-danger">Delete</button>
             </div>
         </div>
     </div>
 
+    <!-- Notification Banner -->
+    <div id="notification" style="display:none;position:fixed;top:80px;right:20px;z-index:9999;background:#ff6b6b;color:white;padding:16px 24px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);max-width:400px;">
+        <strong>⚠️ Break Overdue!</strong>
+        <p id="notificationMessage" style="margin:4px 0 0;font-size:14px;"></p>
+    </div>
+
     <script>
         // ============================================
-        // ADMIN DASHBOARD - COMPLETE
+        // ADMIN DASHBOARD - COMPLETE SCRIPT
         // ============================================
 
         let deleteTarget = null;
         let deleteType = null;
+        let notificationTimeout = null;
 
         // ============================================
         // AUTH CHECK
@@ -264,6 +364,7 @@
                     return false;
                 }
                 document.getElementById('adminName').textContent = '👋 ' + (data.name || 'Admin');
+                document.getElementById('adminRole').textContent = data.role || 'Admin';
                 return true;
             } catch {
                 window.location.href = 'admin-login.html';
@@ -274,52 +375,30 @@
         // ============================================
         // DATA FUNCTIONS
         // ============================================
-        function getEmployees() {
-            return JSON.parse(localStorage.getItem('employees') || '[]');
-        }
-
-        function saveEmployees(employees) {
-            localStorage.setItem('employees', JSON.stringify(employees));
-        }
-
-        function getBreaks() {
-            return JSON.parse(localStorage.getItem('breaks') || '[]');
-        }
-
-        function saveBreaks(breaks) {
-            localStorage.setItem('breaks', JSON.stringify(breaks));
-        }
-
-        function getUsers() {
-            return JSON.parse(localStorage.getItem('appUsers') || '[]');
-        }
-
-        function saveUsers(users) {
-            localStorage.setItem('appUsers', JSON.stringify(users));
-        }
-
-        function getAdmins() {
-            return JSON.parse(localStorage.getItem('adminUsers') || '[]');
-        }
-
-        function saveAdmins(admins) {
-            localStorage.setItem('adminUsers', JSON.stringify(admins));
-        }
-
-        function getSettings() {
-            return JSON.parse(localStorage.getItem('breakSettings') || '{"maxBreakMinutes":30,"warningMinutes":5}');
-        }
-
-        function saveSettings(settings) {
-            localStorage.setItem('breakSettings', JSON.stringify(settings));
-        }
+        function getEmployees() { return JSON.parse(localStorage.getItem('employees') || '[]'); }
+        function saveEmployees(e) { localStorage.setItem('employees', JSON.stringify(e)); }
+        function getBreaks() { return JSON.parse(localStorage.getItem('breaks') || '[]'); }
+        function saveBreaks(b) { localStorage.setItem('breaks', JSON.stringify(b)); }
+        function getUsers() { return JSON.parse(localStorage.getItem('appUsers') || '[]'); }
+        function saveUsers(u) { localStorage.setItem('appUsers', JSON.stringify(u)); }
+        function getAdmins() { return JSON.parse(localStorage.getItem('adminUsers') || '[]'); }
+        function saveAdmins(a) { localStorage.setItem('adminUsers', JSON.stringify(a)); }
+        function getDepartments() { return JSON.parse(localStorage.getItem('departments') || '["Engineering","Marketing","Sales","HR","Finance","Operations"]'); }
+        function saveDepartments(d) { localStorage.setItem('departments', JSON.stringify(d)); }
+        function getRoles() { return JSON.parse(localStorage.getItem('roles') || '[]'); }
+        function saveRoles(r) { localStorage.setItem('roles', JSON.stringify(r)); }
+        function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"maxBreakMinutes":30,"warningMinutes":5}'); }
+        function saveSettings(s) { localStorage.setItem('breakSettings', JSON.stringify(s)); }
 
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
             const end = endTime ? new Date(endTime) : new Date();
             const diff = Math.floor((end - start) / 1000);
+            if (diff < 0) return '0m 0s';
             const mins = Math.floor(diff / 60);
             const secs = diff % 60;
+            if (mins === 0) return `${secs}s`;
+            if (secs === 0) return `${mins}m`;
             return `${mins}m ${secs}s`;
         }
 
@@ -332,91 +411,86 @@
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                const tab = this.dataset.tab;
+                if (tab === 'employees') loadEmployees();
+                else if (tab === 'users') loadUsers();
+                else if (tab === 'departments') loadDepartments();
+                else if (tab === 'roles') loadRoles();
+                else if (tab === 'breakstatus') loadBreakStatus();
+                else if (tab === 'settings') loadSettings();
             });
         });
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        window.addEventListener('click', function(e) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (e.target === modal) modal.style.display = 'none';
+            });
+        });
+
+        // ============================================
+        // NOTIFICATION
+        // ============================================
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            document.getElementById('notificationMessage').textContent = message;
+            notification.style.display = 'block';
+            if (notificationTimeout) clearTimeout(notificationTimeout);
+            notificationTimeout = setTimeout(() => { notification.style.display = 'none'; }, 10000);
+        }
+
+        function checkOverdueBreaks() {
+            const breaks = getBreaks();
+            const employees = getEmployees();
+            const settings = getSettings();
+            const maxMinutes = settings.maxBreakMinutes || 30;
+            const activeBreaks = breaks.filter(b => b.status === 'active');
+            const overdue = activeBreaks.filter(b => {
+                const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                return elapsed > maxMinutes;
+            });
+            if (overdue.length > 0) {
+                const names = overdue.map(b => {
+                    const emp = employees.find(e => e.id === b.employee_id);
+                    return emp?.name || 'Unknown';
+                }).join(', ');
+                showNotification(`⏰ ${overdue.length} employee(s) exceeded break time: ${names}`);
+            }
+        }
 
         // ============================================
         // EMPLOYEE FUNCTIONS
         // ============================================
         function loadEmployees() {
             const employees = getEmployees();
-            const searchTerm = document.getElementById('empSearchInput').value.toLowerCase();
+            const search = document.getElementById('empSearch').value.toLowerCase();
             const statusFilter = document.getElementById('empStatusFilter').value;
-            
             let filtered = employees;
-            
-            if (searchTerm) {
-                filtered = filtered.filter(e => 
-                    e.name.toLowerCase().includes(searchTerm) || 
-                    e.email.toLowerCase().includes(searchTerm) ||
-                    e.department.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (statusFilter !== 'all') {
-                filtered = filtered.filter(e => e.status === statusFilter);
-            }
-            
+            if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.email.toLowerCase().includes(search) || e.department.toLowerCase().includes(search));
+            if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
             const list = document.getElementById('employeesList');
-            
-            if (filtered.length === 0) {
-                list.innerHTML = '<p class="empty">No employees found</p>';
-                return;
-            }
-            
-            let html = '<table class="history-table"><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Position</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-            
+            if (filtered.length === 0) { list.innerHTML = '<p class="empty">No employees found</p>'; return; }
+            let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Position</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
             filtered.forEach(e => {
-                const statusColor = e.status === 'on_break' ? 'orange' : (e.status === 'inactive' ? 'red' : 'green');
-                html += `<tr>
-                    <td><strong>${e.name}</strong></td>
-                    <td>${e.email}</td>
-                    <td>${e.department}</td>
-                    <td>${e.position || 'N/A'}</td>
-                    <td><span class="badge ${statusColor}">${e.status || 'active'}</span></td>
-                    <td>
-                        <button class="btn-small btn-edit edit-emp" data-id="${e.id}">✏️</button>
-                        <button class="btn-small btn-delete delete-emp" data-id="${e.id}" data-name="${e.name}">🗑️</button>
-                    </td>
-                </tr>`;
+                const statusColor = e.status === 'on_break' ? 'badge-orange' : (e.status === 'inactive' ? 'badge-red' : 'badge-green');
+                html += `<tr><td><strong>${e.name}</strong></td><td>${e.email}</td><td>${e.department}</td><td>${e.position || 'N/A'}</td><td><span class="badge ${statusColor}">${e.status || 'active'}</span></td>
+                    <td><button class="btn-primary btn-sm" onclick="editEmployee('${e.id}')">✏️</button>
+                    <button class="btn-danger btn-sm" onclick="confirmDelete('employee','${e.id}','${e.name}')">🗑️</button></td></tr>`;
             });
-            
             html += '</tbody></table>';
             list.innerHTML = html;
-            
-            document.querySelectorAll('.delete-emp').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    deleteTarget = this.dataset.id;
-                    deleteType = 'employee';
-                    document.getElementById('deleteMessage').textContent = `Delete employee "${this.dataset.name}"?`;
-                    document.getElementById('deleteModal').style.display = 'block';
-                });
-            });
-            
-            document.querySelectorAll('.edit-emp').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    editEmployee(this.dataset.id);
-                });
-            });
         }
 
         function addEmployee(data) {
             const employees = getEmployees();
-            const newEmp = {
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                ...data,
-                status: 'active',
-                created_at: new Date().toISOString()
-            };
+            const newEmp = { id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), ...data, status: 'active', created_at: new Date().toISOString() };
             employees.push(newEmp);
             saveEmployees(employees);
             return newEmp;
-        }
-
-        function deleteEmployee(id) {
-            let employees = getEmployees();
-            employees = employees.filter(e => e.id !== id);
-            saveEmployees(employees);
         }
 
         function updateEmployee(id, data) {
@@ -428,19 +502,37 @@
             return employees[index];
         }
 
+        function deleteEmployee(id) {
+            let employees = getEmployees();
+            employees = employees.filter(e => e.id !== id);
+            saveEmployees(employees);
+        }
+
         function editEmployee(id) {
             const employees = getEmployees();
             const emp = employees.find(e => e.id === id);
             if (!emp) return;
-            
+            document.getElementById('editEmpId').value = id;
+            document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
             document.getElementById('empName').value = emp.name;
             document.getElementById('empEmail').value = emp.email;
             document.getElementById('empDepartment').value = emp.department;
             document.getElementById('empPosition').value = emp.position || '';
-            
-            document.getElementById('addEmployeeForm').dataset.editId = id;
-            document.querySelector('#addEmployeeForm button').textContent = 'Update Employee';
+            openModal('employeeModal');
         }
+
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editEmpId').value;
+            const data = { name: document.getElementById('empName').value, email: document.getElementById('empEmail').value, department: document.getElementById('empDepartment').value, position: document.getElementById('empPosition').value };
+            if (id) { updateEmployee(id, data); alert('✅ Employee updated!'); } else { addEmployee(data); alert('✅ Employee added!'); }
+            closeModal('employeeModal');
+            this.reset();
+            document.getElementById('editEmpId').value = '';
+            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+            loadEmployees();
+            loadStats();
+        });
 
         // ============================================
         // USER FUNCTIONS
@@ -449,60 +541,30 @@
             const users = getUsers();
             const admins = getAdmins();
             const allUsers = [...users, ...admins];
-            
             const list = document.getElementById('usersList');
-            
-            if (allUsers.length === 0) {
-                list.innerHTML = '<p class="empty">No users found</p>';
-                return;
-            }
-            
-            let html = '<table class="history-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
-            
+            if (allUsers.length === 0) { list.innerHTML = '<p class="empty">No users found</p>'; return; }
+            let html = `<table><thead><tr><th><input type="checkbox" id="selectAllUsers"></th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Actions</th></tr></thead><tbody>`;
             allUsers.forEach(u => {
                 const isAdmin = u.role === 'admin';
-                html += `<tr>
-                    <td><strong>${u.name}</strong></td>
-                    <td>${u.email}</td>
-                    <td><span class="badge ${isAdmin ? 'orange' : 'green'}">${u.role || 'employee'}</span></td>
+                html += `<tr><td>${!isAdmin ? `<input type="checkbox" class="user-checkbox" value="${u.id}">` : ''}</td>
+                    <td><strong>${u.name}</strong></td><td>${u.email}</td>
+                    <td><span class="badge ${isAdmin ? 'badge-orange' : 'badge-blue'}">${u.role || 'employee'}</span></td>
                     <td>${u.department || 'N/A'}</td>
-                    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                        ${!isAdmin ? `<button class="btn-small btn-delete delete-user" data-id="${u.id}" data-name="${u.name}">🗑️</button>` : '<span class="badge orange">Protected</span>'}
-                    </td>
-                </tr>`;
+                    <td>${!isAdmin ? `<button class="btn-danger btn-sm" onclick="confirmDelete('user','${u.id}','${u.name}')">🗑️</button>` : '<span class="badge badge-orange">Protected</span>'}</td></tr>`;
             });
-            
             html += '</tbody></table>';
             list.innerHTML = html;
-            
-            document.querySelectorAll('.delete-user').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    deleteTarget = this.dataset.id;
-                    deleteType = 'user';
-                    document.getElementById('deleteMessage').textContent = `Delete user "${this.dataset.name}"?`;
-                    document.getElementById('deleteModal').style.display = 'block';
-                });
+            document.getElementById('selectAllUsers')?.addEventListener('change', function() {
+                document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
             });
         }
 
         function createUser(name, email, password, role, department) {
             const users = getUsers();
-            if (users.find(u => u.email === email)) {
-                alert('❌ User already exists!');
-                return false;
-            }
+            if (users.find(u => u.email === email)) { alert('❌ User already exists!'); return false; }
             const admins = getAdmins();
-            if (admins.find(a => a.email === email)) {
-                alert('❌ User already exists as admin!');
-                return false;
-            }
-            
-            const newUser = {
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                name, email, password, role, department,
-                created_at: new Date().toISOString()
-            };
+            if (admins.find(a => a.email === email)) { alert('❌ User already exists as admin!'); return false; }
+            const newUser = { id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name, email, password, role, department, created_at: new Date().toISOString() };
             users.push(newUser);
             saveUsers(users);
             return true;
@@ -511,27 +573,153 @@
         function deleteUser(id) {
             let users = getUsers();
             const user = users.find(u => u.id === id);
-            if (user && user.role === 'admin') {
-                alert('Cannot delete admin users!');
-                return;
-            }
+            if (user && user.role === 'admin') { alert('Cannot delete admin users!'); return; }
             users = users.filter(u => u.id !== id);
             saveUsers(users);
         }
 
-        function deleteAllUsers() {
-            let users = getUsers();
-            const nonAdmin = users.filter(u => u.role !== 'admin');
-            if (nonAdmin.length === 0) {
-                alert('No non-admin users to delete!');
-                return;
-            }
-            if (confirm(`Delete ALL ${nonAdmin.length} non-admin users?`)) {
-                const admins = users.filter(u => u.role === 'admin');
-                saveUsers(admins);
+        function deleteSelectedUsers() {
+            const selected = document.querySelectorAll('.user-checkbox:checked');
+            if (selected.length === 0) { alert('Please select users to delete!'); return; }
+            if (confirm(`Delete ${selected.length} selected user(s)?`)) {
+                selected.forEach(cb => deleteUser(cb.value));
                 loadUsers();
-                alert(`✅ Deleted ${nonAdmin.length} users!`);
+                loadStats();
+                alert(`✅ Deleted ${selected.length} users!`);
             }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const role = document.getElementById('userRole').value;
+            const department = document.getElementById('userDepartment').value;
+            if (createUser(name, email, password, role, department)) {
+                alert(`✅ User created!\nName: ${name}\nEmail: ${email}\nPassword: ${password}`);
+                this.reset();
+                document.getElementById('userPassword').value = '123456';
+                closeModal('userModal');
+                loadUsers();
+                loadStats();
+            }
+        });
+
+        // ============================================
+        // DEPARTMENT FUNCTIONS
+        // ============================================
+        function loadDepartments() {
+            const depts = getDepartments();
+            const list = document.getElementById('departmentsList');
+            if (depts.length === 0) { list.innerHTML = '<p class="empty">No departments found</p>'; return; }
+            let html = '';
+            depts.forEach((d, i) => {
+                html += `<div class="config-item"><span><strong>${d}</strong></span>
+                    <div class="actions"><button class="btn-warning btn-sm" onclick="editDepartment(${i})">✏️</button>
+                    <button class="btn-danger btn-sm" onclick="confirmDelete('department',${i},'${d}')">🗑️</button></div></div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function addDepartment(name) { const depts = getDepartments(); depts.push(name); saveDepartments(depts); loadDepartments(); loadEmployeeDepartments(); loadUserDepartments(); }
+        function updateDepartment(index, name) { const depts = getDepartments(); if (index >= 0 && index < depts.length) { depts[index] = name; saveDepartments(depts); loadDepartments(); loadEmployeeDepartments(); loadUserDepartments(); } }
+        function deleteDepartment(index) { let depts = getDepartments(); depts.splice(index, 1); saveDepartments(depts); loadDepartments(); loadEmployeeDepartments(); loadUserDepartments(); }
+        function editDepartment(index) { const depts = getDepartments(); document.getElementById('editDeptId').value = index; document.getElementById('deptModalTitle').textContent = 'Edit Department'; document.getElementById('deptName').value = depts[index]; openModal('deptModal'); }
+
+        document.getElementById('deptForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const index = document.getElementById('editDeptId').value;
+            const name = document.getElementById('deptName').value;
+            if (index !== '') { updateDepartment(parseInt(index), name); alert('✅ Department updated!'); } else { addDepartment(name); alert('✅ Department added!'); }
+            closeModal('deptModal');
+            this.reset();
+            document.getElementById('editDeptId').value = '';
+            document.getElementById('deptModalTitle').textContent = 'Add Department';
+        });
+
+        // ============================================
+        // ROLE FUNCTIONS
+        // ============================================
+        function loadRoles() {
+            const roles = getRoles();
+            const list = document.getElementById('rolesList');
+            if (roles.length === 0) { list.innerHTML = '<p class="empty">No roles found</p>'; return; }
+            let html = '';
+            roles.forEach((r, i) => {
+                const perms = [];
+                if (r.createUser) perms.push('👤 Create Users');
+                if (r.deleteUser) perms.push('🗑️ Delete Users');
+                if (r.viewAll) perms.push('👁️ View All');
+                if (r.manageSettings) perms.push('⚙️ Manage Settings');
+                html += `<div class="config-item"><div><strong>${r.name}</strong><div style="font-size:12px;color:#666;margin-top:2px;">${perms.join(' • ') || 'No permissions'}</div></div>
+                    <div class="actions"><button class="btn-warning btn-sm" onclick="editRole(${i})">✏️</button>
+                    <button class="btn-danger btn-sm" onclick="confirmDelete('role',${i},'${r.name}')">🗑️</button></div></div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function addRole(data) { const roles = getRoles(); roles.push(data); saveRoles(roles); loadRoles(); loadUserRoles(); }
+        function updateRole(index, data) { const roles = getRoles(); if (index >= 0 && index < roles.length) { roles[index] = data; saveRoles(roles); loadRoles(); loadUserRoles(); } }
+        function deleteRole(index) { let roles = getRoles(); roles.splice(index, 1); saveRoles(roles); loadRoles(); loadUserRoles(); }
+        function editRole(index) { const roles = getRoles(); const r = roles[index]; document.getElementById('editRoleId').value = index; document.getElementById('roleModalTitle').textContent = 'Edit Role'; document.getElementById('roleName').value = r.name; document.getElementById('permCreateUser').checked = r.createUser || false; document.getElementById('permDeleteUser').checked = r.deleteUser || false; document.getElementById('permViewAll').checked = r.viewAll || false; document.getElementById('permManageSettings').checked = r.manageSettings || false; openModal('roleModal'); }
+
+        document.getElementById('roleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const index = document.getElementById('editRoleId').value;
+            const data = { name: document.getElementById('roleName').value, createUser: document.getElementById('permCreateUser').checked, deleteUser: document.getElementById('permDeleteUser').checked, viewAll: document.getElementById('permViewAll').checked, manageSettings: document.getElementById('permManageSettings').checked };
+            if (index !== '') { updateRole(parseInt(index), data); alert('✅ Role updated!'); } else { addRole(data); alert('✅ Role added!'); }
+            closeModal('roleModal');
+            this.reset();
+            document.getElementById('editRoleId').value = '';
+            document.getElementById('roleModalTitle').textContent = 'Add Role';
+        });
+
+        // ============================================
+        // BREAK STATUS FUNCTIONS
+        // ============================================
+        function loadBreakStatus() {
+            const breaks = getBreaks();
+            const employees = getEmployees();
+            const settings = getSettings();
+            const maxMinutes = settings.maxBreakMinutes || 30;
+            const active = breaks.filter(b => b.status === 'active');
+            const list = document.getElementById('breakStatusList');
+            if (active.length === 0) { list.innerHTML = '<p class="empty">✅ No one is on break</p>'; return; }
+            let html = '<div class="break-status-grid">';
+            active.forEach(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                const isOverdue = elapsed > maxMinutes;
+                const duration = formatDuration(b.start_time);
+                html += `<div class="break-status-card ${isOverdue ? 'overdue' : ''}">
+                    <div class="name">${emp?.name || 'Unknown'}</div>
+                    <div class="dept">${emp?.department || 'N/A'} • ${emp?.position || 'No position'}</div>
+                    <div class="time">⏱️ ${duration} elapsed</div>
+                    <div class="time">${isOverdue ? `⚠️ Overdue! (${elapsed}/${maxMinutes} min)` : `✅ Within limit (${elapsed}/${maxMinutes} min)`}</div>
+                    <div style="margin-top:8px;"><button class="btn-danger btn-sm" onclick="endBreakFromAdmin('${b.id}','${b.employee_id}')">End Break</button></div>
+                </div>`;
+            });
+            html += '</div>';
+            list.innerHTML = html;
+        }
+
+        function endBreakFromAdmin(breakId, employeeId) {
+            if (!confirm('End this break?')) return;
+            let breaks = getBreaks();
+            const index = breaks.findIndex(b => b.id === breakId);
+            if (index === -1) return;
+            const endTime = new Date().toISOString();
+            const startTime = new Date(breaks[index].start_time);
+            const duration = Math.floor((new Date(endTime) - startTime) / 1000);
+            breaks[index] = { ...breaks[index], end_time: endTime, status: 'completed', duration: duration };
+            saveBreaks(breaks);
+            const employees = getEmployees();
+            const emp = employees.find(e => e.id === employeeId);
+            if (emp) { emp.status = 'active'; saveEmployees(employees); }
+            loadBreakStatus();
+            loadStats();
+            alert('✅ Break ended!');
         }
 
         // ============================================
@@ -541,21 +729,20 @@
             const settings = getSettings();
             document.getElementById('maxBreakMinutes').value = settings.maxBreakMinutes || 30;
             document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
-            
             document.getElementById('currentSettings').innerHTML = `
-                <div class="settings-display">
-                    <p><strong>Maximum Break Duration:</strong> ${settings.maxBreakMinutes || 30} minutes</p>
-                    <p><strong>Warning Time:</strong> ${settings.warningMinutes || 5} minutes before overdue</p>
-                </div>
+                <div class="config-item"><span>Maximum Break Duration</span><span><strong>${settings.maxBreakMinutes || 30} minutes</strong></span></div>
+                <div class="config-item"><span>Warning Time</span><span><strong>${settings.warningMinutes || 5} minutes before overdue</strong></span></div>
             `;
         }
 
-        function saveSettingsData(maxBreakMinutes, warningMinutes) {
-            const settings = { maxBreakMinutes, warningMinutes };
-            saveSettings(settings);
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const maxBreakMinutes = parseInt(document.getElementById('maxBreakMinutes').value);
+            const warningMinutes = parseInt(document.getElementById('warningMinutes').value);
+            saveSettings({ maxBreakMinutes, warningMinutes });
             loadSettings();
             alert('✅ Settings saved successfully!');
-        }
+        });
 
         // ============================================
         // REPORT FUNCTIONS
@@ -564,87 +751,33 @@
             const employees = getEmployees();
             const select = document.getElementById('reportEmployee');
             select.innerHTML = '<option value="all">All Employees</option>';
-            employees.forEach(e => {
-                select.innerHTML += `<option value="${e.id}">${e.name} (${e.department})</option>`;
-            });
+            employees.forEach(e => { select.innerHTML += `<option value="${e.id}">${e.name} (${e.department})</option>`; });
         }
 
         function generateReport() {
             const startDate = document.getElementById('reportStartDate').value;
             const endDate = document.getElementById('reportEndDate').value;
             const employeeId = document.getElementById('reportEmployee').value;
-            
+            const type = document.getElementById('reportType').value;
             let breaks = getBreaks();
             const employees = getEmployees();
-            
-            // Filter by date
-            if (startDate) {
-                breaks = breaks.filter(b => b.start_time >= startDate);
-            }
-            if (endDate) {
-                const endDateObj = new Date(endDate);
-                endDateObj.setDate(endDateObj.getDate() + 1);
-                breaks = breaks.filter(b => new Date(b.start_time) <= endDateObj);
-            }
-            
-            // Filter by employee
-            if (employeeId !== 'all') {
-                breaks = breaks.filter(b => b.employee_id === employeeId);
-            }
-            
-            const results = document.getElementById('reportResults');
-            
-            if (breaks.length === 0) {
-                results.innerHTML = '<p class="empty">No breaks found for the selected filters</p>';
-                return;
-            }
-            
-            let html = '<table class="history-table"><thead><tr><th>Employee</th><th>Department</th><th>Break Type</th><th>Start</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
-            
+            if (startDate) breaks = breaks.filter(b => b.start_time >= startDate);
+            if (endDate) { const endDateObj = new Date(endDate); endDateObj.setDate(endDateObj.getDate() + 1); breaks = breaks.filter(b => new Date(b.start_time) <= endDateObj); }
+            if (employeeId !== 'all') breaks = breaks.filter(b => b.employee_id === employeeId);
+            if (type !== 'all') breaks = breaks.filter(b => b.break_type === type);
+            const preview = document.getElementById('reportPreview');
+            if (breaks.length === 0) { preview.innerHTML = '<p class="empty">No breaks found</p>'; return; }
+            let html = `<table><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Start</th><th>Duration</th><th>Status</th></tr></thead><tbody>`;
             breaks.forEach(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
                 const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                const statusColor = b.status === 'active' ? 'orange' : 'green';
-                html += `<tr>
-                    <td>${emp?.name || 'Unknown'}</td>
-                    <td>${emp?.department || 'N/A'}</td>
-                    <td>${b.break_type || 'short'}</td>
-                    <td>${new Date(b.start_time).toLocaleString()}</td>
-                    <td>${duration}</td>
-                    <td><span class="badge ${statusColor}">${b.status}</span></td>
-                </tr>`;
+                const statusColor = b.status === 'active' ? 'badge-orange' : 'badge-green';
+                html += `<tr><td>${emp?.name || 'Unknown'}</td><td>${emp?.department || 'N/A'}</td><td>${b.break_type || 'short'}</td><td>${new Date(b.start_time).toLocaleString()}</td><td>${duration}</td><td><span class="badge ${statusColor}">${b.status}</span></td></tr>`;
             });
-            
             html += '</tbody></table>';
-            results.innerHTML = html;
-            
-            // Store report data for export
+            preview.innerHTML = html;
             window._reportData = breaks;
-        }
-
-        function exportReport() {
-            const data = window._reportData || [];
-            if (data.length === 0) {
-                alert('No data to export! Generate a report first.');
-                return;
-            }
-            
-            const employees = getEmployees();
-            let csv = 'Employee,Department,Break Type,Start,Duration,Status\n';
-            
-            data.forEach(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${b.break_type || 'short'},${new Date(b.start_time).toLocaleString()},${duration},${b.status}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `break_report_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
+            alert(`✅ Report generated! ${breaks.length} records found.`);
         }
 
         // ============================================
@@ -655,145 +788,150 @@
             const users = getUsers();
             const admins = getAdmins();
             const breaks = getBreaks();
+            const settings = getSettings();
+            const maxMinutes = settings.maxBreakMinutes || 30;
             const activeBreaks = breaks.filter(b => b.status === 'active');
-            
+            const overdue = activeBreaks.filter(b => { const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000); return elapsed > maxMinutes; });
             document.getElementById('totalEmployees').textContent = employees.length;
-            document.getElementById('totalUsers').textContent = users.length + admins.length;
             document.getElementById('activeBreaks').textContent = activeBreaks.length;
-            document.getElementById('adminCount').textContent = admins.length;
+            document.getElementById('overdueBreaks').textContent = overdue.length;
+            document.getElementById('totalUsers').textContent = users.length + admins.length;
+            const names = activeBreaks.map(b => { const emp = employees.find(e => e.id === b.employee_id); return emp?.name || 'Unknown'; });
+            document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
+        }
+
+        // ============================================
+        // DELETE CONFIRMATION
+        // ============================================
+        function confirmDelete(type, id, name) {
+            deleteTarget = id;
+            deleteType = type;
+            document.getElementById('deleteMessage').textContent = `Delete "${name}"? This cannot be undone!`;
+            openModal('deleteModal');
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (deleteType === 'employee') { deleteEmployee(deleteTarget); loadEmployees(); }
+            else if (deleteType === 'user') { deleteUser(deleteTarget); loadUsers(); }
+            else if (deleteType === 'department') { deleteDepartment(parseInt(deleteTarget)); }
+            else if (deleteType === 'role') { deleteRole(parseInt(deleteTarget)); }
+            loadStats();
+            closeModal('deleteModal');
+            deleteTarget = null;
+            deleteType = null;
+            alert('✅ Deleted successfully!');
+        });
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            closeModal('deleteModal');
+            deleteTarget = null;
+            deleteType = null;
+        });
+
+        // ============================================
+        // UTILITY LOAD FUNCTIONS
+        // ============================================
+        function loadEmployeeDepartments() {
+            const depts = getDepartments();
+            const select = document.getElementById('empDepartment');
+            select.innerHTML = '';
+            depts.forEach(d => { select.innerHTML += `<option value="${d}">${d}</option>`; });
+        }
+
+        function loadUserDepartments() {
+            const depts = getDepartments();
+            const select = document.getElementById('userDepartment');
+            select.innerHTML = '';
+            depts.forEach(d => { select.innerHTML += `<option value="${d}">${d}</option>`; });
+        }
+
+        function loadUserRoles() {
+            const roles = getRoles();
+            const select = document.getElementById('userRole');
+            select.innerHTML = '<option value="employee">Employee</option>';
+            roles.forEach(r => { if (r.name !== 'Admin' && r.name !== 'admin') { select.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`; } });
         }
 
         // ============================================
         // EVENT LISTENERS
         // ============================================
-
-        // Add/Edit Employee
-        document.getElementById('addEmployeeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const editId = this.dataset.editId;
-            const data = {
-                name: document.getElementById('empName').value,
-                email: document.getElementById('empEmail').value,
-                department: document.getElementById('empDepartment').value,
-                position: document.getElementById('empPosition').value
-            };
-            
-            if (editId) {
-                updateEmployee(editId, data);
-                alert('✅ Employee updated!');
-                delete this.dataset.editId;
-                document.querySelector('#addEmployeeForm button').textContent = 'Add Employee';
-            } else {
-                addEmployee(data);
-                alert('✅ Employee added!');
-            }
-            
-            this.reset();
-            loadEmployees();
-            loadStats();
+        document.getElementById('addEmployeeBtn').addEventListener('click', function() {
+            document.getElementById('editEmpId').value = '';
+            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+            document.getElementById('employeeForm').reset();
+            openModal('employeeModal');
         });
 
-        // Create User
-        document.getElementById('createUserForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('userName').value;
-            const email = document.getElementById('userEmail').value;
-            const password = document.getElementById('userPassword').value;
-            const role = document.getElementById('userRole').value;
-            const department = document.getElementById('userDepartment').value;
-            
-            if (createUser(name, email, password, role, department)) {
-                alert(`✅ User created!\n\nName: ${name}\nEmail: ${email}\nPassword: ${password}`);
-                this.reset();
-                document.getElementById('userPassword').value = '123456';
-                loadUsers();
-                loadStats();
-            }
+        document.getElementById('addUserBtn').addEventListener('click', function() {
+            document.getElementById('editUserId').value = '';
+            document.getElementById('userModalTitle').textContent = 'Create User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userPassword').value = '123456';
+            openModal('userModal');
         });
 
-        // Settings
-        document.getElementById('settingsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const maxBreakMinutes = parseInt(document.getElementById('maxBreakMinutes').value);
-            const warningMinutes = parseInt(document.getElementById('warningMinutes').value);
-            saveSettingsData(maxBreakMinutes, warningMinutes);
+        document.getElementById('addDeptBtn').addEventListener('click', function() {
+            document.getElementById('editDeptId').value = '';
+            document.getElementById('deptModalTitle').textContent = 'Add Department';
+            document.getElementById('deptForm').reset();
+            openModal('deptModal');
         });
 
-        // Reports
-        document.getElementById('generateReportBtn').addEventListener('click', generateReport);
-        document.getElementById('exportReportBtn').addEventListener('click', exportReport);
-
-        // Delete All Users
-        document.getElementById('deleteAllUsersBtn').addEventListener('click', deleteAllUsers);
-
-        // Refresh Employees
-        document.getElementById('refreshEmployeesBtn').addEventListener('click', function() {
-            loadEmployees();
-            alert('✅ Employees refreshed!');
+        document.getElementById('addRoleBtn').addEventListener('click', function() {
+            document.getElementById('editRoleId').value = '';
+            document.getElementById('roleModalTitle').textContent = 'Add Role';
+            document.getElementById('roleForm').reset();
+            openModal('roleModal');
         });
 
-        // Search and Filter
-        document.getElementById('empSearchInput').addEventListener('input', loadEmployees);
-        document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
+        document.getElementById('deleteSelectedUsersBtn').addEventListener('click', deleteSelectedUsers);
+        document.getElementById('refreshBreakStatus').addEventListener('click', function() { loadBreakStatus(); alert('✅ Break status refreshed!'); });
 
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.removeItem('adminSession');
-            window.location.href = 'admin-login.html';
-        });
-
-        // Modal
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteType === 'employee') {
-                deleteEmployee(deleteTarget);
-                loadEmployees();
-            } else if (deleteType === 'user') {
-                deleteUser(deleteTarget);
-                loadUsers();
-            }
-            loadStats();
-            document.getElementById('deleteModal').style.display = 'none';
-            deleteTarget = null;
-            deleteType = null;
-        });
-
-        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-            document.getElementById('deleteModal').style.display = 'none';
-            deleteTarget = null;
-            deleteType = null;
-        });
-
-        window.addEventListener('click', function(e) {
-            if (e.target === document.getElementById('deleteModal')) {
-                document.getElementById('deleteModal').style.display = 'none';
-                deleteTarget = null;
-                deleteType = null;
-            }
-        });
-
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        if (checkAuth()) {
-            // Initialize default settings if not exists
-            if (!localStorage.getItem('breakSettings')) {
-                saveSettings({ maxBreakMinutes: 30, warningMinutes: 5 });
-            }
-            
-            loadStats();
-            loadEmployees();
-            loadUsers();
-            loadSettings();
+        document.getElementById('openReportBtn').addEventListener('click', function() {
             loadReportEmployees();
-            
-            // Set default dates for report
             const today = new Date();
             const weekAgo = new Date(today);
             weekAgo.setDate(weekAgo.getDate() - 7);
             document.getElementById('reportStartDate').value = weekAgo.toISOString().split('T')[0];
             document.getElementById('reportEndDate').value = today.toISOString().split('T')[0];
+            document.getElementById('reportPreview').innerHTML = '<p class="empty">Select filters and click Generate Report</p>';
+            openModal('reportModal');
+        });
+
+        document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('adminSession');
+            window.location.href = 'admin-login.html';
+        });
+
+        document.getElementById('empSearch').addEventListener('input', loadEmployees);
+        document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        if (checkAuth()) {
+            if (!localStorage.getItem('breakSettings')) saveSettings({ maxBreakMinutes: 30, warningMinutes: 5 });
+            if (!localStorage.getItem('departments')) saveDepartments(['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations']);
+            if (!localStorage.getItem('roles')) saveRoles([
+                { name: 'Sub-Admin', createUser: true, deleteUser: true, viewAll: true, manageSettings: false },
+                { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
+            ]);
+            loadEmployeeDepartments();
+            loadUserDepartments();
+            loadUserRoles();
+            loadStats();
+            loadEmployees();
+            loadUsers();
+            loadDepartments();
+            loadRoles();
+            loadBreakStatus();
+            loadSettings();
+            loadReportEmployees();
+            setInterval(() => { checkOverdueBreaks(); loadStats(); loadBreakStatus(); }, 30000);
+            setTimeout(checkOverdueBreaks, 5000);
+            console.log('✅ Admin Dashboard loaded!');
         }
     </script>
 </body>
