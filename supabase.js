@@ -304,3 +304,70 @@ export function formatDuration(startTime, endTime = null) {
   const secs = diff % 60
   return `${mins}m ${secs}s`
 }
+// ============================================
+// ADMIN FUNCTIONS (Add to supabase.js)
+// ============================================
+
+/**
+ * Check if current user is admin
+ */
+export async function isAdmin() {
+    try {
+        const user = await getCurrentUser()
+        if (!user) return false
+        
+        const { data } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+        
+        return data?.role === 'admin'
+    } catch (error) {
+        return false
+    }
+}
+
+/**
+ * Get admin password from settings
+ */
+export async function getAdminPassword() {
+    try {
+        const { data } = await supabase
+            .from('admin_settings')
+            .select('setting_value')
+            .eq('setting_key', 'admin_password')
+            .single()
+        
+        return data?.setting_value || '535680'
+    } catch (error) {
+        return '535680'
+    }
+}
+
+/**
+ * Check admin credentials
+ */
+export async function verifyAdmin(email, password) {
+    try {
+        // Check if user is admin
+        const { data: user } = await supabase
+            .from('users')
+            .select('id, role')
+            .eq('email', email)
+            .eq('role', 'admin')
+            .single()
+        
+        if (!user) return { success: false, error: 'Not an admin account' }
+        
+        // Check password
+        const adminPassword = await getAdminPassword()
+        if (password !== adminPassword) {
+            return { success: false, error: 'Invalid password' }
+        }
+        
+        return { success: true, userId: user.id }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+}
