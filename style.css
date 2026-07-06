@@ -103,6 +103,32 @@ body {
 }
 
 /* ============================================
+   CARDS
+   ============================================ */
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.card h2 {
+    font-size: 18px;
+    color: #1a1a2e;
+    margin: 0 0 16px 0;
+}
+
+/* ============================================
    STATS
    ============================================ */
 .stats-grid {
@@ -138,75 +164,6 @@ body {
     font-size: 12px;
     color: #999;
     margin-top: 4px;
-}
-
-/* ============================================
-   CARDS
-   ============================================ */
-.card {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    margin-bottom: 24px;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.card h2 {
-    font-size: 18px;
-    color: #1a1a2e;
-    margin: 0 0 16px 0;
-}
-
-/* ============================================
-   ADMIN TABS
-   ============================================ */
-.admin-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    background: white;
-    padding: 12px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.tab-btn {
-    padding: 10px 20px;
-    border: none;
-    background: #f0f2f5;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
-    color: #555;
-}
-
-.tab-btn:hover {
-    background: #e0e0e0;
-}
-
-.tab-btn.active {
-    background: #667eea;
-    color: white;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
 }
 
 /* ============================================
@@ -298,28 +255,55 @@ body {
     width: 100%;
 }
 
+/* ============================================
+   BREAK ACTION BUTTONS (User Dashboard)
+   ============================================ */
 .btn-start-break {
     background: #4ecdc4;
     color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 150px;
 }
 
-.btn-start-break:hover {
+.btn-start-break:hover:not(:disabled) {
     background: #45b7b0;
+    transform: scale(1.02);
+}
+
+.btn-start-break:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .btn-end-break {
     background: #ff6b6b;
     color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 150px;
 }
 
-.btn-end-break:hover {
+.btn-end-break:hover:not(:disabled) {
     background: #e55a5a;
+    transform: scale(1.02);
 }
 
-.btn-start-break:disabled,
 .btn-end-break:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
 
 /* ============================================
@@ -410,6 +394,49 @@ body {
 .badge-purple { background: #a29bfe; }
 
 /* ============================================
+   ADMIN TABS
+   ============================================ */
+.admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: #f0f2f5;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+    color: #555;
+}
+
+.tab-btn:hover {
+    background: #e0e0e0;
+}
+
+.tab-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ============================================
    TABLES
    ============================================ */
 .table-container {
@@ -439,111 +466,6 @@ table tr:hover {
     background: #f8f9fa;
 }
 
-/* ============================================
-   BREAK WALL
-   ============================================ */
-.break-wall {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.break-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #4ecdc4;
-    transition: transform 0.2s;
-}
-
-.break-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.break-card.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.break-card-header .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.break-card-header h3 {
-    font-size: 16px;
-    margin: 0;
-}
-
-.break-card-body p {
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-.overdue-text {
-    color: #ff6b6b;
-    font-weight: 600;
-}
-
-.on-time-text {
-    color: #4ecdc4;
-    font-weight: 600;
-}
-
-/* ============================================
-   BREAK STATUS GRID
-   ============================================ */
-.break-status-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-}
-
-.break-status-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #4ecdc4;
-}
-
-.break-status-card.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-status-card .name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.break-status-card .dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.break-status-card .time {
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-/* ============================================
-   HISTORY TABLE
-   ============================================ */
 .history-table {
     width: 100%;
     border-collapse: collapse;
@@ -587,26 +509,191 @@ table tr:hover {
 }
 
 /* ============================================
-   USER BREAK ACTIONS
+   BREAK WALL (User Dashboard)
    ============================================ */
-.user-break-actions {
-    display: flex;
-    gap: 12px;
-    margin: 16px 0;
-    flex-wrap: wrap;
+.break-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
 }
 
-.user-break-actions .btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
+.break-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #4ecdc4;
+    transition: transform 0.2s;
+}
+
+.break-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.break-card.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.break-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.break-card .card-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.break-card .card-body p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.break-card .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+}
+
+.break-card .overdue-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+.break-card .on-time-text {
+    color: #4ecdc4;
+    font-weight: 600;
 }
 
 /* ============================================
-   WELCOME HEADER
+   BREAK STATUS GRID (Admin)
+   ============================================ */
+.break-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.break-status-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #4ecdc4;
+}
+
+.break-status-card.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.break-status-card .name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.break-status-card .dept {
+    font-size: 13px;
+    color: #666;
+}
+
+.break-status-card .time {
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* ============================================
+   MY BREAK SECTION (User Dashboard)
+   ============================================ */
+.my-break-section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+}
+
+.my-break-section h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #1a1a2e;
+}
+
+.break-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.break-status-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    min-width: 200px;
+}
+
+.break-status-display .status-badge {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.break-status-display .status-badge.available {
+    color: #4ecdc4;
+}
+
+.break-status-display .status-badge.on-break {
+    color: #ff6b6b;
+}
+
+/* Break Info */
+.break-info {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #4ecdc4;
+    display: none;
+}
+
+.break-info.active {
+    display: block;
+    border-left-color: #ff6b6b;
+}
+
+.break-info.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.break-info p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.break-info .overdue-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+.break-info .on-time-text {
+    color: #4ecdc4;
+    font-weight: 600;
+}
+
+/* ============================================
+   WELCOME HEADER (User Dashboard)
    ============================================ */
 .welcome-header {
     display: flex;
@@ -641,19 +728,30 @@ table tr:hover {
     font-size: 18px;
 }
 
-.refresh-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #4ecdc4;
-    animation: pulse 2s infinite;
+/* ============================================
+   NO BREAKS / EMPTY STATE
+   ============================================ */
+.no-breaks {
+    text-align: center;
+    padding: 40px;
+    color: #999;
 }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1; }
+.no-breaks .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.empty {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-size: 14px;
+}
+
+.empty .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
 }
 
 /* ============================================
@@ -726,32 +824,6 @@ table tr:hover {
 }
 
 /* ============================================
-   EMPTY STATE
-   ============================================ */
-.empty {
-    text-align: center;
-    color: #999;
-    padding: 30px;
-    font-size: 14px;
-}
-
-.empty .icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-}
-
-.no-breaks {
-    text-align: center;
-    padding: 40px;
-    color: #999;
-}
-
-.no-breaks .icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-}
-
-/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
@@ -816,11 +888,21 @@ table tr:hover {
         padding: 6px 8px;
     }
     
-    .user-break-actions .btn {
-        flex: 1;
-        text-align: center;
+    .break-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
-    
+
+    .break-actions .btn-start-break,
+    .break-actions .btn-end-break {
+        width: 100%;
+    }
+
+    .break-status-display {
+        width: 100%;
+        justify-content: center;
+    }
+
     .welcome-header {
         flex-direction: column;
         align-items: flex-start;
@@ -831,7 +913,6 @@ table tr:hover {
     .stats-grid {
         grid-template-columns: 1fr 1fr;
     }
-    
     .stat-card p {
         font-size: 20px;
     }
