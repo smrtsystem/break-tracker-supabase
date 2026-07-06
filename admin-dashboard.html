@@ -48,6 +48,7 @@
             <button class="tab-btn" data-tab="roles">👔 Roles</button>
             <button class="tab-btn" data-tab="breakstatus">⏱️ Break Status</button>
             <button class="tab-btn" data-tab="breaklog">📋 Break Log</button>
+            <button class="tab-btn" data-tab="vacationlog">🏖️ Vacation Log</button>
             <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
         </div>
 
@@ -167,7 +168,34 @@
             </div>
         </div>
 
-        <!-- ======== TAB 7: SETTINGS ======== -->
+        <!-- ======== TAB 7: VACATION LOG ======== -->
+        <div id="tab-vacationlog" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🏖️ Vacation Log</h2>
+                    <div>
+                        <button id="exportVacationLogBtn" class="btn-outline">📥 Export CSV</button>
+                    </div>
+                </div>
+                <div class="filters">
+                    <select id="vacationLogType">
+                        <option value="all">All Types</option>
+                        <option value="Expat">🌍 Expat</option>
+                        <option value="Local">🏠 Local</option>
+                    </select>
+                    <select id="vacationLogStatus">
+                        <option value="all">All Status</option>
+                        <option value="pending">⏳ Pending</option>
+                        <option value="approved">✅ Approved</option>
+                        <option value="rejected">❌ Rejected</option>
+                    </select>
+                    <button id="applyVacationLogFilter" class="btn-primary">Apply Filter</button>
+                </div>
+                <div id="vacationLogList"><p class="empty">No vacation requests found</p></div>
+            </div>
+        </div>
+
+        <!-- ======== TAB 8: SETTINGS ======== -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>⚙️ Break Settings</h2>
@@ -417,6 +445,8 @@
         function saveRoles(r) { localStorage.setItem('roles', JSON.stringify(r)); }
         function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"localBreakMinutes":30,"expatBreakMinutes":45,"warningMinutes":5}'); }
         function saveSettings(s) { localStorage.setItem('breakSettings', JSON.stringify(s)); }
+        function getVacations() { return JSON.parse(localStorage.getItem('vacations') || '[]'); }
+        function saveVacations(v) { localStorage.setItem('vacations', JSON.stringify(v)); }
 
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
@@ -428,6 +458,14 @@
             if (mins === 0) return `${secs}s`;
             if (secs === 0) return `${mins}m`;
             return `${mins}m ${secs}s`;
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
         }
 
         // ============================================
@@ -446,6 +484,7 @@
                 else if (tab === 'roles') loadRoles();
                 else if (tab === 'breakstatus') loadBreakStatus();
                 else if (tab === 'breaklog') loadBreakLog();
+                else if (tab === 'vacationlog') loadVacationLog();
                 else if (tab === 'settings') loadSettings();
             });
         });
@@ -494,7 +533,7 @@
         }
 
         // ============================================
-        // EMPLOYEES
+        // EMPLOYEES (Previous code - keeping same)
         // ============================================
         function loadEmployees() {
             const employees = getEmployees();
@@ -615,7 +654,7 @@
         });
 
         // ============================================
-        // USERS
+        // USERS (Previous code - keeping same)
         // ============================================
         function loadUsers() {
             const users = getUsers();
@@ -768,7 +807,7 @@
         });
 
         // ============================================
-        // DEPARTMENTS
+        // DEPARTMENTS (Previous code - keeping same)
         // ============================================
         function loadDepartments() {
             const depts = getDepartments();
@@ -842,7 +881,7 @@
         });
 
         // ============================================
-        // ROLES
+        // ROLES (Previous code - keeping same)
         // ============================================
         function loadRoles() {
             const roles = getRoles();
@@ -935,7 +974,7 @@
         });
 
         // ============================================
-        // BREAK STATUS
+        // BREAK STATUS (Previous code - keeping same)
         // ============================================
         function loadBreakStatus() {
             const breaks = getBreaks();
@@ -1000,7 +1039,7 @@
         }
 
         // ============================================
-        // BREAK LOG
+        // BREAK LOG (Previous code - keeping same)
         // ============================================
         function loadBreakLog() {
             const breaks = getBreaks();
@@ -1065,7 +1104,82 @@
         }
 
         // ============================================
-        // SETTINGS
+        // VACATION LOG - ADMIN ONLY
+        // ============================================
+        function loadVacationLog() {
+            const vacations = getVacations();
+            const employees = getEmployees();
+            
+            const typeFilter = document.getElementById('vacationLogType').value;
+            const statusFilter = document.getElementById('vacationLogStatus').value;
+            
+            let filtered = [...vacations];
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(v => {
+                    const emp = employees.find(e => e.id === v.employee_id);
+                    return emp?.employeeType === typeFilter;
+                });
+            }
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(v => v.status === statusFilter);
+            }
+            
+            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            const list = document.getElementById('vacationLogList');
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty">No vacation requests found</p>';
+                return;
+            }
+            
+            let html = '<div class="vacation-log-grid">';
+            filtered.forEach(v => {
+                const emp = employees.find(e => e.id === v.employee_id);
+                const statusClass = v.status === 'approved' ? 'status-approved' : (v.status === 'rejected' ? 'status-rejected' : 'status-pending');
+                
+                html += `<div class="vacation-log-card">
+                    <div class="emp-name">${emp?.name || 'Unknown'}</div>
+                    <div class="emp-dept">${emp?.department || 'N/A'} • ${emp?.employeeType || 'Local'}</div>
+                    <div class="vacation-dates">
+                        <strong>From:</strong> ${formatDate(v.startDate)}<br>
+                        <strong>To:</strong> ${formatDate(v.endDate)}
+                    </div>
+                    <div style="margin-top:8px;">
+                        <span class="status-badge ${statusClass}">${v.status || 'Pending'}</span>
+                        ${v.notes ? `<div style="font-size:12px;color:#666;margin-top:4px;">📝 ${v.notes}</div>` : ''}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-sm btn-approve" onclick="updateVacationStatus('${v.id}','approved')">✅ Approve</button>
+                        <button class="btn-sm btn-reject" onclick="updateVacationStatus('${v.id}','rejected')">❌ Reject</button>
+                        <button class="btn-sm btn-danger" onclick="deleteVacation('${v.id}')">🗑️ Delete</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            list.innerHTML = html;
+        }
+
+        function updateVacationStatus(id, status) {
+            let vacations = getVacations();
+            const index = vacations.findIndex(v => v.id === id);
+            if (index === -1) return;
+            vacations[index].status = status;
+            saveVacations(vacations);
+            loadVacationLog();
+            alert(`✅ Vacation ${status}!`);
+        }
+
+        function deleteVacation(id) {
+            if (!confirm('Delete this vacation request?')) return;
+            let vacations = getVacations();
+            vacations = vacations.filter(v => v.id !== id);
+            saveVacations(vacations);
+            loadVacationLog();
+            alert('✅ Vacation deleted!');
+        }
+
+        // ============================================
+        // SETTINGS (Previous code - keeping same)
         // ============================================
         function loadSettings() {
             const settings = getSettings();
@@ -1091,7 +1205,7 @@
         });
 
         // ============================================
-        // DELETE
+        // DELETE (Previous code - keeping same)
         // ============================================
         function confirmDelete(type, id, name) {
             deleteTarget = id;
@@ -1126,7 +1240,7 @@
         });
 
         // ============================================
-        // DROPDOWNS
+        // DROPDOWNS (Previous code - keeping same)
         // ============================================
         function loadDropdowns() {
             const depts = getDepartments();
@@ -1193,6 +1307,7 @@
         });
 
         document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
+        document.getElementById('applyVacationLogFilter').addEventListener('click', loadVacationLog);
 
         document.getElementById('logoutBtn').addEventListener('click', function() {
             localStorage.removeItem('adminSession');
@@ -1233,6 +1348,33 @@
         });
 
         // ============================================
+        // EXPORT VACATION LOG CSV
+        // ============================================
+        document.getElementById('exportVacationLogBtn').addEventListener('click', function() {
+            const vacations = getVacations();
+            const employees = getEmployees();
+            
+            if (vacations.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+            
+            let csv = 'Employee,Department,Type,Start,End,Status,Notes\n';
+            vacations.forEach(v => {
+                const emp = employees.find(e => e.id === v.employee_id);
+                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${v.vacationType || 'Local'},${v.startDate},${v.endDate},${v.status || 'Pending'},${v.notes || ''}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vacation_log_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ============================================
         // CLEAR BREAK LOG
         // ============================================
         document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
@@ -1260,6 +1402,9 @@
                     { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
                 ]);
             }
+            if (!localStorage.getItem('vacations')) {
+                saveVacations([]);
+            }
             
             loadDropdowns();
             loadStats();
@@ -1269,6 +1414,7 @@
             loadRoles();
             loadBreakStatus();
             loadBreakLog();
+            loadVacationLog();
             loadSettings();
             
             setInterval(() => { 
