@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Break Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">🛡️ Admin Dashboard</div>
+        <div class="nav-right">
+            <span id="adminName">Welcome, Admin!</span>
+            <button id="logoutBtn" class="btn-outline">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Admin Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <p id="totalUsers">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Employees</h3>
+                <p id="totalEmployees">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Breaks</h3>
+                <p id="activeBreaks">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Admins</h3>
+                <p id="adminCount">0</p>
+            </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="card">
+            <h2>⚡ Admin Actions</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px;">
+                <button id="createAdminBtn" class="btn-primary">➕ Create Admin</button>
+                <button id="resetPasswordBtn" class="btn-primary">🔑 Reset Admin Password</button>
+                <button id="refreshDataBtn" class="btn-primary">🔄 Refresh Data</button>
+            </div>
+        </div>
+
+        <!-- All Users -->
+        <div class="card">
+            <h2>👥 All Users</h2>
+            <div id="usersList">
+                <p class="empty">Loading users...</p>
+            </div>
+        </div>
+
+        <!-- All Breaks -->
+        <div class="card">
+            <h2>📊 All Breaks</h2>
+            <div id="allBreaksList">
+                <p class="empty">Loading breaks...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Create Admin Account</h2>
+            <form id="adminForm">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="adminNameInput" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="adminEmailInput" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="adminPasswordInput" value="535680" required minlength="6">
+                    <small style="color: #666;">Default: 535680</small>
+                </div>
+                <button type="submit" class="btn-primary">Create Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-reset">&times;</span>
+            <h2>🔑 Reset Admin Password</h2>
+            <form id="resetForm">
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" id="resetEmail" required placeholder="admin@break-tracker.com">
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="text" id="resetPassword" value="535680" required>
+                    <small style="color: #666;">Default: 535680</small>
+                </div>
+                <button type="submit" class="btn-primary">Reset Password</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
