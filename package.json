@@ -1,1 +1,14 @@
 
+{
+  "name": "break-tracker-supabase",
+  "version": "1.0.0",
+  "description": "Break Tracker with Supabase",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
