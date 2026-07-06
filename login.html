@@ -26,47 +26,23 @@
             </form>
             
             <p class="auth-footer">
-                Don't have an account? <a href="signup.html">Sign up</a>
+                <a href="admin-login.html">🛡️ Admin Login</a>
+            </p>
+            <p class="auth-footer" style="margin-top: 5px; font-size: 12px; color: #999;">
+                Accounts are created by administrators only
             </p>
         </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
-
-        async function signIn(email, password) {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.message || 'Login failed');
-                }
-
-                return { success: true, user: data.user };
-            } catch (error) {
-                console.error('Login error:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
+        // ============================================
+        // USER LOGIN - NO SIGNUP
+        // ============================================
         const form = document.getElementById('loginForm');
         const errorMsg = document.getElementById('errorMsg');
         const loginBtn = document.getElementById('loginBtn');
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
@@ -78,22 +54,34 @@
             loginBtn.disabled = true;
             
             try {
-                const result = await signIn(email, password);
+                // Get users from local storage
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+                const allUsers = [...users, ...admins];
                 
-                if (result.success) {
-                    // Store user info
-                    localStorage.setItem('user', JSON.stringify(result.user));
-                    window.location.href = 'index.html';
-                } else {
-                    throw new Error(result.error);
+                // Find user
+                const user = allUsers.find(u => u.email === email && u.password === password);
+                
+                if (!user) {
+                    throw new Error('Invalid email or password!');
                 }
+                
+                // Save current user
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                // Redirect to dashboard
+                window.location.href = 'index.html';
+                
             } catch (error) {
+                console.error('Login error:', error);
                 errorMsg.textContent = '❌ ' + error.message;
                 errorMsg.style.display = 'block';
                 loginBtn.textContent = 'Login';
                 loginBtn.disabled = false;
             }
         });
+
+        console.log('✅ Login page loaded - Admin creates accounts only');
     </script>
 </body>
 </html>
