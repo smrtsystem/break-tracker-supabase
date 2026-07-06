@@ -43,7 +43,7 @@
                     </select>
                 </div>
                 <div id="errorMsg" class="error"></div>
-                <button type="submit" class="btn-primary btn-block">Create Account</button>
+                <button type="submit" class="btn-primary btn-block" id="signupBtn">Create Account</button>
             </form>
             
             <p class="auth-footer">
@@ -52,34 +52,116 @@
         </div>
     </div>
 
-    <script type="module">
-        import { signUp } from './supabase.js'  // ← ✅ FIXED
-        
-        const form = document.getElementById('signupForm')
-        const errorMsg = document.getElementById('errorMsg')
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            
-            const name = document.getElementById('name').value
-            const email = document.getElementById('email').value
-            const password = document.getElementById('password').value
-            const role = document.getElementById('role').value
-            const department = document.getElementById('department').value
-            
-            errorMsg.textContent = ''
-            errorMsg.style.display = 'none'
-            
-            const result = await signUp(email, password, { name, role, department })
-            
-            if (result.success) {
-                alert('Account created! Please login.')
-                window.location.href = 'login.html'
-            } else {
-                errorMsg.textContent = result.error
-                errorMsg.style.display = 'block'
+    <script>
+        // ============================================
+        // SUPABASE CONFIGURATION
+        // ============================================
+        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
+
+        // ============================================
+        // SIGNUP FUNCTION
+        // ============================================
+        async function signUp(email, password, userData) {
+            try {
+                // Step 1: Create auth user using Supabase REST API
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        data: {
+                            name: userData.name,
+                            role: userData.role || 'employee'
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Signup failed');
+                }
+
+                if (!data.user) {
+                    throw new Error('No user data returned');
+                }
+
+                // Step 2: Create user profile in users table
+                const profileResponse = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        id: data.user.id,
+                        email: email,
+                        name: userData.name,
+                        role: userData.role || 'employee',
+                        department: userData.department || 'Engineering'
+                    })
+                });
+
+                if (!profileResponse.ok) {
+                    console.warn('Profile creation warning:', await profileResponse.text());
+                }
+
+                return { success: true, user: data.user };
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                return { success: false, error: error.message };
             }
-        })
+        }
+
+        // ============================================
+        // FORM HANDLER
+        // ============================================
+        const form = document.getElementById('signupForm');
+        const errorMsg = document.getElementById('errorMsg');
+        const signupBtn = document.getElementById('signupBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const department = document.getElementById('department').value;
+            
+            errorMsg.textContent = '';
+            errorMsg.style.display = 'none';
+            signupBtn.textContent = 'Creating account...';
+            signupBtn.disabled = true;
+            
+            try {
+                const result = await signUp(email, password, { name, role, department });
+                
+                if (result.success) {
+                    alert('✅ Account created successfully! Please login.');
+                    window.location.href = 'login.html';
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorMsg.textContent = '❌ ' + error.message;
+                errorMsg.style.display = 'block';
+                signupBtn.textContent = 'Create Account';
+                signupBtn.disabled = false;
+            }
+        });
+
+        console.log('✅ Signup page loaded');
+        console.log('🔗 Supabase URL:', SUPABASE_URL);
     </script>
 </body>
 </html>
