@@ -25,24 +25,27 @@
                 <p style="color:#666;font-size:14px;">Live break tracking - Auto refreshes every 10 seconds</p>
             </div>
             <div class="user-info">
-                <span class="refresh-indicator"></span>
-                <span style="font-size:13px;color:#666;">Live</span>
                 <div class="user-avatar" id="userAvatar">U</div>
+                <span style="font-weight:500;" id="userNameDisplay"></span>
             </div>
         </div>
 
-        <!-- User Break Actions -->
-        <div class="card">
+        <!-- My Break Section -->
+        <div class="my-break-section">
             <h2>☕ My Break</h2>
-            <div class="user-break-actions">
-                <button id="startBreakBtn" class="btn btn-start-break">▶️ Start Break</button>
-                <button id="endBreakBtn" class="btn btn-end-break" disabled>⏹️ End Break</button>
-                <span id="breakStatusText" style="display:flex;align-items:center;margin-left:12px;font-weight:500;"></span>
+            <div class="break-actions">
+                <button id="startBreakBtn" class="btn-start-break">▶️ Start Break</button>
+                <button id="endBreakBtn" class="btn-end-break" disabled>⏹️ End Break</button>
+                <div class="break-status-display">
+                    <span class="status-badge available" id="breakStatusText">✅ Available</span>
+                </div>
             </div>
-            <div id="myBreakInfo" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;display:none;">
+            
+            <!-- Break Info (shows when on break) -->
+            <div id="breakInfo" class="break-info">
                 <p><strong>⏱️ Current Break:</strong> <span id="myBreakDuration">0m 0s</span></p>
                 <p><strong>⏰ Started:</strong> <span id="myBreakStartTime">-</span></p>
-                <p id="myBreakWarning" style="color:#ff6b6b;font-weight:600;display:none;">⚠️ Your break has exceeded the time limit!</p>
+                <p id="myBreakWarning" class="overdue-text" style="display:none;">⚠️ Your break has exceeded the time limit!</p>
             </div>
         </div>
 
@@ -80,13 +83,15 @@
 
     <script>
         // ============================================
-        // USER DASHBOARD - WITH BREAK OPTION
+        // USER DASHBOARD - COMPLETE
         // ============================================
         
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         if (!currentUser) window.location.href = 'login.html';
 
+        // Set user info
         document.getElementById('userAvatar').textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
+        document.getElementById('userNameDisplay').textContent = currentUser.name || 'User';
         document.getElementById('userDisplay').textContent = `👋 ${currentUser.name || 'User'}`;
         document.getElementById('userRole').textContent = currentUser.role || 'Employee';
         document.getElementById('userRole').style.background = currentUser.role === 'admin' ? '#ff6b6b' : '#667eea';
@@ -192,7 +197,7 @@
             const startBtn = document.getElementById('startBreakBtn');
             const endBtn = document.getElementById('endBreakBtn');
             const statusText = document.getElementById('breakStatusText');
-            const infoDiv = document.getElementById('myBreakInfo');
+            const breakInfo = document.getElementById('breakInfo');
             const durationSpan = document.getElementById('myBreakDuration');
             const startTimeSpan = document.getElementById('myBreakStartTime');
             const warningSpan = document.getElementById('myBreakWarning');
@@ -200,8 +205,10 @@
             if (activeBreak) {
                 startBtn.disabled = true;
                 endBtn.disabled = false;
-                statusText.innerHTML = '<span class="badge badge-orange">🔴 On Break</span>';
-                infoDiv.style.display = 'block';
+                statusText.textContent = '🔴 On Break';
+                statusText.className = 'status-badge on-break';
+                breakInfo.className = 'break-info active';
+                breakInfo.style.display = 'block';
                 startTimeSpan.textContent = formatTime(activeBreak.start_time);
                 
                 if (breakTimer) clearInterval(breakTimer);
@@ -214,15 +221,19 @@
                     if (elapsed > maxMinutes) {
                         warningSpan.style.display = 'block';
                         warningSpan.textContent = `⚠️ Break exceeded! (${elapsed}/${maxMinutes} min)`;
+                        breakInfo.className = 'break-info active overdue';
                     } else {
                         warningSpan.style.display = 'none';
+                        breakInfo.className = 'break-info active';
                     }
                 }, 1000);
             } else {
                 startBtn.disabled = false;
                 endBtn.disabled = true;
-                statusText.innerHTML = '<span class="badge badge-green">✅ Available</span>';
-                infoDiv.style.display = 'none';
+                statusText.textContent = '✅ Available';
+                statusText.className = 'status-badge available';
+                breakInfo.className = 'break-info';
+                breakInfo.style.display = 'none';
                 if (breakTimer) { clearInterval(breakTimer); breakTimer = null; }
             }
         }
@@ -261,11 +272,11 @@
                 const colorIndex = emp?.id ? parseInt(emp.id.slice(-2), 16) % colors.length : 0;
 
                 html += `<div class="break-card ${isOverdue ? 'overdue' : ''}">
-                    <div class="break-card-header">
+                    <div class="card-header">
                         <div class="avatar" style="background:${colors[colorIndex]};">${initials}</div>
                         <div><h3>${emp?.name || 'Unknown'}</h3><span class="badge ${isOverdue ? 'badge-red' : 'badge-green'}">${emp?.department || 'N/A'}</span></div>
                     </div>
-                    <div class="break-card-body">
+                    <div class="card-body">
                         <p>⏱️ <strong>${duration}</strong> elapsed</p>
                         <p>⏰ Started at ${formatTime(b.start_time)}</p>
                         ${isOverdue ? `<p class="overdue-text">⚠️ Overdue! (${elapsed}/${maxMinutes} min)</p>` : `<p class="on-time-text">✅ Within limit (${elapsed}/${maxMinutes} min)</p>`}
@@ -286,50 +297,3 @@
         }
 
         // ============================================
-        // LOAD USER'S BREAK HISTORY
-        // ============================================
-        function loadUserHistory() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
-            const emp = employees.find(e => e.email === currentUser.email);
-            const container = document.getElementById('breakHistory');
-
-            if (!emp) {
-                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No breaks found for you</p></div>';
-                return;
-            }
-
-            const userBreaks = breaks.filter(b => b.employee_id === emp.id && b.status === 'completed').slice(-20).reverse();
-            if (userBreaks.length === 0) {
-                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No break history found</p></div>';
-                return;
-            }
-
-            let html = '<table class="history-table"><thead><tr><th>Start Time</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
-            userBreaks.forEach(b => {
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                html += `<tr><td>${new Date(b.start_time).toLocaleString()}</td><td>${duration}</td><td><span class="badge badge-green">Completed</span></td></tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // ============================================
-        // AUTO REFRESH
-        // ============================================
-        function refreshAll() {
-            loadActiveBreaks();
-            loadTodayBreaks();
-            loadUserHistory();
-            updateBreakUI();
-        }
-
-        setInterval(refreshAll, 10000);
-        refreshAll();
-
-        console.log('✅ User Dashboard loaded');
-        console.log('👤 Logged in as:', currentUser.email);
-        console.log('🔄 Auto-refresh every 10 seconds');
-    </script>
-</body>
-</html>
