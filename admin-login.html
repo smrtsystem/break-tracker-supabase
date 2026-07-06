@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Break Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🛡️ Admin Login</h1>
+            <p class="subtitle">Enter admin credentials</p>
+            
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" id="email" required placeholder="admin@break-tracker.com" value="admin@break-tracker.com">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="password" id="password" required placeholder="Enter admin password">
+                    <small style="color: #666; display: block; margin-top: 5px;">Default password: <strong>535680</strong></small>
+                </div>
+                <div id="errorMsg" class="error"></div>
+                <button type="submit" class="btn-primary btn-block">Login as Admin</button>
+            </form>
+            
+            <p class="auth-footer">
+                <a href="index.html">← Back to User Dashboard</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabase.js'
+        
+        const form = document.getElementById('adminLoginForm')
+        const errorMsg = document.getElementById('errorMsg')
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            
+            errorMsg.textContent = ''
+            errorMsg.style.display = 'none'
+            
+            try {
+                // Check if admin exists in users table
+                const { data: adminUser, error: adminError } = await supabase
+                    .from('users')
+                    .select('id, email, role')
+                    .eq('email', email)
+                    .eq('role', 'admin')
+                    .single()
+                
+                if (adminError || !adminUser) {
+                    errorMsg.textContent = 'Admin account not found. Please contact system administrator.'
+                    errorMsg.style.display = 'block'
+                    return
+                }
+                
+                // Check password from settings
+                const { data: settings } = await supabase
+                    .from('admin_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'admin_password')
+                    .single()
+                
+                const adminPassword = settings?.setting_value || '535680'
+                
+                if (password !== adminPassword) {
+                    errorMsg.textContent = 'Invalid password!'
+                    errorMsg.style.display = 'block'
+                    return
+                }
+                
+                // Auto-login as the admin user
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: adminPassword
+                })
+                
+                if (authError) {
+                    errorMsg.textContent = 'Login failed. Please try again.'
+                    errorMsg.style.display = 'block'
+                    return
+                }
+                
+                window.location.href = 'admin-dashboard.html'
+                
+            } catch (error) {
+                errorMsg.textContent = 'Error: ' + error.message
+                errorMsg.style.display = 'block'
+            }
+        })
+    </script>
+</body>
+</html>
