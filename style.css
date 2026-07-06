@@ -142,11 +142,34 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .card h2 {
     font-size: 18px;
     color: #1a1a2e;
+}
+
+/* ============================================
+   ADMIN CREATE USER FORM
+   ============================================ */
+.create-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ============================================
@@ -181,6 +204,21 @@ body {
 .btn-outline:hover {
     background: #667eea;
     color: white;
+}
+
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #e55a5a;
 }
 
 .btn-block {
@@ -324,16 +362,30 @@ body {
     gap: 6px;
 }
 
+/* ============================================
+   FILTERS
+   ============================================ */
 .filters {
+    display: flex;
+    gap: 12px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
-.filters input {
-    width: 100%;
+.filters input,
+.filters select {
     padding: 10px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-size: 14px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filters input:focus,
+.filters select:focus {
+    outline: none;
+    border-color: #667eea;
 }
 
 /* ============================================
@@ -357,6 +409,10 @@ body {
     color: #1a1a2e;
 }
 
+.badge.blue {
+    background: #667eea;
+}
+
 .badge.red {
     background: #ff6b6b;
 }
@@ -378,12 +434,15 @@ body {
     background: #f8f9fa;
     border-radius: 8px;
     border-left: 4px solid #ff6b6b;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .break-item > div {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 /* ============================================
@@ -392,6 +451,7 @@ body {
 .history-table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 14px;
 }
 
 .history-table th {
@@ -409,6 +469,16 @@ body {
 
 .history-table tr:hover {
     background: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .history-table {
+        font-size: 12px;
+    }
+    .history-table th,
+    .history-table td {
+        padding: 6px 8px;
+    }
 }
 
 /* ============================================
@@ -473,6 +543,16 @@ body {
     font-size: 14px;
 }
 
+.error {
+    text-align: center;
+    color: #ff6b6b;
+    padding: 10px;
+    font-size: 14px;
+    background: #ffe8e8;
+    border-radius: 8px;
+    display: none;
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -503,10 +583,23 @@ body {
     .break-item {
         flex-direction: column;
         align-items: flex-start;
-        gap: 8px;
+    }
+    
+    .break-item > div {
+        width: 100%;
+        justify-content: space-between;
     }
     
     .auth-card {
         padding: 24px;
+    }
+    
+    .filters {
+        flex-direction: column;
+    }
+    
+    .filters input,
+    .filters select {
+        width: 100%;
     }
 }
