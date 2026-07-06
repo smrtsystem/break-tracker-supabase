@@ -1,5 +1,6 @@
 /* ============================================
    BREAK TRACKER - COMPLETE STYLES
+   (Excluding Admin Dashboard)
    ============================================ */
 
 * {
@@ -45,10 +46,10 @@ body {
 }
 
 /* ============================================
-   CONTAINER - WIDER
+   CONTAINER
    ============================================ */
 .container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 24px;
 }
@@ -80,11 +81,11 @@ body {
 }
 
 /* ============================================
-   STATS - LEFT SIDE
+   STATS - USER DASHBOARD
    ============================================ */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
 }
@@ -94,21 +95,15 @@ body {
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    text-align: left;
-    border-left: 4px solid #667eea;
-    transition: transform 0.2s;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+    border-top: 4px solid #667eea;
 }
 
 .stat-card h3 {
     font-size: 13px;
     color: #666;
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 
 .stat-card p {
@@ -121,7 +116,6 @@ body {
     font-size: 12px;
     color: #999;
     margin-top: 4px;
-    word-wrap: break-word;
 }
 
 /* ============================================
@@ -222,7 +216,7 @@ body {
 }
 
 /* ============================================
-   BREAK ACTION BUTTONS
+   BREAK ACTION BUTTONS (User Dashboard)
    ============================================ */
 .btn-start-break {
     background: #4ecdc4;
@@ -273,7 +267,7 @@ body {
 }
 
 /* ============================================
-   MY BREAK SECTION
+   MY BREAK SECTION (User Dashboard)
    ============================================ */
 .my-break-section {
     background: white;
@@ -350,7 +344,7 @@ body {
 }
 
 /* ============================================
-   WELCOME HEADER
+   WELCOME HEADER (User Dashboard)
    ============================================ */
 .welcome-header {
     display: flex;
@@ -404,11 +398,11 @@ body {
 .badge-purple { background: #a29bfe; }
 
 /* ============================================
-   BREAK WALL
+   BREAK WALL (User Dashboard)
    ============================================ */
 .break-wall {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
 }
 
@@ -472,7 +466,7 @@ body {
 }
 
 /* ============================================
-   HISTORY TABLE
+   HISTORY TABLE (User Dashboard)
    ============================================ */
 .history-table {
     width: 100%;
@@ -649,235 +643,7 @@ body {
 }
 
 /* ============================================
-   ADMIN TABS
-   ============================================ */
-.admin-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    background: white;
-    padding: 12px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.tab-btn {
-    padding: 10px 20px;
-    border: none;
-    background: #f0f2f5;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
-    color: #555;
-}
-
-.tab-btn:hover {
-    background: #e0e0e0;
-}
-
-.tab-btn.active {
-    background: #667eea;
-    color: white;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* ============================================
-   TABLES
-   ============================================ */
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-table th {
-    text-align: left;
-    padding: 10px;
-    background: #f8f9fa;
-    font-weight: 600;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* ============================================
-   CONFIG ITEMS
-   ============================================ */
-.config-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border-left: 4px solid #667eea;
-}
-
-.config-item .actions {
-    display: flex;
-    gap: 8px;
-}
-
-/* ============================================
-   BREAK STATUS GRID
-   ============================================ */
-.break-status-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.break-status-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #4ecdc4;
-}
-
-.break-status-card.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-status-card .name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.break-status-card .dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.break-status-card .time {
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-/* ============================================
-   VACATION GRID
-   ============================================ */
-.vacation-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.vacation-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #667eea;
-    transition: transform 0.2s;
-}
-
-.vacation-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.vacation-card .emp-name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.vacation-card .emp-dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.vacation-card .vacation-dates {
-    font-size: 14px;
-    margin-top: 8px;
-    padding: 8px;
-    background: white;
-    border-radius: 6px;
-}
-
-.vacation-card .status-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.status-approved { background: #4ecdc4; color: white; }
-.status-pending { background: #ffd93d; color: #1a1a2e; }
-.status-rejected { background: #ff6b6b; color: white; }
-
-/* ============================================
-   VACATION TAB BUTTONS
-   ============================================ */
-.vacation-tab-btn {
-    padding: 8px 16px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.vacation-tab-btn:hover {
-    background: #f0f2f5;
-}
-
-.vacation-tab-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-/* ============================================
-   BREAK LOG FILTERS
-   ============================================ */
-.break-log-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.break-log-filters .form-group {
-    margin-bottom: 0;
-}
-
-.break-log-filters .form-group label {
-    font-size: 12px;
-    margin-bottom: 2px;
-}
-
-.break-log-filters input,
-.break-log-filters select {
-    padding: 6px 10px;
-    font-size: 13px;
-}
-
-/* ============================================
-   MODAL - WIDE
+   MODAL
    ============================================ */
 .modal {
     display: none;
@@ -897,14 +663,14 @@ table tr:hover {
     margin: 30px auto;
     padding: 32px;
     border-radius: 16px;
-    max-width: 90%;
+    max-width: 600px;
     width: 100%;
     position: relative;
     animation: slideDown 0.3s ease;
 }
 
 .modal-content.wide {
-    max-width: 95%;
+    max-width: 800px;
 }
 
 @keyframes slideDown {
@@ -937,15 +703,6 @@ table tr:hover {
 }
 
 /* ============================================
-   REPORT FILTERS
-   ============================================ */
-.report-filters {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-/* ============================================
    CHECKBOX GROUP
    ============================================ */
 .checkbox-group {
@@ -963,36 +720,8 @@ table tr:hover {
 }
 
 /* ============================================
-   SELECT ALL
-   ============================================ */
-.select-all {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-/* ============================================
    RESPONSIVE
    ============================================ */
-@media (max-width: 1024px) {
-    .container {
-        max-width: 100%;
-        padding: 16px;
-    }
-    
-    .modal-content {
-        max-width: 95%;
-        padding: 24px;
-    }
-    
-    .modal-content.wide {
-        max-width: 98%;
-    }
-}
-
 @media (max-width: 768px) {
     .navbar {
         padding: 12px 16px;
@@ -1013,14 +742,6 @@ table tr:hover {
     }
     
     .break-wall {
-        grid-template-columns: 1fr;
-    }
-    
-    .break-status-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .vacation-grid {
         grid-template-columns: 1fr;
     }
     
@@ -1063,20 +784,8 @@ table tr:hover {
         width: 100%;
     }
     
-    .admin-tabs {
-        flex-direction: column;
-    }
-    
     .form-row {
         grid-template-columns: 1fr;
-    }
-    
-    .report-filters {
-        grid-template-columns: 1fr;
-    }
-    
-    .break-log-filters {
-        grid-template-columns: 1fr 1fr;
     }
     
     .history-table {
@@ -1104,8 +813,5 @@ table tr:hover {
     }
     .stat-card h3 {
         font-size: 11px;
-    }
-    .break-log-filters {
-        grid-template-columns: 1fr;
     }
 }
