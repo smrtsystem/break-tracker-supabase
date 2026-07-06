@@ -7,93 +7,231 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">🕐 Break Tracker</div>
         <div class="nav-right">
             <span id="userDisplay">Welcome!</span>
-            <span id="userRole" class="badge" style="background: #667eea;">Employee</span>
+            <span id="userRole" class="badge" style="background:#667eea;">Employee</span>
             <button id="logoutBtn" class="btn-outline">Logout</button>
         </div>
     </nav>
 
     <div class="container">
-        <!-- Stats Cards - Only Active & Today's Breaks -->
+        <!-- Welcome Header -->
+        <div class="welcome-header">
+            <div>
+                <h1>📊 Dashboard</h1>
+                <p style="color:#666;font-size:14px;">Live break tracking - Auto refreshes every 10 seconds</p>
+            </div>
+            <div class="user-info">
+                <span class="refresh-indicator"></span>
+                <span style="font-size:13px;color:#666;">Live</span>
+                <div class="user-avatar" id="userAvatar">U</div>
+            </div>
+        </div>
+
+        <!-- User Break Actions -->
+        <div class="card">
+            <h2>☕ My Break</h2>
+            <div class="user-break-actions">
+                <button id="startBreakBtn" class="btn btn-start-break">▶️ Start Break</button>
+                <button id="endBreakBtn" class="btn btn-end-break" disabled>⏹️ End Break</button>
+                <span id="breakStatusText" style="display:flex;align-items:center;margin-left:12px;font-weight:500;"></span>
+            </div>
+            <div id="myBreakInfo" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;display:none;">
+                <p><strong>⏱️ Current Break:</strong> <span id="myBreakDuration">0m 0s</span></p>
+                <p><strong>⏰ Started:</strong> <span id="myBreakStartTime">-</span></p>
+                <p id="myBreakWarning" style="color:#ff6b6b;font-weight:600;display:none;">⚠️ Your break has exceeded the time limit!</p>
+            </div>
+        </div>
+
+        <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" style="border-top:4px solid #ff6b6b;">
                 <h3>🔴 Active Breaks</h3>
                 <p id="activeBreaks">0</p>
+                <div style="font-size:12px;color:#999;margin-top:4px;" id="activeBreakUsers"></div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="border-top:4px solid #667eea;">
                 <h3>📊 Today's Breaks</h3>
                 <p id="todayBreaks">0</p>
             </div>
         </div>
 
-        <!-- Active Breaks Wall - Show Who's On Break -->
+        <!-- Active Breaks Wall -->
         <div class="card">
             <h2>🔴 Currently On Break</h2>
             <div id="activeBreaksList">
-                <p class="empty">No one is on break right now</p>
+                <div class="no-breaks"><div class="icon">✅</div><p>No one is on break right now</p></div>
             </div>
         </div>
 
-        <!-- Break History (User's Own Breaks) -->
+        <!-- Break History -->
         <div class="card">
             <h2>📊 My Break History</h2>
-            <div id="breakHistory">
-                <p class="empty">No break history</p>
+            <div style="overflow-x:auto;">
+                <div id="breakHistory">
+                    <div class="no-breaks"><div class="icon">📋</div><p>No break history found</p></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // USER DASHBOARD - Active Breaks Only
+        // USER DASHBOARD - WITH BREAK OPTION
         // ============================================
         
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        
-        if (!currentUser) {
-            window.location.href = 'login.html';
-        }
-        
+        if (!currentUser) window.location.href = 'login.html';
+
+        document.getElementById('userAvatar').textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
         document.getElementById('userDisplay').textContent = `👋 ${currentUser.name || 'User'}`;
         document.getElementById('userRole').textContent = currentUser.role || 'Employee';
         document.getElementById('userRole').style.background = currentUser.role === 'admin' ? '#ff6b6b' : '#667eea';
-        
-        function logout() {
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
-        }
-        document.getElementById('logoutBtn').addEventListener('click', logout);
+        });
 
         // ============================================
         // DATA FUNCTIONS
         // ============================================
-        
-        function getEmployees() {
-            return JSON.parse(localStorage.getItem('employees') || '[]');
-        }
-
-        function getBreaks() {
-            return JSON.parse(localStorage.getItem('breaks') || '[]');
-        }
-
-        function getSettings() {
-            return JSON.parse(localStorage.getItem('breakSettings') || '{"maxBreakMinutes":30}');
-        }
+        function getEmployees() { return JSON.parse(localStorage.getItem('employees') || '[]'); }
+        function getBreaks() { return JSON.parse(localStorage.getItem('breaks') || '[]'); }
+        function saveBreaks(b) { localStorage.setItem('breaks', JSON.stringify(b)); }
+        function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"maxBreakMinutes":30}'); }
 
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
             const end = endTime ? new Date(endTime) : new Date();
             const diff = Math.floor((end - start) / 1000);
+            if (diff < 0) return '0m 0s';
             const mins = Math.floor(diff / 60);
             const secs = diff % 60;
+            if (mins === 0) return `${secs}s`;
+            if (secs === 0) return `${mins}m`;
             return `${mins}m ${secs}s`;
         }
 
+        function formatTime(date) { return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+
+        function getMyEmployee() {
+            const employees = getEmployees();
+            return employees.find(e => e.email === currentUser.email);
+        }
+
+        function getMyActiveBreak() {
+            const emp = getMyEmployee();
+            if (!emp) return null;
+            const breaks = getBreaks();
+            return breaks.find(b => b.employee_id === emp.id && b.status === 'active');
+        }
+
         // ============================================
-        // LOAD ACTIVE BREAKS (Visible to Everyone)
+        // BREAK ACTIONS
+        // ============================================
+        let breakTimer = null;
+
+        function startMyBreak() {
+            const emp = getMyEmployee();
+            if (!emp) { alert('No employee record found. Contact admin.'); return; }
+            if (getMyActiveBreak()) { alert('You are already on break!'); return; }
+
+            const breaks = getBreaks();
+            const newBreak = {
+                id: 'brk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                employee_id: emp.id,
+                break_type: 'short',
+                start_time: new Date().toISOString(),
+                status: 'active',
+                created_at: new Date().toISOString()
+            };
+            breaks.push(newBreak);
+            saveBreaks(breaks);
+
+            const employees = getEmployees();
+            const empIndex = employees.findIndex(e => e.id === emp.id);
+            if (empIndex !== -1) { employees[empIndex].status = 'on_break'; localStorage.setItem('employees', JSON.stringify(employees)); }
+
+            updateBreakUI();
+            refreshAll();
+            alert('✅ Break started!');
+        }
+
+        function endMyBreak() {
+            const activeBreak = getMyActiveBreak();
+            if (!activeBreak) { alert('You are not on break!'); return; }
+            const emp = getMyEmployee();
+            if (!emp) return;
+
+            const breaks = getBreaks();
+            const index = breaks.findIndex(b => b.id === activeBreak.id);
+            if (index === -1) return;
+
+            const endTime = new Date().toISOString();
+            const startTime = new Date(breaks[index].start_time);
+            const duration = Math.floor((new Date(endTime) - startTime) / 1000);
+
+            breaks[index] = { ...breaks[index], end_time: endTime, status: 'completed', duration: duration };
+            saveBreaks(breaks);
+
+            const employees = getEmployees();
+            const empIndex = employees.findIndex(e => e.id === emp.id);
+            if (empIndex !== -1) { employees[empIndex].status = 'active'; localStorage.setItem('employees', JSON.stringify(employees)); }
+
+            updateBreakUI();
+            refreshAll();
+            alert('✅ Break ended!');
+        }
+
+        function updateBreakUI() {
+            const activeBreak = getMyActiveBreak();
+            const startBtn = document.getElementById('startBreakBtn');
+            const endBtn = document.getElementById('endBreakBtn');
+            const statusText = document.getElementById('breakStatusText');
+            const infoDiv = document.getElementById('myBreakInfo');
+            const durationSpan = document.getElementById('myBreakDuration');
+            const startTimeSpan = document.getElementById('myBreakStartTime');
+            const warningSpan = document.getElementById('myBreakWarning');
+
+            if (activeBreak) {
+                startBtn.disabled = true;
+                endBtn.disabled = false;
+                statusText.innerHTML = '<span class="badge badge-orange">🔴 On Break</span>';
+                infoDiv.style.display = 'block';
+                startTimeSpan.textContent = formatTime(activeBreak.start_time);
+                
+                if (breakTimer) clearInterval(breakTimer);
+                breakTimer = setInterval(() => {
+                    const duration = formatDuration(activeBreak.start_time);
+                    durationSpan.textContent = duration;
+                    const settings = getSettings();
+                    const maxMinutes = settings.maxBreakMinutes || 30;
+                    const elapsed = Math.floor((new Date() - new Date(activeBreak.start_time)) / 60000);
+                    if (elapsed > maxMinutes) {
+                        warningSpan.style.display = 'block';
+                        warningSpan.textContent = `⚠️ Break exceeded! (${elapsed}/${maxMinutes} min)`;
+                    } else {
+                        warningSpan.style.display = 'none';
+                    }
+                }, 1000);
+            } else {
+                startBtn.disabled = false;
+                endBtn.disabled = true;
+                statusText.innerHTML = '<span class="badge badge-green">✅ Available</span>';
+                infoDiv.style.display = 'none';
+                if (breakTimer) { clearInterval(breakTimer); breakTimer = null; }
+            }
+        }
+
+        document.getElementById('startBreakBtn').addEventListener('click', startMyBreak);
+        document.getElementById('endBreakBtn').addEventListener('click', endMyBreak);
+
+        // ============================================
+        // LOAD ACTIVE BREAKS
         // ============================================
         function loadActiveBreaks() {
             const breaks = getBreaks();
@@ -102,37 +240,37 @@
             const list = document.getElementById('activeBreaksList');
             
             document.getElementById('activeBreaks').textContent = active.length;
-            
+            const names = active.map(b => { const emp = employees.find(e => e.id === b.employee_id); return emp?.name || 'Unknown'; });
+            document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
+
             if (active.length === 0) {
-                list.innerHTML = '<p class="empty">✅ No one is on break right now</p>';
+                list.innerHTML = '<div class="no-breaks"><div class="icon">✅</div><p>No one is on break right now</p></div>';
                 return;
             }
-            
+
             let html = '<div class="break-wall">';
             active.forEach(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
                 const duration = formatDuration(b.start_time);
-                const timeElapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
                 const settings = getSettings();
                 const maxMinutes = settings.maxBreakMinutes || 30;
-                const isOverdue = timeElapsed > maxMinutes;
-                
-                html += `
-                    <div class="break-card ${isOverdue ? 'overdue' : ''}">
-                        <div class="break-card-header">
-                            <div class="employee-avatar">👤</div>
-                            <div>
-                                <h3>${emp?.name || 'Unknown'}</h3>
-                                <span class="badge ${isOverdue ? 'red' : 'green'}">${emp?.department || 'N/A'}</span>
-                            </div>
-                        </div>
-                        <div class="break-card-body">
-                            <p>⏱️ Break Time: <strong>${duration}</strong></p>
-                            <p>⏰ Started: ${new Date(b.start_time).toLocaleTimeString()}</p>
-                            ${isOverdue ? `<p class="overdue-text">⚠️ Overdue! (${timeElapsed}/${maxMinutes} min)</p>` : `<p class="on-time">✅ Within limit (${timeElapsed}/${maxMinutes} min)</p>`}
-                        </div>
+                const isOverdue = elapsed > maxMinutes;
+                const initials = emp?.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+                const colors = ['#667eea','#4ecdc4','#ff6b6b','#ffd93d','#a29bfe','#fd79a8'];
+                const colorIndex = emp?.id ? parseInt(emp.id.slice(-2), 16) % colors.length : 0;
+
+                html += `<div class="break-card ${isOverdue ? 'overdue' : ''}">
+                    <div class="break-card-header">
+                        <div class="avatar" style="background:${colors[colorIndex]};">${initials}</div>
+                        <div><h3>${emp?.name || 'Unknown'}</h3><span class="badge ${isOverdue ? 'badge-red' : 'badge-green'}">${emp?.department || 'N/A'}</span></div>
                     </div>
-                `;
+                    <div class="break-card-body">
+                        <p>⏱️ <strong>${duration}</strong> elapsed</p>
+                        <p>⏰ Started at ${formatTime(b.start_time)}</p>
+                        ${isOverdue ? `<p class="overdue-text">⚠️ Overdue! (${elapsed}/${maxMinutes} min)</p>` : `<p class="on-time-text">✅ Within limit (${elapsed}/${maxMinutes} min)</p>`}
+                    </div>
+                </div>`;
             });
             html += '</div>';
             list.innerHTML = html;
@@ -144,8 +282,7 @@
         function loadTodayBreaks() {
             const breaks = getBreaks();
             const today = new Date().toISOString().split('T')[0];
-            const todayBreaks = breaks.filter(b => b.created_at && b.created_at.startsWith(today));
-            document.getElementById('todayBreaks').textContent = todayBreaks.length;
+            document.getElementById('todayBreaks').textContent = breaks.filter(b => b.created_at && b.created_at.startsWith(today)).length;
         }
 
         // ============================================
@@ -154,35 +291,27 @@
         function loadUserHistory() {
             const breaks = getBreaks();
             const employees = getEmployees();
-            
-            // Find employee ID for current user
             const emp = employees.find(e => e.email === currentUser.email);
+            const container = document.getElementById('breakHistory');
+
             if (!emp) {
-                document.getElementById('breakHistory').innerHTML = '<p class="empty">No breaks found for you</p>';
+                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No breaks found for you</p></div>';
                 return;
             }
-            
+
             const userBreaks = breaks.filter(b => b.employee_id === emp.id && b.status === 'completed').slice(-20).reverse();
-            const list = document.getElementById('breakHistory');
-            
             if (userBreaks.length === 0) {
-                list.innerHTML = '<p class="empty">No break history</p>';
+                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No break history found</p></div>';
                 return;
             }
-            
-            let html = '<table class="history-table"><thead><tr><th>Start</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
+
+            let html = '<table class="history-table"><thead><tr><th>Start Time</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
             userBreaks.forEach(b => {
                 const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                html += `
-                    <tr>
-                        <td>${new Date(b.start_time).toLocaleString()}</td>
-                        <td>${duration}</td>
-                        <td><span class="badge green">Completed</span></td>
-                    </tr>
-                `;
+                html += `<tr><td>${new Date(b.start_time).toLocaleString()}</td><td>${duration}</td><td><span class="badge badge-green">Completed</span></td></tr>`;
             });
             html += '</tbody></table>';
-            list.innerHTML = html;
+            container.innerHTML = html;
         }
 
         // ============================================
@@ -192,13 +321,15 @@
             loadActiveBreaks();
             loadTodayBreaks();
             loadUserHistory();
+            updateBreakUI();
         }
 
-        // Refresh every 10 seconds
         setInterval(refreshAll, 10000);
-        
-        // Initial load
         refreshAll();
+
+        console.log('✅ User Dashboard loaded');
+        console.log('👤 Logged in as:', currentUser.email);
+        console.log('🔄 Auto-refresh every 10 seconds');
     </script>
 </body>
 </html>
