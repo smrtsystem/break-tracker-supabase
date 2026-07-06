@@ -7,17 +7,16 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">🛡️ Admin Dashboard</div>
         <div class="nav-right">
-            <span id="adminName">Welcome, Admin!</span>
-            <button id="logoutBtn" class="btn-outline">Logout</button>
+            <span id="adminName">👋 Admin</span>
+            <button id="logoutBtn" class="btn-outline" onclick="logout()">Logout</button>
         </div>
     </nav>
 
     <div class="container">
-        <!-- Admin Stats -->
+        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Total Users</h3>
@@ -37,77 +36,165 @@
             </div>
         </div>
 
-        <!-- Admin Actions -->
+        <!-- Admin Info -->
+        <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
+            <h2>✅ Admin Access Granted</h2>
+            <p>You are logged in as <strong>admin@break-tracker.com</strong></p>
+            <p style="color: #666; font-size: 14px;">Password: <strong>535680</strong></p>
+        </div>
+
+        <!-- Quick Actions -->
         <div class="card">
             <h2>⚡ Admin Actions</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px;">
-                <button id="createAdminBtn" class="btn-primary">➕ Create Admin</button>
-                <button id="resetPasswordBtn" class="btn-primary">🔑 Reset Admin Password</button>
-                <button id="refreshDataBtn" class="btn-primary">🔄 Refresh Data</button>
+                <button onclick="viewUsers()" class="btn-primary">👥 View Users</button>
+                <button onclick="viewBreaks()" class="btn-primary">📊 View Breaks</button>
+                <button onclick="refreshData()" class="btn-primary">🔄 Refresh</button>
             </div>
         </div>
 
-        <!-- All Users -->
-        <div class="card">
+        <!-- Users List -->
+        <div class="card" id="usersCard">
             <h2>👥 All Users</h2>
             <div id="usersList">
                 <p class="empty">Loading users...</p>
             </div>
         </div>
 
-        <!-- All Breaks -->
-        <div class="card">
-            <h2>📊 All Breaks</h2>
-            <div id="allBreaksList">
+        <!-- Breaks List -->
+        <div class="card" id="breaksCard">
+            <h2>📊 Recent Breaks</h2>
+            <div id="breaksList">
                 <p class="empty">Loading breaks...</p>
             </div>
         </div>
     </div>
 
-    <!-- Create Admin Modal -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Create Admin Account</h2>
-            <form id="adminForm">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="adminNameInput" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="adminEmailInput" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="adminPasswordInput" value="535680" required minlength="6">
-                    <small style="color: #666;">Default: 535680</small>
-                </div>
-                <button type="submit" class="btn-primary">Create Admin</button>
-            </form>
-        </div>
-    </div>
+    <script>
+        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
 
-    <!-- Reset Password Modal -->
-    <div id="resetModal" class="modal">
-        <div class="modal-content">
-            <span class="close-reset">&times;</span>
-            <h2>🔑 Reset Admin Password</h2>
-            <form id="resetForm">
-                <div class="form-group">
-                    <label>Admin Email</label>
-                    <input type="email" id="resetEmail" required placeholder="admin@break-tracker.com">
-                </div>
-                <div class="form-group">
-                    <label>New Password</label>
-                    <input type="text" id="resetPassword" value="535680" required>
-                    <small style="color: #666;">Default: 535680</small>
-                </div>
-                <button type="submit" class="btn-primary">Reset Password</button>
-            </form>
-        </div>
-    </div>
+        // Check if admin is logged in
+        function checkAuth() {
+            const session = localStorage.getItem('adminSession');
+            if (!session) {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            try {
+                const data = JSON.parse(session);
+                if (data.role !== 'admin') {
+                    window.location.href = 'admin-login.html';
+                    return false;
+                }
+                document.getElementById('adminName').textContent = '👋 ' + (data.email || 'Admin');
+                return true;
+            } catch {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+        }
 
-    <script type="module" src="admin.js"></script>
+        function logout() {
+            localStorage.removeItem('adminSession');
+            window.location.href = 'admin-login.html';
+        }
+
+        async function fetchData(endpoint) {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            return response.json();
+        }
+
+        async function loadStats() {
+            try {
+                const users = await fetchData('users?select=*');
+                const employees = await fetchData('employees?select=*');
+                const breaks = await fetchData('breaks?select=*&status=eq.active');
+                const admins = users.filter(u => u.role === 'admin');
+                
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('totalEmployees').textContent = employees.length;
+                document.getElementById('activeBreaks').textContent = breaks.length;
+                document.getElementById('adminCount').textContent = admins.length;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function viewUsers() {
+            try {
+                const users = await fetchData('users?select=*&order=created_at.desc');
+                const list = document.getElementById('usersList');
+                
+                if (users.length === 0) {
+                    list.innerHTML = '<p class="empty">No users found</p>';
+                    return;
+                }
+                
+                let html = '<table class="history-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Department</th></tr></thead><tbody>';
+                users.forEach(u => {
+                    html += `<tr>
+                        <td>${u.name || 'N/A'}</td>
+                        <td>${u.email}</td>
+                        <td><span class="badge ${u.role === 'admin' ? 'orange' : 'green'}">${u.role || 'employee'}</span></td>
+                        <td>${u.department || 'N/A'}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                list.innerHTML = html;
+                document.getElementById('usersCard').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = `<p class="error">Error loading users: ${error.message}</p>`;
+            }
+        }
+
+        async function viewBreaks() {
+            try {
+                const breaks = await fetchData('breaks?select=*,employees(name,department)&order=start_time.desc&limit=50');
+                const list = document.getElementById('breaksList');
+                
+                if (!breaks || breaks.length === 0) {
+                    list.innerHTML = '<p class="empty">No breaks found</p>';
+                    return;
+                }
+                
+                let html = '<table class="history-table"><thead><tr><th>Employee</th><th>Break Type</th><th>Start</th><th>Status</th></tr></thead><tbody>';
+                breaks.forEach(b => {
+                    const statusColor = b.status === 'active' ? 'orange' : 'green';
+                    html += `<tr>
+                        <td>${b.employees?.name || 'Unknown'}</td>
+                        <td>${b.break_type || 'short'}</td>
+                        <td>${new Date(b.start_time).toLocaleString()}</td>
+                        <td><span class="badge ${statusColor}">${b.status}</span></td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                list.innerHTML = html;
+                document.getElementById('breaksCard').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                document.getElementById('breaksList').innerHTML = `<p class="error">Error loading breaks: ${error.message}</p>`;
+            }
+        }
+
+        async function refreshData() {
+            await loadStats();
+            await viewUsers();
+            await viewBreaks();
+            alert('✅ Data refreshed!');
+        }
+
+        // Initialize
+        if (checkAuth()) {
+            loadStats();
+            viewUsers();
+            viewBreaks();
+        }
+    </script>
 </body>
 </html>
