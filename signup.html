@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Break Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🕐 Break Tracker</h1>
+            <p class="subtitle">Create your account</p>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required placeholder="john@company.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="Min 6 characters" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="role">
+                        <option value="employee">Employee</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="department">
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div id="errorMsg" class="error"></div>
+                <button type="submit" class="btn-primary btn-block">Create Account</button>
+            </form>
+            
+            <p class="auth-footer">
+                Already have an account? <a href="login.html">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { signUp } from '../src/supabase.js'
+        
+        const form = document.getElementById('signupForm')
+        const errorMsg = document.getElementById('errorMsg')
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const name = document.getElementById('name').value
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            const role = document.getElementById('role').value
+            const department = document.getElementById('department').value
+            
+            errorMsg.textContent = ''
+            errorMsg.style.display = 'none'
+            
+            const result = await signUp(email, password, { name, role, department })
+            
+            if (result.success) {
+                alert('Account created! Please login.')
+                window.location.href = 'login.html'
+            } else {
+                errorMsg.textContent = result.error
+                errorMsg.style.display = 'block'
+            }
+        })
+    </script>
+</body>
+</html>
