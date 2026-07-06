@@ -11,7 +11,7 @@
         <div class="nav-brand">🛡️ Admin Dashboard</div>
         <div class="nav-right">
             <span id="adminName">👋 Admin</span>
-            <button id="logoutBtn" class="btn-outline" onclick="logout()">Logout</button>
+            <button id="logoutBtn" class="btn-outline">Logout</button>
         </div>
     </nav>
 
@@ -23,56 +23,101 @@
                 <p id="totalUsers">0</p>
             </div>
             <div class="stat-card">
-                <h3>Total Employees</h3>
-                <p id="totalEmployees">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>Active Breaks</h3>
-                <p id="activeBreaks">0</p>
-            </div>
-            <div class="stat-card">
                 <h3>Admins</h3>
                 <p id="adminCount">0</p>
             </div>
-        </div>
-
-        <!-- Admin Info -->
-        <div class="card" style="background: #e8f5e9; border-left: 4px solid #4CAF50;">
-            <h2>✅ Admin Access Granted</h2>
-            <p>You are logged in as <strong>admin@break-tracker.com</strong></p>
-            <p style="color: #666; font-size: 14px;">Password: <strong>535680</strong></p>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="card">
-            <h2>⚡ Admin Actions</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px;">
-                <button onclick="viewUsers()" class="btn-primary">👥 View Users</button>
-                <button onclick="viewBreaks()" class="btn-primary">📊 View Breaks</button>
-                <button onclick="refreshData()" class="btn-primary">🔄 Refresh</button>
+            <div class="stat-card">
+                <h3>Employees</h3>
+                <p id="employeeCount">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Managers</h3>
+                <p id="managerCount">0</p>
             </div>
         </div>
 
-        <!-- Users List -->
-        <div class="card" id="usersCard">
-            <h2>👥 All Users</h2>
+        <!-- Create User Form -->
+        <div class="card">
+            <h2>➕ Create New User</h2>
+            <form id="createUserForm" class="create-user-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="userName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="userEmail" required placeholder="john@company.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="text" id="userPassword" required placeholder="Enter password" value="123456">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="userRole" required>
+                            <option value="employee">Employee</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="userDepartment" required>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="HR">HR</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Create User</button>
+            </form>
+        </div>
+
+        <!-- All Users List -->
+        <div class="card">
+            <div class="card-header">
+                <h2>👥 All Users</h2>
+                <div>
+                    <button id="refreshBtn" class="btn-outline">🔄 Refresh</button>
+                    <button id="deleteAllBtn" class="btn-danger" style="margin-left: 8px;">🗑️ Delete All</button>
+                </div>
+            </div>
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="Search users by name or email...">
+                <select id="roleFilter">
+                    <option value="all">All Roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="manager">Manager</option>
+                    <option value="employee">Employee</option>
+                </select>
+            </div>
             <div id="usersList">
                 <p class="empty">Loading users...</p>
             </div>
         </div>
+    </div>
 
-        <!-- Breaks List -->
-        <div class="card" id="breaksCard">
-            <h2>📊 Recent Breaks</h2>
-            <div id="breaksList">
-                <p class="empty">Loading breaks...</p>
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2>⚠️ Confirm Delete</h2>
+            <p id="deleteMessage">Are you sure you want to delete this user?</p>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button id="confirmDeleteBtn" class="btn-danger" style="flex: 1;">Delete</button>
+                <button id="cancelDeleteBtn" class="btn-outline" style="flex: 1;">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
+        // ============================================
+        // ADMIN DASHBOARD - COMPLETE
+        // ============================================
 
         // Check if admin is logged in
         function checkAuth() {
@@ -87,7 +132,7 @@
                     window.location.href = 'admin-login.html';
                     return false;
                 }
-                document.getElementById('adminName').textContent = '👋 ' + (data.email || 'Admin');
+                document.getElementById('adminName').textContent = '👋 ' + (data.name || 'Admin');
                 return true;
             } catch {
                 window.location.href = 'admin-login.html';
@@ -95,105 +140,284 @@
             }
         }
 
+        // Get all users
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('appUsers') || '[]');
+        }
+
+        // Save users
+        function saveUsers(users) {
+            localStorage.setItem('appUsers', JSON.stringify(users));
+        }
+
+        // Get all admins
+        function getAdmins() {
+            return JSON.parse(localStorage.getItem('adminUsers') || '[]');
+        }
+
+        // Save admins
+        function saveAdmins(admins) {
+            localStorage.setItem('adminUsers', JSON.stringify(admins));
+        }
+
+        // Load statistics
+        function loadStats() {
+            const users = getUsers();
+            const admins = getAdmins();
+            const allUsers = [...users, ...admins];
+            
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            document.getElementById('adminCount').textContent = admins.length;
+            document.getElementById('employeeCount').textContent = users.filter(u => u.role === 'employee').length;
+            document.getElementById('managerCount').textContent = users.filter(u => u.role === 'manager').length;
+        }
+
+        // Load users list
+        function loadUsers() {
+            const users = getUsers();
+            const admins = getAdmins();
+            const allUsers = [...users, ...admins];
+            
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            
+            let filtered = allUsers;
+            
+            // Apply search filter
+            if (searchTerm) {
+                filtered = filtered.filter(u => 
+                    u.name.toLowerCase().includes(searchTerm) || 
+                    u.email.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Apply role filter
+            if (roleFilter !== 'all') {
+                filtered = filtered.filter(u => u.role === roleFilter);
+            }
+            
+            const list = document.getElementById('usersList');
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty">No users found</p>';
+                return;
+            }
+            
+            let html = '<table class="history-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+            
+            filtered.forEach(u => {
+                const isAdmin = u.role === 'admin';
+                const statusColor = isAdmin ? 'orange' : (u.role === 'manager' ? 'blue' : 'green');
+                
+                html += `<tr>
+                    <td><strong>${u.name || 'N/A'}</strong></td>
+                    <td>${u.email}</td>
+                    <td><span class="badge ${statusColor}">${u.role || 'employee'}</span></td>
+                    <td>${u.department || 'N/A'}</td>
+                    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        ${!isAdmin ? `
+                            <button class="btn-small btn-delete delete-user" data-id="${u.id}" data-email="${u.email}" data-name="${u.name}">🗑️</button>
+                        ` : `
+                            <span class="badge orange">Protected</span>
+                        `}
+                    </td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            list.innerHTML = html;
+            
+            // Add delete event listeners
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+                    const email = this.dataset.email;
+                    showDeleteModal(id, name, email);
+                });
+            });
+        }
+
+        // Show delete confirmation modal
+        let deleteTargetId = null;
+        
+        function showDeleteModal(id, name, email) {
+            deleteTargetId = id;
+            document.getElementById('deleteMessage').textContent = `Are you sure you want to delete "${name}" (${email})?`;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        // Delete a user
+        function deleteUser(id) {
+            let users = getUsers();
+            const userToDelete = users.find(u => u.id === id);
+            
+            if (!userToDelete) {
+                alert('User not found!');
+                return;
+            }
+            
+            if (userToDelete.role === 'admin') {
+                alert('Cannot delete admin users!');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete "${userToDelete.name}" (${userToDelete.email})?`)) {
+                users = users.filter(u => u.id !== id);
+                saveUsers(users);
+                loadUsers();
+                loadStats();
+                alert('✅ User deleted successfully!');
+            }
+        }
+
+        // Delete all non-admin users
+        function deleteAllUsers() {
+            const users = getUsers();
+            const nonAdminUsers = users.filter(u => u.role !== 'admin');
+            
+            if (nonAdminUsers.length === 0) {
+                alert('No non-admin users to delete!');
+                return;
+            }
+            
+            if (confirm(`⚠️ Are you sure you want to delete ALL ${nonAdminUsers.length} non-admin users? This cannot be undone!`)) {
+                const admins = users.filter(u => u.role === 'admin');
+                saveUsers(admins);
+                loadUsers();
+                loadStats();
+                alert(`✅ Deleted ${nonAdminUsers.length} users!`);
+            }
+        }
+
+        // Create a new user
+        function createUser(name, email, password, role, department) {
+            const users = getUsers();
+            
+            // Check for duplicate email
+            if (users.find(u => u.email === email)) {
+                alert('❌ User with this email already exists!');
+                return false;
+            }
+            
+            // Check in admins too
+            const admins = getAdmins();
+            if (admins.find(a => a.email === email)) {
+                alert('❌ User with this email already exists as admin!');
+                return false;
+            }
+            
+            // Create new user
+            const newUser = {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                name: name,
+                email: email,
+                password: password,
+                role: role,
+                department: department,
+                created_at: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            saveUsers(users);
+            loadUsers();
+            loadStats();
+            return true;
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadStats();
+            loadUsers();
+            alert('✅ Data refreshed!');
+        }
+
+        // Logout
         function logout() {
             localStorage.removeItem('adminSession');
             window.location.href = 'admin-login.html';
         }
 
-        async function fetchData(endpoint) {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch');
-            return response.json();
-        }
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
 
-        async function loadStats() {
-            try {
-                const users = await fetchData('users?select=*');
-                const employees = await fetchData('employees?select=*');
-                const breaks = await fetchData('breaks?select=*&status=eq.active');
-                const admins = users.filter(u => u.role === 'admin');
-                
-                document.getElementById('totalUsers').textContent = users.length;
-                document.getElementById('totalEmployees').textContent = employees.length;
-                document.getElementById('activeBreaks').textContent = breaks.length;
-                document.getElementById('adminCount').textContent = admins.length;
-            } catch (error) {
-                console.error('Error loading stats:', error);
+        // Create user form
+        document.getElementById('createUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const role = document.getElementById('userRole').value;
+            const department = document.getElementById('userDepartment').value;
+            
+            if (createUser(name, email, password, role, department)) {
+                alert(`✅ User created successfully!\n\nName: ${name}\nEmail: ${email}\nPassword: ${password}\nRole: ${role}\nDepartment: ${department}`);
+                this.reset();
+                document.getElementById('userPassword').value = '123456';
             }
-        }
+        });
 
-        async function viewUsers() {
-            try {
-                const users = await fetchData('users?select=*&order=created_at.desc');
-                const list = document.getElementById('usersList');
-                
-                if (users.length === 0) {
-                    list.innerHTML = '<p class="empty">No users found</p>';
-                    return;
-                }
-                
-                let html = '<table class="history-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Department</th></tr></thead><tbody>';
-                users.forEach(u => {
-                    html += `<tr>
-                        <td>${u.name || 'N/A'}</td>
-                        <td>${u.email}</td>
-                        <td><span class="badge ${u.role === 'admin' ? 'orange' : 'green'}">${u.role || 'employee'}</span></td>
-                        <td>${u.department || 'N/A'}</td>
-                    </tr>`;
-                });
-                html += '</tbody></table>';
-                list.innerHTML = html;
-                document.getElementById('usersCard').scrollIntoView({ behavior: 'smooth' });
-            } catch (error) {
-                document.getElementById('usersList').innerHTML = `<p class="error">Error loading users: ${error.message}</p>`;
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', refreshData);
+
+        // Delete all button
+        document.getElementById('deleteAllBtn').addEventListener('click', deleteAllUsers);
+
+        // Search input
+        document.getElementById('searchInput').addEventListener('input', loadUsers);
+
+        // Role filter
+        document.getElementById('roleFilter').addEventListener('change', loadUsers);
+
+        // Modal controls
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (deleteTargetId) {
+                deleteUser(deleteTargetId);
+                deleteTargetId = null;
+                document.getElementById('deleteModal').style.display = 'none';
             }
-        }
+        });
 
-        async function viewBreaks() {
-            try {
-                const breaks = await fetchData('breaks?select=*,employees(name,department)&order=start_time.desc&limit=50');
-                const list = document.getElementById('breaksList');
-                
-                if (!breaks || breaks.length === 0) {
-                    list.innerHTML = '<p class="empty">No breaks found</p>';
-                    return;
-                }
-                
-                let html = '<table class="history-table"><thead><tr><th>Employee</th><th>Break Type</th><th>Start</th><th>Status</th></tr></thead><tbody>';
-                breaks.forEach(b => {
-                    const statusColor = b.status === 'active' ? 'orange' : 'green';
-                    html += `<tr>
-                        <td>${b.employees?.name || 'Unknown'}</td>
-                        <td>${b.break_type || 'short'}</td>
-                        <td>${new Date(b.start_time).toLocaleString()}</td>
-                        <td><span class="badge ${statusColor}">${b.status}</span></td>
-                    </tr>`;
-                });
-                html += '</tbody></table>';
-                list.innerHTML = html;
-                document.getElementById('breaksCard').scrollIntoView({ behavior: 'smooth' });
-            } catch (error) {
-                document.getElementById('breaksList').innerHTML = `<p class="error">Error loading breaks: ${error.message}</p>`;
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            deleteTargetId = null;
+            document.getElementById('deleteModal').style.display = 'none';
+        });
+
+        // Close modal on click outside
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('deleteModal')) {
+                document.getElementById('deleteModal').style.display = 'none';
+                deleteTargetId = null;
             }
-        }
+        });
 
-        async function refreshData() {
-            await loadStats();
-            await viewUsers();
-            await viewBreaks();
-            alert('✅ Data refreshed!');
-        }
-
-        // Initialize
+        // ============================================
+        // INITIALIZE
+        // ============================================
         if (checkAuth()) {
+            // Create default admin if not exists
+            const admins = getAdmins();
+            if (!admins.find(a => a.email === 'admin@break-tracker.com')) {
+                admins.push({
+                    id: Date.now().toString(),
+                    name: 'Admin User',
+                    email: 'admin@break-tracker.com',
+                    password: '535680',
+                    role: 'admin',
+                    department: 'Management',
+                    created_at: new Date().toISOString()
+                });
+                saveAdmins(admins);
+            }
+            
             loadStats();
-            viewUsers();
-            viewBreaks();
+            loadUsers();
         }
     </script>
 </body>
