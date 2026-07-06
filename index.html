@@ -297,3 +297,50 @@
         }
 
         // ============================================
+        // LOAD USER'S BREAK HISTORY
+        // ============================================
+        function loadUserHistory() {
+            const breaks = getBreaks();
+            const employees = getEmployees();
+            const emp = employees.find(e => e.email === currentUser.email);
+            const container = document.getElementById('breakHistory');
+
+            if (!emp) {
+                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No breaks found for you</p></div>';
+                return;
+            }
+
+            const userBreaks = breaks.filter(b => b.employee_id === emp.id && b.status === 'completed').slice(-20).reverse();
+            if (userBreaks.length === 0) {
+                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No break history found</p></div>';
+                return;
+            }
+
+            let html = '<table class="history-table"><thead><tr><th>Start Time</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
+            userBreaks.forEach(b => {
+                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                html += `<tr><td>${new Date(b.start_time).toLocaleString()}</td><td>${duration}</td><td><span class="badge badge-green">Completed</span></td></tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // AUTO REFRESH
+        // ============================================
+        function refreshAll() {
+            loadActiveBreaks();
+            loadTodayBreaks();
+            loadUserHistory();
+            updateBreakUI();
+        }
+
+        setInterval(refreshAll, 10000);
+        refreshAll();
+
+        console.log('✅ User Dashboard loaded');
+        console.log('👤 Logged in as:', currentUser.email);
+        console.log('🔄 Auto-refresh every 10 seconds');
+    </script>
+</body>
+</html>
