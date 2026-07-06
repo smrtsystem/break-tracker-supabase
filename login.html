@@ -22,7 +22,7 @@
                     <input type="password" id="password" required placeholder="••••••••">
                 </div>
                 <div id="errorMsg" class="error"></div>
-                <button type="submit" class="btn-primary btn-block">Login</button>
+                <button type="submit" class="btn-primary btn-block" id="loginBtn">Login</button>
             </form>
             
             <p class="auth-footer">
@@ -31,30 +31,69 @@
         </div>
     </div>
 
-    <script type="module">
-         import { signIn } from './supabase.js'  // ← ✅ FIXED
-        
-        const form = document.getElementById('loginForm')
-        const errorMsg = document.getElementById('errorMsg')
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            
-            const email = document.getElementById('email').value
-            const password = document.getElementById('password').value
-            
-            errorMsg.textContent = ''
-            errorMsg.style.display = 'none'
-            
-            const result = await signIn(email, password)
-            
-            if (result.success) {
-                window.location.href = 'index.html'
-            } else {
-                errorMsg.textContent = result.error
-                errorMsg.style.display = 'block'
+    <script>
+        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
+
+        async function signIn(email, password) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                return { success: true, user: data.user };
+            } catch (error) {
+                console.error('Login error:', error);
+                return { success: false, error: error.message };
             }
-        })
+        }
+
+        const form = document.getElementById('loginForm');
+        const errorMsg = document.getElementById('errorMsg');
+        const loginBtn = document.getElementById('loginBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            errorMsg.textContent = '';
+            errorMsg.style.display = 'none';
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
+            
+            try {
+                const result = await signIn(email, password);
+                
+                if (result.success) {
+                    // Store user info
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    window.location.href = 'index.html';
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = '❌ ' + error.message;
+                errorMsg.style.display = 'block';
+                loginBtn.textContent = 'Login';
+                loginBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
