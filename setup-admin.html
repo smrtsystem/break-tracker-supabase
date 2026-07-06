@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Admin - Break Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🔧 Setup Admin Account</h1>
+            <p class="subtitle">Create the first admin account</p>
+            
+            <form id="setupForm">
+                <div class="form-group">
+                    <label>Admin Name</label>
+                    <input type="text" id="name" required placeholder="Admin User" value="Admin User">
+                </div>
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" id="email" required placeholder="admin@break-tracker.com" value="admin@break-tracker.com">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="text" id="password" required value="535680" minlength="6">
+                    <small style="color: #666;">Default: 535680</small>
+                </div>
+                <div id="errorMsg" class="error"></div>
+                <button type="submit" class="btn-primary btn-block">Create Admin</button>
+            </form>
+            
+            <p class="auth-footer">
+                <a href="admin-login.html">← Back to Admin Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabase.js'
+        
+        const form = document.getElementById('setupForm')
+        const errorMsg = document.getElementById('errorMsg')
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const name = document.getElementById('name').value
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            
+            errorMsg.textContent = ''
+            errorMsg.style.display = 'none'
+            
+            try {
+                // Step 1: Create auth user
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            name: name,
+                            role: 'admin'
+                        }
+                    }
+                })
+                
+                if (authError) throw authError
+                
+                if (!authData.user) {
+                    throw new Error('Failed to create user')
+                }
+                
+                // Step 2: Create user profile
+                const { error: userError } = await supabase
+                    .from('users')
+                    .insert([{
+                        id: authData.user.id,
+                        email: email,
+                        name: name,
+                        role: 'admin'
+                    }])
+                
+                if (userError) throw userError
+                
+                // Step 3: Update admin password setting
+                await supabase
+                    .from('admin_settings')
+                    .upsert({
+                        setting_key: 'admin_password',
+                        setting_value: password
+                    })
+                
+                alert('✅ Admin account created successfully!\n\nEmail: ' + email + '\nPassword: ' + password)
+                window.location.href = 'admin-login.html'
+                
+            } catch (error) {
+                if (error.message.includes('already registered')) {
+                    errorMsg.textContent = '⚠️ This email is already registered. Try logging in or use a different email.'
+                } else {
+                    errorMsg.textContent = 'Error: ' + error.message
+                }
+                errorMsg.style.display = 'block'
+            }
+        })
+    </script>
+</body>
+</html>
