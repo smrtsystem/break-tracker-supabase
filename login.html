@@ -35,18 +35,13 @@
     </div>
 
     <script>
-        // ============================================
-        // USER LOGIN - NO SIGNUP
-        // ============================================
-        const form = document.getElementById('loginForm');
-        const errorMsg = document.getElementById('errorMsg');
-        const loginBtn = document.getElementById('loginBtn');
-
-        form.addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const loginBtn = document.getElementById('loginBtn');
             
             errorMsg.textContent = '';
             errorMsg.style.display = 'none';
@@ -54,34 +49,26 @@
             loginBtn.disabled = true;
             
             try {
-                // Get users from local storage
                 const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
                 const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
                 const allUsers = [...users, ...admins];
                 
-                // Find user
                 const user = allUsers.find(u => u.email === email && u.password === password);
                 
                 if (!user) {
                     throw new Error('Invalid email or password!');
                 }
                 
-                // Save current user
                 localStorage.setItem('currentUser', JSON.stringify(user));
-                
-                // Redirect to dashboard
                 window.location.href = 'index.html';
                 
             } catch (error) {
-                console.error('Login error:', error);
                 errorMsg.textContent = '❌ ' + error.message;
                 errorMsg.style.display = 'block';
                 loginBtn.textContent = 'Login';
                 loginBtn.disabled = false;
             }
         });
-
-        console.log('✅ Login page loaded - Admin creates accounts only');
     </script>
 </body>
 </html>
