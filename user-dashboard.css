@@ -1,0 +1,218 @@
+/* ============================================
+   USER DASHBOARD - SIDEBAR & VACATION STYLES
+   ============================================ */
+
+/* Dashboard Wrapper */
+.dashboard-wrapper {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 0;
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+}
+
+.sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.sidebar .nav-item:hover {
+    background: #f0f2f5;
+    color: #1a1a2e;
+}
+
+.sidebar .nav-item.active {
+    background: #f0f2f5;
+    border-left-color: #667eea;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.sidebar .nav-item .icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 8px 16px;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ============================================
+   VIEW SECTIONS
+   ============================================ */
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+}
+
+/* ============================================
+   VACATION STYLES
+   ============================================ */
+.vacation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.vacation-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s;
+}
+
+.vacation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vacation-card .emp-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.vacation-card .emp-dept {
+    font-size: 13px;
+    color: #666;
+}
+
+.vacation-card .vacation-dates {
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+
+.vacation-card .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-approved { 
+    background: #4ecdc4; 
+    color: white; 
+}
+
+.status-pending { 
+    background: #ffd93d; 
+    color: #1a1a2e; 
+}
+
+.status-rejected { 
+    background: #ff6b6b; 
+    color: white; 
+}
+
+/* ============================================
+   VACATION TAB BUTTONS
+   ============================================ */
+.vacation-tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.vacation-tab-btn:hover {
+    background: #f0f2f5;
+}
+
+.vacation-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 8px;
+        gap: 4px;
+    }
+
+    .sidebar .nav-item {
+        padding: 8px 14px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        flex: 1;
+        justify-content: center;
+        min-width: 100px;
+    }
+
+    .sidebar .nav-item.active {
+        border-left: none;
+        border-bottom-color: #667eea;
+    }
+
+    .sidebar-divider {
+        display: none;
+    }
+
+    .vacation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .vacation-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vacation-card {
+        padding: 12px;
+    }
+}
