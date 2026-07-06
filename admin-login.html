@@ -19,7 +19,7 @@
                 </div>
                 <div class="form-group">
                     <label>Admin Password</label>
-                    <input type="password" id="password" required placeholder="Enter admin password">
+                    <input type="password" id="password" required placeholder="Enter admin password" value="535680">
                     <small style="color: #666; display: block; margin-top: 5px;">Default password: <strong>535680</strong></small>
                 </div>
                 <div id="errorMsg" class="error"></div>
@@ -27,113 +27,92 @@
             </form>
             
             <p class="auth-footer">
-                <a href="index.html">← Back to User Dashboard</a>
+                <a href="setup-admin.html">🔧 Setup Admin</a> | 
+                <a href="index.html">← Back to Dashboard</a>
             </p>
         </div>
     </div>
 
-    <script type="module">
-        import { supabase } from './supabase.js'
-        
-        const form = document.getElementById('adminLoginForm')
-        const errorMsg = document.getElementById('errorMsg')
-        const loginBtn = document.getElementById('loginBtn')
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
+    <script>
+        // SIMPLIFIED VERSION - No imports needed!
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            const email = document.getElementById('email').value
-            const password = document.getElementById('password').value
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const loginBtn = document.getElementById('loginBtn');
             
-            errorMsg.textContent = ''
-            errorMsg.style.display = 'none'
-            loginBtn.textContent = 'Logging in...'
-            loginBtn.disabled = true
+            errorMsg.textContent = '';
+            errorMsg.style.display = 'none';
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
             
             try {
-                console.log('🔍 Checking admin credentials...')
-                
-                // Step 1: Check if admin exists in users table
-                const { data: adminUser, error: adminError } = await supabase
-                    .from('users')
-                    .select('id, email, role')
-                    .eq('email', email)
-                    .eq('role', 'admin')
-                    .maybeSingle()
-                
-                console.log('Admin user check:', adminUser)
-                
-                if (adminError) {
-                    console.error('Admin check error:', adminError)
-                    throw new Error('Database error: ' + adminError.message)
+                // Check if it's the default admin
+                if (email === 'admin@break-tracker.com' && password === '535680') {
+                    // Store admin session in localStorage
+                    localStorage.setItem('adminSession', JSON.stringify({
+                        email: email,
+                        role: 'admin',
+                        loginTime: new Date().toISOString()
+                    }));
+                    
+                    alert('✅ Admin login successful!');
+                    window.location.href = 'admin-dashboard.html';
+                    return;
                 }
                 
-                if (!adminUser) {
-                    errorMsg.textContent = '❌ Admin account not found. Please contact system administrator.'
-                    errorMsg.style.display = 'block'
-                    loginBtn.textContent = 'Login as Admin'
-                    loginBtn.disabled = false
-                    return
-                }
+                // Try Supabase login
+                const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
                 
-                // Step 2: Check password from settings
-                const { data: settings, error: settingsError } = await supabase
-                    .from('admin_settings')
-                    .select('setting_value')
-                    .eq('setting_key', 'admin_password')
-                    .maybeSingle()
-                
-                console.log('Settings check:', settings)
-                
-                if (settingsError) {
-                    console.error('Settings error:', settingsError)
-                }
-                
-                const adminPassword = settings?.setting_value || '535680'
-                console.log('Admin password from DB:', adminPassword)
-                
-                if (password !== adminPassword) {
-                    errorMsg.textContent = '❌ Invalid password!'
-                    errorMsg.style.display = 'block'
-                    loginBtn.textContent = 'Login as Admin'
-                    loginBtn.disabled = false
-                    return
-                }
-                
-                // Step 3: Try to login with Supabase Auth
-                console.log('🔐 Attempting Supabase login...')
-                
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: adminPassword
-                })
-                
-                if (authError) {
-                    console.error('Auth error:', authError)
-                    // If auth fails, try to create the auth user
-                    if (authError.message.includes('Invalid login credentials')) {
-                        errorMsg.textContent = '⚠️ Auth account not found. Try signing up first with the same email.'
-                        errorMsg.style.display = 'block'
-                    } else {
-                        errorMsg.textContent = 'Login failed: ' + authError.message
-                        errorMsg.style.display = 'block'
+                // Check admin password from settings
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/admin_settings?setting_key=eq.admin_password&select=setting_value`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
-                    loginBtn.textContent = 'Login as Admin'
-                    loginBtn.disabled = false
-                    return
+                });
+                
+                if (!response.ok) {
+                    // If settings fetch fails, use default password
+                    if (password === '535680') {
+                        localStorage.setItem('adminSession', JSON.stringify({
+                            email: email,
+                            role: 'admin',
+                            loginTime: new Date().toISOString()
+                        }));
+                        alert('✅ Admin login successful!');
+                        window.location.href = 'admin-dashboard.html';
+                        return;
+                    }
+                    throw new Error('Invalid credentials');
                 }
                 
-                console.log('✅ Admin login successful!')
-                window.location.href = 'admin-dashboard.html'
+                const data = await response.json();
+                const adminPassword = data[0]?.setting_value || '535680';
+                
+                if (password === adminPassword) {
+                    localStorage.setItem('adminSession', JSON.stringify({
+                        email: email,
+                        role: 'admin',
+                        loginTime: new Date().toISOString()
+                    }));
+                    alert('✅ Admin login successful!');
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    throw new Error('Invalid password');
+                }
                 
             } catch (error) {
-                console.error('❌ Error:', error)
-                errorMsg.textContent = 'Error: ' + error.message
-                errorMsg.style.display = 'block'
-                loginBtn.textContent = 'Login as Admin'
-                loginBtn.disabled = false
+                console.error('Login error:', error);
+                errorMsg.textContent = '❌ ' + error.message;
+                errorMsg.style.display = 'block';
+                loginBtn.textContent = 'Login as Admin';
+                loginBtn.disabled = false;
             }
-        })
+        });
     </script>
 </body>
 </html>
