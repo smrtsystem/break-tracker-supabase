@@ -15,55 +15,6 @@ body {
 }
 
 /* ============================================
-   AUTH PAGES
-   ============================================ */
-.auth-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
-}
-
-.auth-card {
-    background: white;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 400px;
-}
-
-.auth-card h1 {
-    text-align: center;
-    font-size: 28px;
-    margin-bottom: 8px;
-}
-
-.auth-card .subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 30px;
-}
-
-.auth-footer {
-    text-align: center;
-    margin-top: 20px;
-    color: #666;
-}
-
-.auth-footer a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.auth-footer a:hover {
-    text-decoration: underline;
-}
-
-/* ============================================
    NAVBAR
    ============================================ */
 .navbar {
@@ -111,15 +62,6 @@ body {
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     margin-bottom: 24px;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 12px;
 }
 
 .card h2 {
@@ -182,6 +124,11 @@ body {
 
 .btn-primary:hover {
     background: #5a6fd6;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .btn-success {
@@ -307,311 +254,7 @@ body {
 }
 
 /* ============================================
-   FORMS
-   ============================================ */
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.error {
-    color: #ff6b6b;
-    font-size: 14px;
-    margin-bottom: 12px;
-    display: none;
-}
-
-/* ============================================
-   FILTERS
-   ============================================ */
-.filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.filters input,
-.filters select {
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    flex: 1;
-    min-width: 150px;
-}
-
-.filters input:focus,
-.filters select:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-/* ============================================
-   BADGES
-   ============================================ */
-.badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-}
-
-.badge-green { background: #4ecdc4; }
-.badge-orange { background: #ffd93d; color: #1a1a2e; }
-.badge-red { background: #ff6b6b; }
-.badge-blue { background: #667eea; }
-.badge-purple { background: #a29bfe; }
-
-/* ============================================
-   ADMIN TABS
-   ============================================ */
-.admin-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    background: white;
-    padding: 12px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.tab-btn {
-    padding: 10px 20px;
-    border: none;
-    background: #f0f2f5;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
-    color: #555;
-}
-
-.tab-btn:hover {
-    background: #e0e0e0;
-}
-
-.tab-btn.active {
-    background: #667eea;
-    color: white;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* ============================================
-   TABLES
-   ============================================ */
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-table th {
-    text-align: left;
-    padding: 10px;
-    background: #f8f9fa;
-    font-weight: 600;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-table tr:hover {
-    background: #f8f9fa;
-}
-
-.history-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.history-table th {
-    text-align: left;
-    padding: 10px;
-    background: #f8f9fa;
-    font-weight: 600;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.history-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.history-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* ============================================
-   CONFIG ITEMS
-   ============================================ */
-.config-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border-left: 4px solid #667eea;
-}
-
-.config-item .actions {
-    display: flex;
-    gap: 8px;
-}
-
-/* ============================================
-   BREAK WALL (User Dashboard)
-   ============================================ */
-.break-wall {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.break-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #4ecdc4;
-    transition: transform 0.2s;
-}
-
-.break-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.break-card.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-card .card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.break-card .card-header h3 {
-    font-size: 16px;
-    margin: 0;
-}
-
-.break-card .card-body p {
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-.break-card .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.break-card .overdue-text {
-    color: #ff6b6b;
-    font-weight: 600;
-}
-
-.break-card .on-time-text {
-    color: #4ecdc4;
-    font-weight: 600;
-}
-
-/* ============================================
-   BREAK STATUS GRID (Admin)
-   ============================================ */
-.break-status-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-}
-
-.break-status-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #4ecdc4;
-}
-
-.break-status-card.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-status-card .name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.break-status-card .dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.break-status-card .time {
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-/* ============================================
-   MY BREAK SECTION (User Dashboard)
+   MY BREAK SECTION
    ============================================ */
 .my-break-section {
     background: white;
@@ -687,13 +330,8 @@ table tr:hover {
     font-weight: 600;
 }
 
-.break-info .on-time-text {
-    color: #4ecdc4;
-    font-weight: 600;
-}
-
 /* ============================================
-   WELCOME HEADER (User Dashboard)
+   WELCOME HEADER
    ============================================ */
 .welcome-header {
     display: flex;
@@ -729,6 +367,116 @@ table tr:hover {
 }
 
 /* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+.badge-green { background: #4ecdc4; }
+.badge-orange { background: #ffd93d; color: #1a1a2e; }
+.badge-red { background: #ff6b6b; }
+.badge-blue { background: #667eea; }
+.badge-purple { background: #a29bfe; }
+
+/* ============================================
+   BREAK WALL
+   ============================================ */
+.break-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.break-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #4ecdc4;
+    transition: transform 0.2s;
+}
+
+.break-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.break-card.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.break-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.break-card .card-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.break-card .card-body p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.break-card .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.break-card .overdue-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+.break-card .on-time-text {
+    color: #4ecdc4;
+    font-weight: 600;
+}
+
+/* ============================================
+   HISTORY TABLE
+   ============================================ */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.history-table th {
+    text-align: left;
+    padding: 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.history-table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.history-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
    NO BREAKS / EMPTY STATE
    ============================================ */
 .no-breaks {
@@ -752,6 +500,252 @@ table tr:hover {
 .empty .icon {
     font-size: 40px;
     margin-bottom: 12px;
+}
+
+/* ============================================
+   AUTH PAGES
+   ============================================ */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.auth-card .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+}
+
+.auth-footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.error {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    display: none;
+}
+
+/* ============================================
+   FILTERS
+   ============================================ */
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filters input:focus,
+.filters select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* ============================================
+   ADMIN TABS
+   ============================================ */
+.admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: #f0f2f5;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+    color: #555;
+}
+
+.tab-btn:hover {
+    background: #e0e0e0;
+}
+
+.tab-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+table th {
+    text-align: left;
+    padding: 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
+   CONFIG ITEMS
+   ============================================ */
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.config-item .actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================
+   BREAK STATUS GRID (Admin)
+   ============================================ */
+.break-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.break-status-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #4ecdc4;
+}
+
+.break-status-card.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.break-status-card .name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.break-status-card .dept {
+    font-size: 13px;
+    color: #666;
+}
+
+.break-status-card .time {
+    font-size: 14px;
+    margin-top: 4px;
 }
 
 /* ============================================
@@ -824,6 +818,35 @@ table tr:hover {
 }
 
 /* ============================================
+   CHECKBOX GROUP
+   ============================================ */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+/* ============================================
+   SELECT ALL
+   ============================================ */
+.select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
@@ -845,9 +868,32 @@ table tr:hover {
         grid-template-columns: 1fr 1fr;
     }
     
-    .break-wall,
+    .break-wall {
+        grid-template-columns: 1fr;
+    }
+    
     .break-status-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .break-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .break-actions .btn-start-break,
+    .break-actions .btn-end-break {
+        width: 100%;
+    }
+
+    .break-status-display {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .welcome-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
     .modal-content {
@@ -886,26 +932,6 @@ table tr:hover {
     .history-table th,
     .history-table td {
         padding: 6px 8px;
-    }
-    
-    .break-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .break-actions .btn-start-break,
-    .break-actions .btn-end-break {
-        width: 100%;
-    }
-
-    .break-status-display {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .welcome-header {
-        flex-direction: column;
-        align-items: flex-start;
     }
 }
 
