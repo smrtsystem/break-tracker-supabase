@@ -16,7 +16,7 @@ import {
     getStats,
     subscribeToBreaks,
     formatDuration
-} from './supabase.js'
+} from './supabase.js'  // ← ✅ FIXED: removed 'src/'
 
 // ============================================
 // DOM ELEMENTS
