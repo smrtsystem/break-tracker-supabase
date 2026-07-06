@@ -54,75 +54,7 @@
 
     <script>
         // ============================================
-        // SUPABASE CONFIGURATION
-        // ============================================
-        const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI';
-
-        // ============================================
-        // SIGNUP FUNCTION
-        // ============================================
-        async function signUp(email, password, userData) {
-            try {
-                // Step 1: Create auth user using Supabase REST API
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                        data: {
-                            name: userData.name,
-                            role: userData.role || 'employee'
-                        }
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.message || 'Signup failed');
-                }
-
-                if (!data.user) {
-                    throw new Error('No user data returned');
-                }
-
-                // Step 2: Create user profile in users table
-                const profileResponse = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({
-                        id: data.user.id,
-                        email: email,
-                        name: userData.name,
-                        role: userData.role || 'employee',
-                        department: userData.department || 'Engineering'
-                    })
-                });
-
-                if (!profileResponse.ok) {
-                    console.warn('Profile creation warning:', await profileResponse.text());
-                }
-
-                return { success: true, user: data.user };
-
-            } catch (error) {
-                console.error('Signup error:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
-        // ============================================
-        // FORM HANDLER
+        // SIGNUP WITH LOCAL STORAGE (FIXED)
         // ============================================
         const form = document.getElementById('signupForm');
         const errorMsg = document.getElementById('errorMsg');
@@ -143,14 +75,38 @@
             signupBtn.disabled = true;
             
             try {
-                const result = await signUp(email, password, { name, role, department });
+                // Check if user already exists in local storage
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
                 
-                if (result.success) {
-                    alert('✅ Account created successfully! Please login.');
-                    window.location.href = 'login.html';
-                } else {
-                    throw new Error(result.error);
+                // Check for duplicate email
+                if (users.find(u => u.email === email)) {
+                    throw new Error('User already exists with this email!');
                 }
+                
+                // Create new user
+                const newUser = {
+                    id: Date.now().toString(),
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: role,
+                    department: department,
+                    created_at: new Date().toISOString()
+                };
+                
+                // Save to local storage
+                users.push(newUser);
+                localStorage.setItem('appUsers', JSON.stringify(users));
+                
+                // Also save as current user
+                localStorage.setItem('currentUser', JSON.stringify(newUser));
+                
+                // Show success
+                alert('✅ Account created successfully!\n\nEmail: ' + email + '\nPassword: ' + password + '\n\nPlease login.');
+                
+                // Redirect to login
+                window.location.href = 'login.html';
+                
             } catch (error) {
                 console.error('Signup error:', error);
                 errorMsg.textContent = '❌ ' + error.message;
@@ -160,8 +116,7 @@
             }
         });
 
-        console.log('✅ Signup page loaded');
-        console.log('🔗 Supabase URL:', SUPABASE_URL);
+        console.log('✅ Signup page loaded - Local Storage mode');
     </script>
 </body>
 </html>
