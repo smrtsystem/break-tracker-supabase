@@ -23,7 +23,7 @@
                     <small style="color: #666; display: block; margin-top: 5px;">Default password: <strong>535680</strong></small>
                 </div>
                 <div id="errorMsg" class="error"></div>
-                <button type="submit" class="btn-primary btn-block">Login as Admin</button>
+                <button type="submit" class="btn-primary btn-block" id="loginBtn">Login as Admin</button>
             </form>
             
             <p class="auth-footer">
@@ -37,6 +37,7 @@
         
         const form = document.getElementById('adminLoginForm')
         const errorMsg = document.getElementById('errorMsg')
+        const loginBtn = document.getElementById('loginBtn')
         
         form.addEventListener('submit', async (e) => {
             e.preventDefault()
@@ -46,54 +47,91 @@
             
             errorMsg.textContent = ''
             errorMsg.style.display = 'none'
+            loginBtn.textContent = 'Logging in...'
+            loginBtn.disabled = true
             
             try {
-                // Check if admin exists in users table
+                console.log('🔍 Checking admin credentials...')
+                
+                // Step 1: Check if admin exists in users table
                 const { data: adminUser, error: adminError } = await supabase
                     .from('users')
                     .select('id, email, role')
                     .eq('email', email)
                     .eq('role', 'admin')
-                    .single()
+                    .maybeSingle()
                 
-                if (adminError || !adminUser) {
-                    errorMsg.textContent = 'Admin account not found. Please contact system administrator.'
+                console.log('Admin user check:', adminUser)
+                
+                if (adminError) {
+                    console.error('Admin check error:', adminError)
+                    throw new Error('Database error: ' + adminError.message)
+                }
+                
+                if (!adminUser) {
+                    errorMsg.textContent = '❌ Admin account not found. Please contact system administrator.'
                     errorMsg.style.display = 'block'
+                    loginBtn.textContent = 'Login as Admin'
+                    loginBtn.disabled = false
                     return
                 }
                 
-                // Check password from settings
-                const { data: settings } = await supabase
+                // Step 2: Check password from settings
+                const { data: settings, error: settingsError } = await supabase
                     .from('admin_settings')
                     .select('setting_value')
                     .eq('setting_key', 'admin_password')
-                    .single()
+                    .maybeSingle()
+                
+                console.log('Settings check:', settings)
+                
+                if (settingsError) {
+                    console.error('Settings error:', settingsError)
+                }
                 
                 const adminPassword = settings?.setting_value || '535680'
+                console.log('Admin password from DB:', adminPassword)
                 
                 if (password !== adminPassword) {
-                    errorMsg.textContent = 'Invalid password!'
+                    errorMsg.textContent = '❌ Invalid password!'
                     errorMsg.style.display = 'block'
+                    loginBtn.textContent = 'Login as Admin'
+                    loginBtn.disabled = false
                     return
                 }
                 
-                // Auto-login as the admin user
+                // Step 3: Try to login with Supabase Auth
+                console.log('🔐 Attempting Supabase login...')
+                
                 const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: adminPassword
                 })
                 
                 if (authError) {
-                    errorMsg.textContent = 'Login failed. Please try again.'
-                    errorMsg.style.display = 'block'
+                    console.error('Auth error:', authError)
+                    // If auth fails, try to create the auth user
+                    if (authError.message.includes('Invalid login credentials')) {
+                        errorMsg.textContent = '⚠️ Auth account not found. Try signing up first with the same email.'
+                        errorMsg.style.display = 'block'
+                    } else {
+                        errorMsg.textContent = 'Login failed: ' + authError.message
+                        errorMsg.style.display = 'block'
+                    }
+                    loginBtn.textContent = 'Login as Admin'
+                    loginBtn.disabled = false
                     return
                 }
                 
+                console.log('✅ Admin login successful!')
                 window.location.href = 'admin-dashboard.html'
                 
             } catch (error) {
+                console.error('❌ Error:', error)
                 errorMsg.textContent = 'Error: ' + error.message
                 errorMsg.style.display = 'block'
+                loginBtn.textContent = 'Login as Admin'
+                loginBtn.disabled = false
             }
         })
     </script>
