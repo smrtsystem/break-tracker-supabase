@@ -4,83 +4,267 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Break Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin-login.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <h1>🛡️ Admin Login</h1>
-            <p class="subtitle">Enter admin credentials</p>
+            <!-- Admin Badge -->
+            <div style="text-align: center;">
+                <span class="admin-badge">
+                    <i class="fas fa-user-shield"></i> ADMIN
+                </span>
+            </div>
             
-            <form id="adminLoginForm">
+            <h1>
+                <span class="icon">🛡️</span> Admin Login
+            </h1>
+            <p class="subtitle">Enter your administrator credentials</p>
+            
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <i class="fas fa-lock"></i>
+                <span>Secure Admin Access</span>
+                <i class="fas fa-shield-alt" style="color:#667eea;"></i>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="errorMsg" class="error-msg">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials</span>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="adminLoginForm" autocomplete="on">
                 <div class="form-group">
-                    <label>Admin Email</label>
-                    <input type="email" id="email" required placeholder="admin@break-tracker.com" value="admin@break-tracker.com">
+                    <label for="email">
+                        Admin Email
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            required 
+                            placeholder="admin@break-tracker.com" 
+                            value="admin@break-tracker.com"
+                            autocomplete="email"
+                        >
+                    </div>
                 </div>
+                
                 <div class="form-group">
-                    <label>Admin Password</label>
-                    <input type="password" id="password" required placeholder="Enter admin password" value="535680">
-                    <small style="color:#666;display:block;margin-top:5px;">Default password: <strong>535680</strong></small>
+                    <label for="password">
+                        Admin Password
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <i class="fas fa-key"></i>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password"
+                            required 
+                            placeholder="Enter admin password" 
+                            value="535680"
+                            autocomplete="current-password"
+                        >
+                    </div>
+                    <div class="password-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Default password: <strong>535680</strong>
+                    </div>
                 </div>
-                <div id="errorMsg" class="error"></div>
-                <button type="submit" class="btn-primary btn-block" id="loginBtn">Login as Admin</button>
+                
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <span class="btn-text">
+                        <i class="fas fa-sign-in-alt"></i> Login as Admin
+                    </span>
+                    <span class="spinner"></span>
+                </button>
             </form>
             
+            <!-- Divider -->
+            <div class="divider">or</div>
+            
+            <!-- Footer Links -->
             <p class="auth-footer">
-                <a href="login.html">← Back to User Login</a>
+                <a href="login.html">
+                    <i class="fas fa-arrow-left"></i> Back to User Login
+                </a>
             </p>
         </div>
     </div>
 
     <script>
-        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMsg');
+        (function() {
+            'use strict';
+
+            // ============================================
+            // DOM ELEMENTS
+            // ============================================
+            const form = document.getElementById('adminLoginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
             const loginBtn = document.getElementById('loginBtn');
-            
-            errorMsg.textContent = '';
-            errorMsg.style.display = 'none';
-            loginBtn.textContent = 'Logging in...';
-            loginBtn.disabled = true;
-            
-            try {
-                const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-                const admin = admins.find(a => a.email === email && a.password === password);
-                
-                if (admin) {
-                    localStorage.setItem('adminSession', JSON.stringify(admin));
-                    alert('✅ Admin login successful!');
-                    window.location.href = 'admin-dashboard.html';
-                } else if (email === 'admin@break-tracker.com' && password === '535680') {
-                    const defaultAdmin = {
-                        id: Date.now().toString(),
-                        name: 'Admin User',
-                        email: 'admin@break-tracker.com',
-                        password: '535680',
-                        role: 'admin',
-                        department: 'Management',
-                        created_at: new Date().toISOString()
-                    };
-                    if (!admins.find(a => a.email === defaultAdmin.email)) {
-                        admins.push(defaultAdmin);
-                        localStorage.setItem('adminUsers', JSON.stringify(admins));
-                    }
-                    localStorage.setItem('adminSession', JSON.stringify(defaultAdmin));
-                    alert('✅ Admin login successful!');
-                    window.location.href = 'admin-dashboard.html';
-                } else {
-                    throw new Error('Invalid admin credentials!');
+            const errorMsg = document.getElementById('errorMsg');
+            const errorText = document.getElementById('errorText');
+
+            // ============================================
+            // LOCAL STORAGE FUNCTIONS
+            // ============================================
+            function getLocalStorage(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    if (!data) return [];
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.warn('Storage read error:', e);
+                    return [];
                 }
-            } catch (error) {
-                errorMsg.textContent = '❌ ' + error.message;
-                errorMsg.style.display = 'block';
-                loginBtn.textContent = 'Login as Admin';
-                loginBtn.disabled = false;
             }
-        });
+
+            function setLocalStorage(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.warn('Storage write error:', e);
+                }
+            }
+
+            // ============================================
+            // ENSURE DEFAULT ADMIN EXISTS
+            // ============================================
+            function ensureAdminExists() {
+                try {
+                    let admins = getLocalStorage('adminUsers');
+                    if (admins.length === 0) {
+                        const defaultAdmin = {
+                            id: 'admin_' + Date.now(),
+                            name: 'Admin User',
+                            email: 'admin@break-tracker.com',
+                            password: '535680',
+                            role: 'admin',
+                            department: 'Management',
+                            created_at: new Date().toISOString()
+                        };
+                        admins.push(defaultAdmin);
+                        setLocalStorage('adminUsers', admins);
+                        console.log('✅ Default admin created');
+                    }
+                    return true;
+                } catch (e) {
+                    console.error('Error ensuring admin:', e);
+                    return false;
+                }
+            }
+
+            // ============================================
+            // SHOW/HIDE MESSAGES
+            // ============================================
+            function showError(message) {
+                errorText.textContent = message;
+                errorMsg.style.display = 'block';
+            }
+
+            function hideError() {
+                errorMsg.style.display = 'none';
+            }
+
+            // ============================================
+            // LOGIN HANDLER
+            // ============================================
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                hideError();
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+                
+                try {
+                    // Ensure admin exists
+                    ensureAdminExists();
+                    
+                    // Validate inputs
+                    if (!email) {
+                        throw new Error('Please enter your admin email.');
+                    }
+                    if (!password) {
+                        throw new Error('Please enter your admin password.');
+                    }
+                    
+                    // Get admins
+                    const admins = getLocalStorage('adminUsers');
+                    
+                    console.log('🔍 Searching for admin:', email);
+                    console.log('📋 Total admins in DB:', admins.length);
+                    
+                    // Find admin
+                    const admin = admins.find(function(a) {
+                        return a.email.toLowerCase() === email.toLowerCase() && 
+                               a.password === password;
+                    });
+                    
+                    if (!admin) {
+                        // Check if email exists but password wrong
+                        const emailExists = admins.find(function(a) {
+                            return a.email.toLowerCase() === email.toLowerCase();
+                        });
+                        
+                        if (emailExists) {
+                            throw new Error('Invalid admin password! Please try again.');
+                        } else {
+                            throw new Error('Admin account not found! Please contact system administrator.');
+                        }
+                    }
+                    
+                    // Save admin session
+                    setLocalStorage('adminSession', admin);
+                    
+                    // Redirect after delay
+                    setTimeout(function() {
+                        window.location.href = 'admin-dashboard.html';
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('Admin login error:', error);
+                    showError('❌ ' + error.message);
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                }
+            });
+
+            // ============================================
+            // KEYBOARD SHORTCUTS
+            // ============================================
+            document.addEventListener('keydown', function(e) {
+                // Press Ctrl+Enter to submit
+                if (e.ctrlKey && e.key === 'Enter') {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            });
+
+            // ============================================
+            // INIT
+            // ============================================
+            document.addEventListener('DOMContentLoaded', function() {
+                ensureAdminExists();
+                hideError();
+                
+                console.log('✅ Admin login page ready');
+                console.log('👑 Admin email: admin@break-tracker.com');
+                console.log('🔑 Admin password: 535680');
+                console.log('💡 Press Ctrl+Enter to submit');
+            });
+
+        })();
     </script>
 </body>
 </html>
