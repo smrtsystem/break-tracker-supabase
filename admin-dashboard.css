@@ -193,36 +193,6 @@
 }
 
 /* ============================================
-   TABLES
-   ============================================ */
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-table th {
-    text-align: left;
-    padding: 10px;
-    background: #f8f9fa;
-    font-weight: 600;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* ============================================
    CHECK IN/OUT TABLE
    ============================================ */
 .checkin-table {
@@ -233,14 +203,14 @@ table tr:hover {
 
 .checkin-table th {
     text-align: left;
-    padding: 10px;
+    padding: 10px 12px;
     background: #f8f9fa;
     font-weight: 600;
     border-bottom: 2px solid #e0e0e0;
 }
 
 .checkin-table td {
-    padding: 10px;
+    padding: 10px 12px;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -248,21 +218,15 @@ table tr:hover {
     background: #f8f9fa;
 }
 
-.checkin-actions-cell {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
 /* ============================================
-   CHECK IN/OUT STATUS
+   CHECK IN/OUT STATUS BADGES
    ============================================ */
 .checkin-status-badge {
-    padding: 2px 10px;
-    border-radius: 12px;
+    padding: 4px 14px;
+    border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
-    color: white;
+    display: inline-block;
 }
 
 .checkin-status-pending {
@@ -272,72 +236,98 @@ table tr:hover {
 
 .checkin-status-approved {
     background: #4ecdc4;
+    color: white;
 }
 
 .checkin-status-rejected {
     background: #ff6b6b;
+    color: white;
 }
 
 .checkin-status-checkedout {
     background: #667eea;
-}
-
-/* ============================================
-   BREAK LOG FILTERS
-   ============================================ */
-.break-log-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.break-log-filters .form-group {
-    margin-bottom: 0;
-}
-
-.break-log-filters .form-group label {
-    font-size: 12px;
-    margin-bottom: 2px;
-}
-
-.break-log-filters input,
-.break-log-filters select {
-    padding: 6px 10px;
-    font-size: 13px;
-}
-
-/* ============================================
-   BADGES
-   ============================================ */
-.badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
     color: white;
 }
 
-.badge-green {
-    background: #4ecdc4;
+/* ============================================
+   CHECK IN/OUT TAB BUTTONS (Beautiful)
+   ============================================ */
+.checkin-tab-btn {
+    padding: 8px 18px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s;
+    color: #555;
 }
 
-.badge-orange {
-    background: #ffd93d;
-    color: #1a1a2e;
+.checkin-tab-btn:hover {
+    background: #f0f2f5;
+    border-color: #667eea;
 }
 
-.badge-red {
-    background: #ff6b6b;
-}
-
-.badge-blue {
+.checkin-tab-btn.active {
     background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
-.badge-purple {
-    background: #a29bfe;
+.checkin-tab-btn .icon {
+    margin-right: 4px;
+}
+
+/* ============================================
+   CHECK IN/OUT ACTION BUTTONS
+   ============================================ */
+.btn-approve-checkin {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-approve-checkin:hover {
+    background: #45b7b0;
+}
+
+.btn-reject-checkin {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-reject-checkin:hover {
+    background: #e55a5a;
+}
+
+.btn-delete-checkin {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-delete-checkin:hover {
+    background: #c82333;
 }
 
 /* ============================================
@@ -399,14 +389,16 @@ table tr:hover {
     padding: 8px 16px;
     border: 2px solid #e0e0e0;
     background: white;
-    border-radius: 8px;
+    border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
+    font-size: 13px;
 }
 
 .vacation-tab-btn:hover {
     background: #f0f2f5;
+    border-color: #667eea;
 }
 
 .vacation-tab-btn.active {
@@ -564,6 +556,31 @@ table tr:hover {
 }
 
 /* ============================================
+   BREAK LOG FILTERS
+   ============================================ */
+.break-log-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.break-log-filters .form-group {
+    margin-bottom: 0;
+}
+
+.break-log-filters .form-group label {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.break-log-filters input,
+.break-log-filters select {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* ============================================
    BUTTONS
    ============================================ */
 .btn-primary {
@@ -643,48 +660,6 @@ table tr:hover {
 
 .btn-block {
     width: 100%;
-}
-
-.btn-approve-checkin {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-approve-checkin:hover {
-    background: #45b7b0;
-}
-
-.btn-reject-checkin {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-reject-checkin:hover {
-    background: #e55a5a;
-}
-
-.btn-delete-checkin {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-delete-checkin:hover {
-    background: #c82333;
 }
 
 /* ============================================
@@ -892,14 +867,6 @@ table tr:hover {
     .checkin-table th,
     .checkin-table td {
         padding: 6px 8px;
-    }
-
-    .checkin-actions-cell {
-        flex-direction: column;
-    }
-
-    .checkin-actions-cell button {
-        width: 100%;
     }
 
     .vacation-table {
