@@ -244,7 +244,7 @@
 }
 
 /* ============================================
-   TABLES - FULL WIDTH
+   TABLES - FULL WIDTH (FIXED)
    ============================================ */
 .table-container {
     overflow-x: auto;
@@ -253,7 +253,7 @@
 
 .table-container table {
     width: 100%;
-    min-width: 600px;
+    min-width: 700px;
     border-collapse: collapse;
     font-size: 14px;
 }
@@ -936,6 +936,7 @@
 
     .table-container table {
         font-size: 12px;
+        min-width: 500px;
     }
 
     .table-container table th,
