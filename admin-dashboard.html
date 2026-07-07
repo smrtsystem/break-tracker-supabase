@@ -19,7 +19,6 @@
     </nav>
 
     <div class="container">
-        <!-- Welcome Header -->
         <div class="welcome-header">
             <div>
                 <h1>📊 Dashboard</h1>
@@ -31,9 +30,7 @@
             </div>
         </div>
 
-        <!-- Admin Dashboard with Sidebar -->
         <div class="admin-wrapper">
-            <!-- Sidebar Navigation -->
             <div class="admin-sidebar">
                 <div class="nav-item active" data-section="break-tracker">
                     <span class="icon">⏱️</span>
@@ -50,14 +47,8 @@
                 </div>
             </div>
 
-            <!-- Main Content -->
             <div class="admin-content">
-
-                <!-- ========================================== -->
-                <!-- SECTION 1: BREAK TRACKER -->
-                <!-- ========================================== -->
                 <div id="section-break-tracker" class="admin-section active">
-                    <!-- Stats -->
                     <div class="stats-grid">
                         <div class="stat-card" style="border-left-color:#667eea;">
                             <h3>👥 Total Employees</h3>
@@ -78,7 +69,6 @@
                         </div>
                     </div>
 
-                    <!-- Sub Navigation Buttons -->
                     <div class="admin-sub-nav">
                         <button class="admin-sub-nav-btn active" data-sub="user-management">
                             <span class="icon">👤</span> User Management
@@ -100,7 +90,6 @@
                         </button>
                     </div>
 
-                    <!-- SUB: User Management -->
                     <div id="sub-user-management" class="admin-section active">
                         <div class="card">
                             <div class="card-header">
@@ -114,7 +103,6 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Department -->
                     <div id="sub-department" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -125,7 +113,6 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Role -->
                     <div id="sub-role" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -136,7 +123,6 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Break Status -->
                     <div id="sub-break-status" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -147,7 +133,6 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Break Log -->
                     <div id="sub-break-log" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -189,7 +174,6 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Settings -->
                     <div id="sub-settings" class="admin-section">
                         <div class="card">
                             <h2>⚙️ Break Settings</h2>
@@ -221,9 +205,6 @@
                     </div>
                 </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 2: VACATION MANAGEMENT -->
-                <!-- ========================================== -->
                 <div id="section-vacation" class="admin-section">
                     <div class="card">
                         <div class="card-header">
@@ -241,7 +222,6 @@
                         <div id="vacationList"><p class="empty">No vacation requests found</p></div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -250,7 +230,6 @@
     <!-- MODALS -->
     <!-- ========================================== -->
 
-    <!-- Add/Edit User Modal -->
     <div id="userModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -298,7 +277,6 @@
         </div>
     </div>
 
-    <!-- Add/Edit Department Modal -->
     <div id="deptModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
@@ -317,7 +295,6 @@
         </div>
     </div>
 
-    <!-- Add/Edit Role Modal -->
     <div id="roleModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('roleModal')">&times;</button>
@@ -345,13 +322,21 @@
         </div>
     </div>
 
-    <!-- Adjust Days Modal -->
+    <!-- Updated Adjust Modal - with Date Adjustment -->
     <div id="adjustModal" class="modal">
-        <div class="modal-content" style="max-width:400px;">
+        <div class="modal-content" style="max-width:450px;">
             <button class="modal-close" onclick="closeModal('adjustModal')">&times;</button>
-            <h2>📝 Adjust Vacation Days</h2>
+            <h2>📝 Adjust Vacation</h2>
             <form id="adjustForm">
                 <input type="hidden" id="adjustVacationId">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="adjustStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="adjustEndDate" required>
+                </div>
                 <div class="form-group">
                     <label>Current Days</label>
                     <input type="number" id="currentDays" disabled style="background:#f0f0f0;">
@@ -359,7 +344,7 @@
                 <div class="form-group">
                     <label>Adjusted Days</label>
                     <input type="number" id="adjustedDays" required min="1" placeholder="Enter new days">
-                    <small>Enter the new number of vacation days</small>
+                    <small>Total days will be calculated from selected dates</small>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-outline" onclick="closeModal('adjustModal')">Cancel</button>
@@ -369,7 +354,6 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content" style="max-width:400px;">
             <h2>⚠️ Confirm Delete</h2>
@@ -394,14 +378,12 @@
         let deleteTarget = null;
         let deleteType = null;
 
-        // Set admin info
         document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
         document.getElementById('adminNameDisplay').textContent = adminSession.name || 'Admin';
         document.getElementById('sidebarAdminName').textContent = adminSession.name || 'Admin';
         document.getElementById('adminName').textContent = `👋 ${adminSession.name || 'Admin'}`;
         document.getElementById('adminRole').textContent = 'Admin';
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', function() {
             localStorage.removeItem('adminSession');
             window.location.href = 'admin-login.html';
@@ -875,6 +857,7 @@
             let html = '<div class="break-status-grid">';
             active.forEach(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
+                // ✅ FIXED: Use employee type from employee record
                 const empType = emp?.employeeType || 'Local';
                 const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
                 const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
@@ -988,7 +971,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS
+        // VACATION FUNCTIONS (with Date Adjustment)
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -1068,7 +1051,7 @@
                                 <button class="btn-reject" onclick="updateVacationStatus('${v.id}','rejected')">❌ Reject</button>
                             ` : ''}
                             ${isApproved ? `
-                                <button class="btn-adjust" onclick="openAdjustModal('${v.id}', ${totalDays}, ${adjustedDays})">📝 Adjust Days</button>
+                                <button class="btn-adjust" onclick="openAdjustModal('${v.id}')">📝 Adjust</button>
                             ` : ''}
                             <button class="btn-delete" onclick="confirmDelete('vacation','${v.id}','${emp?.name || 'Unknown'}')">🗑️ Delete</button>
                         </div>
@@ -1097,18 +1080,40 @@
             alert(`✅ Vacation ${status}!`);
         }
 
-        function openAdjustModal(id, currentDays, adjustedDays) {
+        // ✅ UPDATED: Open Adjust Modal with current data
+        function openAdjustModal(id) {
+            const vacations = getVacations();
+            const vacation = vacations.find(v => v.id === id);
+            if (!vacation) return;
+            
+            const totalDays = calculateDays(vacation.startDate, vacation.endDate);
+            
             document.getElementById('adjustVacationId').value = id;
-            document.getElementById('currentDays').value = currentDays;
-            document.getElementById('adjustedDays').value = adjustedDays || currentDays;
+            document.getElementById('adjustStartDate').value = vacation.startDate;
+            document.getElementById('adjustEndDate').value = vacation.endDate;
+            document.getElementById('currentDays').value = totalDays;
+            document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
             openModal('adjustModal');
         }
 
+        // ✅ UPDATED: Save Adjustment with Date and Days
         document.getElementById('adjustForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const id = document.getElementById('adjustVacationId').value;
+            const startDate = document.getElementById('adjustStartDate').value;
+            const endDate = document.getElementById('adjustEndDate').value;
             const adjustedDays = parseInt(document.getElementById('adjustedDays').value);
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates!');
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('Start date cannot be after end date!');
+                return;
+            }
             
             if (adjustedDays < 1) {
                 alert('Days must be at least 1!');
@@ -1119,13 +1124,15 @@
             const index = vacations.findIndex(v => v.id === id);
             if (index === -1) return;
             
+            vacations[index].startDate = startDate;
+            vacations[index].endDate = endDate;
             vacations[index].adjustedDays = adjustedDays;
             saveVacations(vacations);
             
             closeModal('adjustModal');
             const activeTab = document.querySelector('.vacation-tab-btn.active');
             loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-            alert('✅ Days adjusted successfully!');
+            alert('✅ Vacation adjusted successfully!');
         });
 
         function confirmDelete(type, id, name) {
