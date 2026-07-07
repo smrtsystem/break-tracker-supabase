@@ -42,7 +42,6 @@
             const errorMsg = document.getElementById('errorMsg');
             const loginBtn = document.getElementById('loginBtn');
             
-            // Cross-browser safe localStorage check
             function getLocalStorage(key) {
                 try {
                     return JSON.parse(localStorage.getItem(key) || '[]');
