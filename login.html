@@ -35,40 +35,65 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        (function() {
+            'use strict';
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const form = document.getElementById('loginForm');
             const errorMsg = document.getElementById('errorMsg');
             const loginBtn = document.getElementById('loginBtn');
             
-            errorMsg.textContent = '';
-            errorMsg.style.display = 'none';
-            loginBtn.textContent = 'Logging in...';
-            loginBtn.disabled = true;
-            
-            try {
-                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-                const allUsers = [...users, ...admins];
-                
-                const user = allUsers.find(u => u.email === email && u.password === password);
-                
-                if (!user) {
-                    throw new Error('Invalid email or password!');
+            // Cross-browser safe localStorage check
+            function getLocalStorage(key) {
+                try {
+                    return JSON.parse(localStorage.getItem(key) || '[]');
+                } catch (e) {
+                    return [];
                 }
-                
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                window.location.href = 'index.html';
-                
-            } catch (error) {
-                errorMsg.textContent = '❌ ' + error.message;
-                errorMsg.style.display = 'block';
-                loginBtn.textContent = 'Login';
-                loginBtn.disabled = false;
             }
-        });
+
+            function setLocalStorage(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error('Storage error:', e);
+                }
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                errorMsg.textContent = '';
+                errorMsg.style.display = 'none';
+                loginBtn.textContent = 'Logging in...';
+                loginBtn.disabled = true;
+                
+                try {
+                    const users = getLocalStorage('appUsers');
+                    const admins = getLocalStorage('adminUsers');
+                    const allUsers = [...users, ...admins];
+                    
+                    const user = allUsers.find(function(u) {
+                        return u.email === email && u.password === password;
+                    });
+                    
+                    if (!user) {
+                        throw new Error('Invalid email or password!');
+                    }
+                    
+                    setLocalStorage('currentUser', user);
+                    window.location.href = 'index.html';
+                    
+                } catch (error) {
+                    errorMsg.textContent = '❌ ' + error.message;
+                    errorMsg.style.display = 'block';
+                    loginBtn.textContent = 'Login';
+                    loginBtn.disabled = false;
+                }
+            });
+        })();
     </script>
 </body>
 </html>
