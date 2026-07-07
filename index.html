@@ -109,7 +109,7 @@
                 </div>
 
                 <!-- ========================================== -->
-                <!-- VIEW 2: VACATION (User Request Only) -->
+                <!-- VIEW 2: VACATION -->
                 <!-- ========================================== -->
                 <div id="view-vacation" class="view-section">
                     <div class="card">
@@ -187,8 +187,6 @@
                         <label>Status</label>
                         <select id="vacationStatus">
                             <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
                 </div>
@@ -355,6 +353,14 @@
                 month: 'short', 
                 day: 'numeric' 
             });
+        }
+
+        function calculateDays(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            return diffDays;
         }
 
         function getMyEmployee() {
@@ -647,7 +653,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS (User - Request Only)
+        // VACATION FUNCTIONS (User - Request & Accept)
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -679,7 +685,12 @@
             
             let html = '<div class="vacation-grid">';
             filtered.forEach(v => {
+                const totalDays = calculateDays(v.startDate, v.endDate);
                 const statusClass = v.status === 'approved' ? 'vacation-status-approved' : (v.status === 'rejected' ? 'vacation-status-rejected' : 'vacation-status-pending');
+                
+                // Check if user can accept (approved but not yet accepted)
+                const canAccept = v.status === 'approved' && v.userAccepted !== true;
+                const isAccepted = v.userAccepted === true;
                 
                 html += `<div class="vacation-card">
                     <div class="emp-name">${emp.name}</div>
@@ -688,21 +699,48 @@
                         <strong>From:</strong> ${formatDate(v.startDate)}<br>
                         <strong>To:</strong> ${formatDate(v.endDate)}
                     </div>
+                    <div class="days-info">📅 Total Days: <strong>${v.adjustedDays || totalDays}</strong></div>
+                    ${v.adjustedDays && v.adjustedDays !== totalDays ? `<div class="day-adjust-info">📝 Adjusted by Admin (Original: ${totalDays} days)</div>` : ''}
                     <div style="margin-top:8px;">
                         <span class="status-badge ${statusClass}">${v.status || 'Pending'}</span>
+                        ${isAccepted ? '<span class="status-badge vacation-status-accepted" style="margin-left:4px;">✅ Accepted</span>' : ''}
                         ${v.notes ? `<div style="font-size:12px;color:#666;margin-top:4px;">📝 ${v.notes}</div>` : ''}
                     </div>
+                    ${canAccept ? `
+                        <div class="action-buttons">
+                            <button class="accept-btn" onclick="acceptVacation('${v.id}')">✅ Accept</button>
+                        </div>
+                    ` : ''}
                 </div>`;
             });
             html += '</div>';
             list.innerHTML = html;
         }
 
+        function acceptVacation(id) {
+            if (!confirm('Do you accept this vacation approval with the adjusted days?')) return;
+            
+            let vacations = getVacations();
+            const index = vacations.findIndex(v => v.id === id);
+            if (index === -1) return;
+            
+            vacations[index].userAccepted = true;
+            vacations[index].acceptedDate = new Date().toISOString();
+            saveVacations(vacations);
+            
+            loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'pending');
+            alert('✅ Vacation accepted successfully! Your vacation days have been recorded.');
+        }
+
         function addVacation(data) {
             const vacations = getVacations();
+            const totalDays = calculateDays(data.startDate, data.endDate);
             const newVacation = { 
                 id: 'vac_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                 ...data,
+                totalDays: totalDays,
+                adjustedDays: totalDays,
+                userAccepted: false,
                 created_at: new Date().toISOString()
             };
             vacations.push(newVacation);
@@ -719,11 +757,20 @@
                 return;
             }
             
+            const startDate = document.getElementById('vacationStartDate').value;
+            const endDate = document.getElementById('vacationEndDate').value;
+            
+            // Validate dates
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('Start date cannot be after end date!');
+                return;
+            }
+            
             const data = {
                 employee_id: emp.id,
                 vacationType: document.getElementById('vacationType').value,
-                startDate: document.getElementById('vacationStartDate').value,
-                endDate: document.getElementById('vacationEndDate').value,
+                startDate: startDate,
+                endDate: endDate,
                 status: document.getElementById('vacationStatus').value,
                 notes: document.getElementById('vacationNotes').value
             };
@@ -732,7 +779,7 @@
             closeModal('vacationModal');
             this.reset();
             loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'pending');
-            alert('✅ Vacation request added!');
+            alert('✅ Vacation request added! Waiting for admin approval.');
         });
 
         document.getElementById('addVacationBtn').addEventListener('click', function() {
