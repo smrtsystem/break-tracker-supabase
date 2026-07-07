@@ -3,18 +3,18 @@
    ============================================ */
 
 /* ============================================
-   DASHBOARD WRAPPER
+   ADMIN LAYOUT
    ============================================ */
-.dashboard-wrapper {
+.admin-wrapper {
     display: flex;
     gap: 24px;
     margin-top: 20px;
 }
 
 /* ============================================
-   SIDEBAR
+   ADMIN SIDEBAR
    ============================================ */
-.sidebar {
+.admin-sidebar {
     width: 220px;
     flex-shrink: 0;
     background: white;
@@ -26,7 +26,7 @@
     top: 90px;
 }
 
-.sidebar .nav-item {
+.admin-sidebar .nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -40,46 +40,43 @@
     font-size: 14px;
 }
 
-.sidebar .nav-item:hover {
+.admin-sidebar .nav-item:hover {
     background: #f0f2f5;
     color: #1a1a2e;
 }
 
-.sidebar .nav-item.active {
+.admin-sidebar .nav-item.active {
     background: #f0f2f5;
     border-left-color: #667eea;
     color: #667eea;
     font-weight: 600;
 }
 
-.sidebar .nav-item .icon {
+.admin-sidebar .nav-item .icon {
     font-size: 18px;
     width: 24px;
     text-align: center;
 }
 
-.sidebar-divider {
+.admin-sidebar-divider {
     height: 1px;
     background: #e0e0e0;
     margin: 8px 16px;
 }
 
-/* ============================================
-   MAIN CONTENT
-   ============================================ */
-.main-content {
+.admin-content {
     flex: 1;
     min-width: 0;
 }
 
 /* ============================================
-   VIEW SECTIONS
+   ADMIN SECTIONS
    ============================================ */
-.view-section {
+.admin-section {
     display: none;
 }
 
-.view-section.active {
+.admin-section.active {
     display: block;
 }
 
@@ -181,144 +178,58 @@
 }
 
 /* ============================================
-   VACATION GRID
+   BREAK LOG FILTERS
    ============================================ */
-.vacation-grid {
+.break-log-filters {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
-.vacation-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #667eea;
-    transition: transform 0.2s;
+.break-log-filters .form-group {
+    margin-bottom: 0;
 }
 
-.vacation-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+.break-log-filters .form-group label {
+    font-size: 12px;
+    margin-bottom: 2px;
 }
 
-.vacation-card .emp-name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.vacation-card .emp-dept {
+.break-log-filters input,
+.break-log-filters select {
+    padding: 6px 10px;
     font-size: 13px;
-    color: #666;
 }
 
-.vacation-card .vacation-dates {
+/* ============================================
+   TABLES
+   ============================================ */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 14px;
-    margin-top: 8px;
-    padding: 8px;
-    background: white;
-    border-radius: 6px;
 }
 
-.vacation-card .status-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+table th {
+    text-align: left;
+    padding: 10px;
+    background: #f8f9fa;
     font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
 }
 
-.vacation-card .action-buttons {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.vacation-status-approved { 
-    background: #4ecdc4; 
-    color: white; 
-}
-
-.vacation-status-pending { 
-    background: #ffd93d; 
-    color: #1a1a2e; 
-}
-
-.vacation-status-rejected { 
-    background: #ff6b6b; 
-    color: white; 
-}
-
-/* ============================================
-   VACATION TAB BUTTONS
-   ============================================ */
-.vacation-tab-btn {
-    padding: 8px 16px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.vacation-tab-btn:hover {
-    background: #f0f2f5;
-}
-
-.vacation-tab-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-/* ============================================
-   VACATION ACTION BUTTONS
-   ============================================ */
-.btn-approve {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-approve:hover {
-    background: #45b7b0;
-}
-
-.btn-reject {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-reject:hover {
-    background: #e55a5a;
-}
-
-.btn-delete {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-delete:hover {
-    background: #c82333;
+table tr:hover {
+    background: #f8f9fa;
 }
 
 /* ============================================
@@ -338,6 +249,25 @@
 .badge-red { background: #ff6b6b; }
 .badge-blue { background: #667eea; }
 .badge-purple { background: #a29bfe; }
+
+/* ============================================
+   CONFIG ITEMS
+   ============================================ */
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.config-item .actions {
+    display: flex;
+    gap: 8px;
+}
 
 /* ============================================
    BREAK STATUS GRID
@@ -373,6 +303,10 @@
 .break-status-card .time {
     font-size: 14px;
     margin-top: 4px;
+}
+
+.break-status-card .action-btn {
+    margin-top: 8px;
 }
 
 /* ============================================
@@ -470,152 +404,93 @@
 }
 
 /* ============================================
-   NO BREAKS / EMPTY STATE
+   VACATION GRID
    ============================================ */
-.no-breaks {
-    text-align: center;
-    padding: 40px;
-    color: #999;
-}
-
-.no-breaks .icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-}
-
-.empty {
-    text-align: center;
-    color: #999;
-    padding: 30px;
-    font-size: 14px;
-}
-
-.empty .icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-}
-
-/* ============================================
-   MODAL
-   ============================================ */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    overflow: auto;
-    padding: 20px;
-}
-
-.modal-content {
-    background: white;
-    margin: 30px auto;
-    padding: 32px;
-    border-radius: 16px;
-    max-width: 90%;
-    width: 100%;
-    position: relative;
-    animation: slideDown 0.3s ease;
-}
-
-.modal-content.wide {
-    max-width: 95%;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-close {
-    position: absolute;
-    right: 20px;
-    top: 16px;
-    font-size: 28px;
-    font-weight: 700;
-    cursor: pointer;
-    color: #999;
-    transition: color 0.2s;
-    border: none;
-    background: none;
-}
-
-.modal-close:hover {
-    color: #333;
-}
-
-.modal-footer {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-    justify-content: flex-end;
-}
-
-/* ============================================
-   FORM STYLES
-   ============================================ */
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-    font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.form-group small {
-    display: block;
-    margin-top: 4px;
-    color: #666;
-    font-size: 12px;
-}
-
-.form-row {
+.vacation-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
 }
 
-/* ============================================
-   CHECKBOX GROUP
-   ============================================ */
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 0;
+.vacation-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s;
 }
 
-.checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+.vacation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vacation-card .emp-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.vacation-card .emp-dept {
+    font-size: 13px;
+    color: #666;
+}
+
+.vacation-card .vacation-dates {
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+
+.vacation-card .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.vacation-card .action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.vacation-status-approved { 
+    background: #4ecdc4; 
+    color: white; 
+}
+
+.vacation-status-pending { 
+    background: #ffd93d; 
+    color: #1a1a2e; 
+}
+
+.vacation-status-rejected { 
+    background: #ff6b6b; 
+    color: white; 
+}
+
+.vacation-tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
     cursor: pointer;
-    accent-color: #667eea;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.vacation-tab-btn:hover {
+    background: #f0f2f5;
+}
+
+.vacation-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 /* ============================================
@@ -700,65 +575,215 @@
     width: 100%;
 }
 
-/* ============================================
-   CONFIG ITEMS
-   ============================================ */
-.config-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border-left: 4px solid #667eea;
+.btn-approve {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
 }
 
-.config-item .actions {
-    display: flex;
-    gap: 8px;
+.btn-approve:hover {
+    background: #45b7b0;
+}
+
+.btn-reject {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-reject:hover {
+    background: #e55a5a;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-delete:hover {
+    background: #c82333;
 }
 
 /* ============================================
-   BREAK LOG FILTERS
+   MODAL
    ============================================ */
-.break-log-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    overflow: auto;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    margin: 30px auto;
+    padding: 32px;
+    border-radius: 16px;
+    max-width: 90%;
+    width: 100%;
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+.modal-content.wide {
+    max-width: 95%;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-close {
+    position: absolute;
+    right: 20px;
+    top: 16px;
+    font-size: 28px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s;
+    border: none;
+    background: none;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-footer {
+    display: flex;
     gap: 12px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+.form-group {
     margin-bottom: 16px;
 }
 
-.break-log-filters .form-group {
-    margin-bottom: 0;
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #333;
 }
 
-.break-log-filters .form-group label {
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    color: #666;
     font-size: 12px;
-    margin-bottom: 2px;
 }
 
-.break-log-filters input,
-.break-log-filters select {
-    padding: 6px 10px;
-    font-size: 13px;
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ============================================
+   CHECKBOX
+   ============================================ */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-size: 14px;
+}
+
+.empty .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.no-breaks {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.no-breaks .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
 }
 
 /* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 992px) {
-    .sidebar {
+    .admin-sidebar {
         width: 180px;
     }
 }
 
 @media (max-width: 768px) {
-    .dashboard-wrapper {
+    .admin-wrapper {
         flex-direction: column;
     }
 
-    .sidebar {
+    .admin-sidebar {
         width: 100%;
         position: static;
         display: flex;
@@ -767,7 +792,7 @@
         gap: 4px;
     }
 
-    .sidebar .nav-item {
+    .admin-sidebar .nav-item {
         padding: 8px 14px;
         border-left: none;
         border-bottom: 3px solid transparent;
@@ -776,50 +801,54 @@
         min-width: 100px;
     }
 
-    .sidebar .nav-item.active {
+    .admin-sidebar .nav-item.active {
         border-left: none;
         border-bottom-color: #667eea;
     }
 
-    .sidebar-divider {
+    .admin-sidebar-divider {
         display: none;
     }
 
     .stats-grid {
         grid-template-columns: 1fr 1fr;
     }
-    
-    .vacation-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .break-status-grid {
-        grid-template-columns: 1fr;
-    }
-    
+
     .break-wall {
         grid-template-columns: 1fr;
     }
-    
+
+    .break-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vacation-grid {
+        grid-template-columns: 1fr;
+    }
+
     .filters {
         flex-direction: column;
     }
-    
+
     .filters input,
     .filters select {
         width: 100%;
     }
-    
+
+    .break-log-filters {
+        grid-template-columns: 1fr 1fr;
+    }
+
     .modal-content {
         padding: 20px;
         margin: 10px auto;
         max-width: 98%;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .history-table {
         font-size: 12px;
     }
@@ -827,21 +856,17 @@
     .history-table td {
         padding: 6px 8px;
     }
-    
-    .break-card .card-header {
-        flex-wrap: wrap;
-    }
-    
+
     .vacation-card .action-buttons {
         flex-direction: column;
     }
-    
+
     .vacation-card .action-buttons button {
         width: 100%;
     }
-    
-    .break-log-filters {
-        grid-template-columns: 1fr 1fr;
+
+    .break-card .card-header {
+        flex-wrap: wrap;
     }
 }
 
