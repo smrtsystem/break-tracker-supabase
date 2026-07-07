@@ -136,9 +136,7 @@
                                     <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
                                 </div>
                             </div>
-                            <div class="table-container">
-                                <div id="usersList"><p class="empty">Loading users...</p></div>
-                            </div>
+                            <div id="usersList"><p class="empty">Loading users...</p></div>
                         </div>
                     </div>
 
@@ -296,9 +294,7 @@
                                 <span class="icon">📋</span> All
                             </button>
                         </div>
-                        <div class="table-container">
-                            <div id="checkinList"><p class="empty">No check in/out records found</p></div>
-                        </div>
+                        <div id="checkinList"><p class="empty">No check in/out records found</p></div>
                     </div>
                 </div>
 
@@ -489,13 +485,15 @@
 
     <script>
         // ============================================
-        // ADMIN DASHBOARD - COMPLETE SCRIPT
+        // ADMIN DASHBOARD - COMPLETE SCRIPT (FIXED)
         // ============================================
 
         (function() {
             'use strict';
 
-            // Cross-browser safe localStorage functions
+            // ============================================
+            // LOCAL STORAGE FUNCTIONS
+            // ============================================
             function getLocalStorage(key) {
                 try {
                     return JSON.parse(localStorage.getItem(key) || '[]');
@@ -520,6 +518,9 @@
                 }
             }
 
+            // ============================================
+            // CHECK ADMIN SESSION
+            // ============================================
             var adminSession = getLocalStorageItem('adminSession');
             if (!adminSession || adminSession.role !== 'admin') {
                 window.location.href = 'admin-login.html';
@@ -529,7 +530,9 @@
             var deleteTarget = null;
             var deleteType = null;
 
-            // Set admin info
+            // ============================================
+            // SET ADMIN INFO
+            // ============================================
             document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
             document.getElementById('adminNameDisplay').textContent = adminSession.name || 'Admin';
             document.getElementById('sidebarAdminName').textContent = adminSession.name || 'Admin';
@@ -539,83 +542,6 @@
             document.getElementById('logoutBtn').addEventListener('click', function() {
                 localStorage.removeItem('adminSession');
                 window.location.href = 'admin-login.html';
-            });
-
-            // ============================================
-            // SIDEBAR NAVIGATION
-            // ============================================
-            document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(function(item) {
-                item.addEventListener('click', function() {
-                    document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(function(i) {
-                        i.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    var section = this.dataset.section;
-                    document.querySelectorAll('.admin-section').forEach(function(s) {
-                        s.classList.remove('active');
-                    });
-                    document.getElementById('section-' + section).classList.add('active');
-
-                    if (section === 'break-tracker') {
-                        loadStats();
-                        loadEmployees();
-                        loadUsers();
-                        loadDepartments();
-                        loadRoles();
-                        loadBreakStatus();
-                        loadBreakLog();
-                        loadSettings();
-                    } else if (section === 'vacation') {
-                        loadVacations('pending');
-                    } else if (section === 'checkin') {
-                        loadCheckins('pending');
-                    }
-                });
-            });
-
-            // ============================================
-            // SUB NAVIGATION BUTTONS
-            // ============================================
-            document.querySelectorAll('.admin-sub-nav-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.admin-sub-nav-btn').forEach(function(b) {
-                        b.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    var sub = this.dataset.sub;
-                    document.querySelectorAll('#section-break-tracker .admin-section').forEach(function(s) {
-                        s.classList.remove('active');
-                    });
-                    document.getElementById('sub-' + sub).classList.add('active');
-                });
-            });
-
-            // ============================================
-            // VACATION TAB BUTTONS
-            // ============================================
-            document.querySelectorAll('.vacation-tab-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.vacation-tab-btn').forEach(function(b) {
-                        b.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    loadVacations(this.dataset.vacationType);
-                });
-            });
-
-            // ============================================
-            // CHECKIN TAB BUTTONS
-            // ============================================
-            document.querySelectorAll('.checkin-tab-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.checkin-tab-btn').forEach(function(b) {
-                        b.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    loadCheckins(this.dataset.checkinType);
-                });
             });
 
             // ============================================
@@ -713,6 +639,83 @@
             }
 
             // ============================================
+            // SIDEBAR NAVIGATION
+            // ============================================
+            document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(function(i) {
+                        i.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    var section = this.dataset.section;
+                    document.querySelectorAll('.admin-section').forEach(function(s) {
+                        s.classList.remove('active');
+                    });
+                    document.getElementById('section-' + section).classList.add('active');
+
+                    if (section === 'break-tracker') {
+                        loadStats();
+                        loadEmployees();
+                        loadUsers();
+                        loadDepartments();
+                        loadRoles();
+                        loadBreakStatus();
+                        loadBreakLog();
+                        loadSettings();
+                    } else if (section === 'vacation') {
+                        loadVacations('pending');
+                    } else if (section === 'checkin') {
+                        loadCheckins('pending');
+                    }
+                });
+            });
+
+            // ============================================
+            // SUB NAVIGATION BUTTONS
+            // ============================================
+            document.querySelectorAll('.admin-sub-nav-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.admin-sub-nav-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    var sub = this.dataset.sub;
+                    document.querySelectorAll('#section-break-tracker .admin-section').forEach(function(s) {
+                        s.classList.remove('active');
+                    });
+                    document.getElementById('sub-' + sub).classList.add('active');
+                });
+            });
+
+            // ============================================
+            // VACATION TAB BUTTONS
+            // ============================================
+            document.querySelectorAll('.vacation-tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.vacation-tab-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    loadVacations(this.dataset.vacationType);
+                });
+            });
+
+            // ============================================
+            // CHECKIN TAB BUTTONS
+            // ============================================
+            document.querySelectorAll('.checkin-tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.checkin-tab-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    loadCheckins(this.dataset.checkinType);
+                });
+            });
+
+            // ============================================
             // EMPLOYEE FUNCTIONS
             // ============================================
             function loadEmployees() {
@@ -751,6 +754,61 @@
                 list.innerHTML = html;
             }
 
+            function editEmployee(id) {
+                var employees = getEmployees();
+                var emp = employees.find(function(e) { return e.id === id; });
+                if (!emp) return;
+
+                document.getElementById('editEmpId').value = id;
+                document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+                document.getElementById('empName').value = emp.name;
+                document.getElementById('empEmail').value = emp.email;
+                document.getElementById('empDepartment').value = emp.department;
+                document.getElementById('empEmployeeType').value = emp.employeeType || 'Local';
+                document.getElementById('empPosition').value = emp.position || '';
+                openModal('employeeModal');
+            }
+
+            window.editEmployee = editEmployee;
+
+            document.getElementById('employeeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var id = document.getElementById('editEmpId').value;
+                var data = {
+                    name: document.getElementById('empName').value,
+                    email: document.getElementById('empEmail').value,
+                    department: document.getElementById('empDepartment').value,
+                    employeeType: document.getElementById('empEmployeeType').value,
+                    position: document.getElementById('empPosition').value
+                };
+                if (id) {
+                    var employees = getEmployees();
+                    var index = employees.findIndex(function(e) { return e.id === id; });
+                    if (index !== -1) {
+                        employees[index] = { ...employees[index], ...data };
+                        saveEmployees(employees);
+                        alert('✅ Employee updated!');
+                    }
+                } else {
+                    var newEmp = {
+                        id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        ...data,
+                        status: 'active',
+                        created_at: new Date().toISOString()
+                    };
+                    var allEmployees = getEmployees();
+                    allEmployees.push(newEmp);
+                    saveEmployees(allEmployees);
+                    alert('✅ Employee added!');
+                }
+                closeModal('employeeModal');
+                document.getElementById('employeeForm').reset();
+                document.getElementById('editEmpId').value = '';
+                document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+                loadEmployees();
+                loadStats();
+            });
+
             // ============================================
             // USER FUNCTIONS
             // ============================================
@@ -779,6 +837,75 @@
                     });
                 });
             }
+
+            function editUser(id) {
+                var users = getUsers();
+                var user = users.find(function(u) { return u.id === id; });
+                if (!user) return;
+
+                document.getElementById('editUserId').value = id;
+                document.getElementById('userModalTitle').textContent = 'Edit User';
+                document.getElementById('userName').value = user.name;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userPassword').value = user.password || '123456';
+                document.getElementById('userRole').value = user.role || 'employee';
+                document.getElementById('userDepartment').value = user.department || 'Engineering';
+                document.getElementById('userEmployeeType').value = user.employeeType || 'Local';
+                openModal('userModal');
+            }
+
+            window.editUser = editUser;
+
+            document.getElementById('userForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var id = document.getElementById('editUserId').value;
+                var name = document.getElementById('userName').value;
+                var email = document.getElementById('userEmail').value;
+                var password = document.getElementById('userPassword').value;
+                var role = document.getElementById('userRole').value;
+                var department = document.getElementById('userDepartment').value;
+                var employeeType = document.getElementById('userEmployeeType').value;
+
+                if (id) {
+                    var users = getUsers();
+                    var index = users.findIndex(function(u) { return u.id === id; });
+                    if (index !== -1) {
+                        var data = { name: name, email: email, role: role, department: department, employeeType: employeeType };
+                        if (password && password.length >= 6) data.password = password;
+                        users[index] = { ...users[index], ...data };
+                        saveUsers(users);
+                        alert('✅ User updated!');
+                    } else {
+                        alert('❌ User not found!');
+                    }
+                } else {
+                    var newUser = {
+                        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        name: name,
+                        email: email,
+                        password: password || '123456',
+                        role: role || 'employee',
+                        department: department || 'Engineering',
+                        employeeType: employeeType || 'Local',
+                        created_at: new Date().toISOString()
+                    };
+                    var allUsers = getUsers();
+                    if (allUsers.find(function(u) { return u.email === email; })) {
+                        alert('❌ User already exists!');
+                        return;
+                    }
+                    allUsers.push(newUser);
+                    saveUsers(allUsers);
+                    alert('✅ User created!\nName: ' + name + '\nEmail: ' + email + '\nPassword: ' + (password || '123456'));
+                }
+                closeModal('userModal');
+                document.getElementById('userForm').reset();
+                document.getElementById('editUserId').value = '';
+                document.getElementById('userModalTitle').textContent = 'Create User';
+                document.getElementById('userPassword').value = '123456';
+                loadUsers();
+                loadStats();
+            });
 
             // ============================================
             // BREAK LOG
@@ -837,7 +964,155 @@
             }
 
             // ============================================
-            // CHECK IN/OUT FUNCTIONS (FIXED)
+            // VACATION FUNCTIONS (FIXED - GLOBAL ACCESS)
+            // ============================================
+            function loadVacations(filter) {
+                filter = filter || 'pending';
+                var vacations = getVacations();
+                var employees = getEmployees();
+
+                var filtered = vacations.slice();
+
+                if (filter === 'pending') {
+                    filtered = filtered.filter(function(v) { return v.status === 'pending'; });
+                } else if (filter === 'approved') {
+                    filtered = filtered.filter(function(v) { return v.status === 'approved'; });
+                } else if (filter === 'rejected') {
+                    filtered = filtered.filter(function(v) { return v.status === 'rejected'; });
+                }
+
+                filtered.sort(function(a, b) {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+
+                var list = document.getElementById('vacationList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No ' + filter + ' vacation requests found</p>';
+                    return;
+                }
+
+                var html = '<table class="vacation-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Start Date</th><th>End Date</th><th>Days</th><th>Adjusted Days</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+
+                filtered.forEach(function(v) {
+                    var emp = employees.find(function(e) { return e.id === v.employee_id; });
+                    var totalDays = calculateDays(v.startDate, v.endDate);
+                    var adjustedDays = v.adjustedDays || totalDays;
+
+                    var statusClass = '';
+                    var statusText = v.status;
+                    if (v.status === 'approved' && v.userAccepted === true) {
+                        statusClass = 'vacation-status-accepted';
+                        statusText = 'Accepted ✅';
+                    } else if (v.status === 'approved') {
+                        statusClass = 'vacation-status-approved';
+                        statusText = 'Approved';
+                    } else if (v.status === 'pending') {
+                        statusClass = 'vacation-status-pending';
+                        statusText = 'Pending';
+                    } else if (v.status === 'rejected') {
+                        statusClass = 'vacation-status-rejected';
+                        statusText = 'Rejected';
+                    }
+
+                    var isApproved = v.status === 'approved' && v.userAccepted !== true;
+                    var isPending = v.status === 'pending';
+
+                    html += '<tr><td><strong>' + (emp?.name || 'Unknown') + '</strong></td><td>' + (emp?.department || 'N/A') + '</td><td>' + (v.vacationType || 'Local') + '</td><td>' + formatDate(v.startDate) + '</td><td>' + formatDate(v.endDate) + '</td><td>' + totalDays + '</td><td>' + (adjustedDays !== totalDays ? '<strong style="color:#ff6b6b;">' + adjustedDays + '</strong> (was ' + totalDays + ')' : totalDays) + '</td><td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td><td><div class="vacation-actions">' + (isPending ? '<button class="btn-approve" onclick="updateVacationStatus(\'' + v.id + '\',\'approved\')">✅ Approve</button> <button class="btn-reject" onclick="updateVacationStatus(\'' + v.id + '\',\'rejected\')">❌ Reject</button>' : '') + (isApproved ? '<button class="btn-adjust" onclick="openAdjustModal(\'' + v.id + '\')">📝 Adjust</button>' : '') + ' <button class="btn-delete" onclick="confirmDelete(\'vacation\',\'' + v.id + '\',\'' + (emp?.name || 'Unknown') + '\')">🗑️ Delete</button></div></td></tr>';
+                });
+
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            // ✅ GLOBAL FUNCTION for Vacation Approve/Reject
+            window.updateVacationStatus = function(id, status) {
+                if (!confirm('Are you sure you want to ' + status + ' this vacation request?')) return;
+
+                var vacations = getVacations();
+                var index = vacations.findIndex(function(v) { return v.id === id; });
+                if (index === -1) return;
+
+                vacations[index].status = status;
+                if (status === 'approved' && !vacations[index].adjustedDays) {
+                    vacations[index].adjustedDays = calculateDays(vacations[index].startDate, vacations[index].endDate);
+                }
+                saveVacations(vacations);
+
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation ' + status + '!');
+            };
+
+            // ✅ GLOBAL FUNCTION for Delete Vacation
+            window.deleteVacation = function(id) {
+                if (!confirm('Delete this vacation request?')) return;
+
+                var vacations = getVacations();
+                vacations = vacations.filter(function(v) { return v.id !== id; });
+                saveVacations(vacations);
+
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation deleted!');
+            };
+
+            function openAdjustModal(id) {
+                var vacations = getVacations();
+                var vacation = vacations.find(function(v) { return v.id === id; });
+                if (!vacation) return;
+
+                var totalDays = calculateDays(vacation.startDate, vacation.endDate);
+
+                document.getElementById('adjustVacationId').value = id;
+                document.getElementById('adjustStartDate').value = vacation.startDate;
+                document.getElementById('adjustEndDate').value = vacation.endDate;
+                document.getElementById('currentDays').value = totalDays;
+                document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
+                openModal('adjustModal');
+            }
+
+            window.openAdjustModal = openAdjustModal;
+
+            document.getElementById('adjustForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                var id = document.getElementById('adjustVacationId').value;
+                var startDate = document.getElementById('adjustStartDate').value;
+                var endDate = document.getElementById('adjustEndDate').value;
+                var adjustedDays = parseInt(document.getElementById('adjustedDays').value);
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates!');
+                    return;
+                }
+
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('Start date cannot be after end date!');
+                    return;
+                }
+
+                if (adjustedDays < 1) {
+                    alert('Days must be at least 1!');
+                    return;
+                }
+
+                var vacations = getVacations();
+                var index = vacations.findIndex(function(v) { return v.id === id; });
+                if (index === -1) return;
+
+                vacations[index].startDate = startDate;
+                vacations[index].endDate = endDate;
+                vacations[index].adjustedDays = adjustedDays;
+                saveVacations(vacations);
+
+                closeModal('adjustModal');
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation adjusted successfully!');
+            });
+
+            // ============================================
+            // CHECK IN/OUT FUNCTIONS (FIXED - GLOBAL ACCESS)
             // ============================================
             function loadCheckins(filter) {
                 filter = filter || 'pending';
@@ -906,8 +1181,8 @@
                 list.innerHTML = html;
             }
 
-            // ✅ FIXED: Check In/Out Update Status - Working
-            function updateCheckinStatus(id, status) {
+            // ✅ GLOBAL FUNCTION for Check In/Out Approve/Reject
+            window.updateCheckinStatus = function(id, status) {
                 if (!confirm('Are you sure you want to ' + status + ' this check-in request?')) return;
 
                 var checkins = getCheckins();
@@ -924,10 +1199,10 @@
                 var activeTab = document.querySelector('.checkin-tab-btn.active');
                 loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
                 alert('✅ Check-in ' + status + '!');
-            }
+            };
 
-            // ✅ FIXED: Delete Check In - Working
-            function deleteCheckin(id) {
+            // ✅ GLOBAL FUNCTION for Delete Check In
+            window.deleteCheckin = function(id) {
                 if (!confirm('Delete this check-in record?')) return;
 
                 var checkins = getCheckins();
@@ -937,153 +1212,7 @@
                 var activeTab = document.querySelector('.checkin-tab-btn.active');
                 loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
                 alert('✅ Check-in deleted!');
-            }
-
-            // ============================================
-            // VACATION FUNCTIONS (FIXED)
-            // ============================================
-            function loadVacations(filter) {
-                filter = filter || 'pending';
-                var vacations = getVacations();
-                var employees = getEmployees();
-
-                var filtered = vacations.slice();
-
-                if (filter === 'pending') {
-                    filtered = filtered.filter(function(v) { return v.status === 'pending'; });
-                } else if (filter === 'approved') {
-                    filtered = filtered.filter(function(v) { return v.status === 'approved'; });
-                } else if (filter === 'rejected') {
-                    filtered = filtered.filter(function(v) { return v.status === 'rejected'; });
-                }
-
-                filtered.sort(function(a, b) {
-                    return new Date(b.created_at) - new Date(a.created_at);
-                });
-
-                var list = document.getElementById('vacationList');
-                if (filtered.length === 0) {
-                    list.innerHTML = '<p class="empty">No ' + filter + ' vacation requests found</p>';
-                    return;
-                }
-
-                var html = '<table class="vacation-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Start Date</th><th>End Date</th><th>Days</th><th>Adjusted Days</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-
-                filtered.forEach(function(v) {
-                    var emp = employees.find(function(e) { return e.id === v.employee_id; });
-                    var totalDays = calculateDays(v.startDate, v.endDate);
-                    var adjustedDays = v.adjustedDays || totalDays;
-
-                    var statusClass = '';
-                    var statusText = v.status;
-                    if (v.status === 'approved' && v.userAccepted === true) {
-                        statusClass = 'vacation-status-accepted';
-                        statusText = 'Accepted ✅';
-                    } else if (v.status === 'approved') {
-                        statusClass = 'vacation-status-approved';
-                        statusText = 'Approved';
-                    } else if (v.status === 'pending') {
-                        statusClass = 'vacation-status-pending';
-                        statusText = 'Pending';
-                    } else if (v.status === 'rejected') {
-                        statusClass = 'vacation-status-rejected';
-                        statusText = 'Rejected';
-                    }
-
-                    var isApproved = v.status === 'approved' && v.userAccepted !== true;
-                    var isPending = v.status === 'pending';
-
-                    html += '<tr><td><strong>' + (emp?.name || 'Unknown') + '</strong></td><td>' + (emp?.department || 'N/A') + '</td><td>' + (v.vacationType || 'Local') + '</td><td>' + formatDate(v.startDate) + '</td><td>' + formatDate(v.endDate) + '</td><td>' + totalDays + '</td><td>' + (adjustedDays !== totalDays ? '<strong style="color:#ff6b6b;">' + adjustedDays + '</strong> (was ' + totalDays + ')' : totalDays) + '</td><td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td><td><div class="vacation-actions">' + (isPending ? '<button class="btn-approve" onclick="updateVacationStatus(\'' + v.id + '\',\'approved\')">✅ Approve</button> <button class="btn-reject" onclick="updateVacationStatus(\'' + v.id + '\',\'rejected\')">❌ Reject</button>' : '') + (isApproved ? '<button class="btn-adjust" onclick="openAdjustModal(\'' + v.id + '\')">📝 Adjust</button>' : '') + ' <button class="btn-delete" onclick="confirmDelete(\'vacation\',\'' + v.id + '\',\'' + (emp?.name || 'Unknown') + '\')">🗑️ Delete</button></div></td></tr>';
-                });
-
-                html += '</tbody></table>';
-                list.innerHTML = html;
-            }
-
-            // ✅ FIXED: Vacation Update Status - Working
-            function updateVacationStatus(id, status) {
-                if (!confirm('Are you sure you want to ' + status + ' this vacation request?')) return;
-
-                var vacations = getVacations();
-                var index = vacations.findIndex(function(v) { return v.id === id; });
-                if (index === -1) return;
-
-                vacations[index].status = status;
-                if (status === 'approved' && !vacations[index].adjustedDays) {
-                    vacations[index].adjustedDays = calculateDays(vacations[index].startDate, vacations[index].endDate);
-                }
-                saveVacations(vacations);
-
-                var activeTab = document.querySelector('.vacation-tab-btn.active');
-                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-                alert('✅ Vacation ' + status + '!');
-            }
-
-            // ✅ FIXED: Delete Vacation - Working
-            function deleteVacation(id) {
-                if (!confirm('Delete this vacation request?')) return;
-
-                var vacations = getVacations();
-                vacations = vacations.filter(function(v) { return v.id !== id; });
-                saveVacations(vacations);
-
-                var activeTab = document.querySelector('.vacation-tab-btn.active');
-                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-                alert('✅ Vacation deleted!');
-            }
-
-            function openAdjustModal(id) {
-                var vacations = getVacations();
-                var vacation = vacations.find(function(v) { return v.id === id; });
-                if (!vacation) return;
-
-                var totalDays = calculateDays(vacation.startDate, vacation.endDate);
-
-                document.getElementById('adjustVacationId').value = id;
-                document.getElementById('adjustStartDate').value = vacation.startDate;
-                document.getElementById('adjustEndDate').value = vacation.endDate;
-                document.getElementById('currentDays').value = totalDays;
-                document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
-                openModal('adjustModal');
-            }
-
-            document.getElementById('adjustForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                var id = document.getElementById('adjustVacationId').value;
-                var startDate = document.getElementById('adjustStartDate').value;
-                var endDate = document.getElementById('adjustEndDate').value;
-                var adjustedDays = parseInt(document.getElementById('adjustedDays').value);
-
-                if (!startDate || !endDate) {
-                    alert('Please select both start and end dates!');
-                    return;
-                }
-
-                if (new Date(startDate) > new Date(endDate)) {
-                    alert('Start date cannot be after end date!');
-                    return;
-                }
-
-                if (adjustedDays < 1) {
-                    alert('Days must be at least 1!');
-                    return;
-                }
-
-                var vacations = getVacations();
-                var index = vacations.findIndex(function(v) { return v.id === id; });
-                if (index === -1) return;
-
-                vacations[index].startDate = startDate;
-                vacations[index].endDate = endDate;
-                vacations[index].adjustedDays = adjustedDays;
-                saveVacations(vacations);
-
-                closeModal('adjustModal');
-                var activeTab = document.querySelector('.vacation-tab-btn.active');
-                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-                alert('✅ Vacation adjusted successfully!');
-            });
+            };
 
             // ============================================
             // OTHER FUNCTIONS
@@ -1297,16 +1426,14 @@
             });
 
             // ============================================
-            // DELETE CONFIRMATION (FIXED)
+            // DELETE CONFIRMATION (GLOBAL)
             // ============================================
-            function confirmDelete(type, id, name) {
+            window.confirmDelete = function(type, id, name) {
                 deleteTarget = id;
                 deleteType = type;
                 document.getElementById('deleteMessage').textContent = 'Delete "' + name + '"? This cannot be undone!';
                 openModal('deleteModal');
-            }
-
-            window.confirmDelete = confirmDelete;
+            };
 
             document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
                 if (deleteType === 'employee') {
@@ -1332,17 +1459,11 @@
                     loadRoles();
                     loadDropdowns();
                 } else if (deleteType === 'vacation') {
-                    var vacations = getVacations();
-                    vacations = vacations.filter(function(v) { return v.id !== deleteTarget; });
-                    saveVacations(vacations);
-                    var activeTab = document.querySelector('.vacation-tab-btn.active');
-                    loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                    // ✅ FIXED: Delete Vacation using global function
+                    window.deleteVacation(deleteTarget);
                 } else if (deleteType === 'checkin') {
-                    var checkins = getCheckins();
-                    checkins = checkins.filter(function(c) { return c.id !== deleteTarget; });
-                    saveCheckins(checkins);
-                    var activeTab2 = document.querySelector('.checkin-tab-btn.active');
-                    loadCheckins(activeTab2 ? activeTab2.dataset.checkinType : 'pending');
+                    // ✅ FIXED: Delete Checkin using global function
+                    window.deleteCheckin(deleteTarget);
                 }
                 loadStats();
                 closeModal('deleteModal');
@@ -1355,214 +1476,6 @@
                 closeModal('deleteModal');
                 deleteTarget = null;
                 deleteType = null;
-            });
-
-            // ============================================
-            // EDIT FUNCTIONS
-            // ============================================
-            function editEmployee(id) {
-                var employees = getEmployees();
-                var emp = employees.find(function(e) { return e.id === id; });
-                if (!emp) return;
-
-                document.getElementById('editEmpId').value = id;
-                document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
-                document.getElementById('empName').value = emp.name;
-                document.getElementById('empEmail').value = emp.email;
-                document.getElementById('empDepartment').value = emp.department;
-                document.getElementById('empEmployeeType').value = emp.employeeType || 'Local';
-                document.getElementById('empPosition').value = emp.position || '';
-                openModal('employeeModal');
-            }
-
-            window.editEmployee = editEmployee;
-
-            document.getElementById('employeeForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                var id = document.getElementById('editEmpId').value;
-                var data = {
-                    name: document.getElementById('empName').value,
-                    email: document.getElementById('empEmail').value,
-                    department: document.getElementById('empDepartment').value,
-                    employeeType: document.getElementById('empEmployeeType').value,
-                    position: document.getElementById('empPosition').value
-                };
-                if (id) {
-                    var employees = getEmployees();
-                    var index = employees.findIndex(function(e) { return e.id === id; });
-                    if (index !== -1) {
-                        employees[index] = { ...employees[index], ...data };
-                        saveEmployees(employees);
-                        alert('✅ Employee updated!');
-                    }
-                } else {
-                    var newEmp = {
-                        id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                        ...data,
-                        status: 'active',
-                        created_at: new Date().toISOString()
-                    };
-                    var allEmployees = getEmployees();
-                    allEmployees.push(newEmp);
-                    saveEmployees(allEmployees);
-                    alert('✅ Employee added!');
-                }
-                closeModal('employeeModal');
-                document.getElementById('employeeForm').reset();
-                document.getElementById('editEmpId').value = '';
-                document.getElementById('employeeModalTitle').textContent = 'Add Employee';
-                loadEmployees();
-                loadStats();
-            });
-
-            function editUser(id) {
-                var users = getUsers();
-                var user = users.find(function(u) { return u.id === id; });
-                if (!user) return;
-
-                document.getElementById('editUserId').value = id;
-                document.getElementById('userModalTitle').textContent = 'Edit User';
-                document.getElementById('userName').value = user.name;
-                document.getElementById('userEmail').value = user.email;
-                document.getElementById('userPassword').value = user.password || '123456';
-                document.getElementById('userRole').value = user.role || 'employee';
-                document.getElementById('userDepartment').value = user.department || 'Engineering';
-                document.getElementById('userEmployeeType').value = user.employeeType || 'Local';
-                openModal('userModal');
-            }
-
-            window.editUser = editUser;
-
-            document.getElementById('userForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                var id = document.getElementById('editUserId').value;
-                var name = document.getElementById('userName').value;
-                var email = document.getElementById('userEmail').value;
-                var password = document.getElementById('userPassword').value;
-                var role = document.getElementById('userRole').value;
-                var department = document.getElementById('userDepartment').value;
-                var employeeType = document.getElementById('userEmployeeType').value;
-
-                if (id) {
-                    var users = getUsers();
-                    var index = users.findIndex(function(u) { return u.id === id; });
-                    if (index !== -1) {
-                        var data = { name: name, email: email, role: role, department: department, employeeType: employeeType };
-                        if (password && password.length >= 6) data.password = password;
-                        users[index] = { ...users[index], ...data };
-                        saveUsers(users);
-                        alert('✅ User updated!');
-                    } else {
-                        alert('❌ User not found!');
-                    }
-                } else {
-                    var newUser = {
-                        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                        name: name,
-                        email: email,
-                        password: password || '123456',
-                        role: role || 'employee',
-                        department: department || 'Engineering',
-                        employeeType: employeeType || 'Local',
-                        created_at: new Date().toISOString()
-                    };
-                    var allUsers = getUsers();
-                    if (allUsers.find(function(u) { return u.email === email; })) {
-                        alert('❌ User already exists!');
-                        return;
-                    }
-                    allUsers.push(newUser);
-                    saveUsers(allUsers);
-                    alert('✅ User created!\nName: ' + name + '\nEmail: ' + email + '\nPassword: ' + (password || '123456'));
-                }
-                closeModal('userModal');
-                document.getElementById('userForm').reset();
-                document.getElementById('editUserId').value = '';
-                document.getElementById('userModalTitle').textContent = 'Create User';
-                document.getElementById('userPassword').value = '123456';
-                loadUsers();
-                loadStats();
-            });
-
-            function editDepartment(index) {
-                var depts = getDepartments();
-                document.getElementById('editDeptId').value = index;
-                document.getElementById('deptModalTitle').textContent = 'Edit Department';
-                document.getElementById('deptName').value = depts[index];
-                openModal('deptModal');
-            }
-
-            window.editDepartment = editDepartment;
-
-            document.getElementById('deptForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                var index = document.getElementById('editDeptId').value;
-                var name = document.getElementById('deptName').value;
-                if (index !== '') {
-                    var depts = getDepartments();
-                    if (parseInt(index) >= 0 && parseInt(index) < depts.length) {
-                        depts[parseInt(index)] = name;
-                        saveDepartments(depts);
-                        alert('✅ Department updated!');
-                    }
-                } else {
-                    var depts2 = getDepartments();
-                    depts2.push(name);
-                    saveDepartments(depts2);
-                    alert('✅ Department added!');
-                }
-                closeModal('deptModal');
-                document.getElementById('deptForm').reset();
-                document.getElementById('editDeptId').value = '';
-                document.getElementById('deptModalTitle').textContent = 'Add Department';
-                loadDepartments();
-                loadDropdowns();
-            });
-
-            function editRole(index) {
-                var roles = getRoles();
-                var r = roles[index];
-                document.getElementById('editRoleId').value = index;
-                document.getElementById('roleModalTitle').textContent = 'Edit Role';
-                document.getElementById('roleName').value = r.name;
-                document.getElementById('permCreateUser').checked = r.createUser || false;
-                document.getElementById('permDeleteUser').checked = r.deleteUser || false;
-                document.getElementById('permViewAll').checked = r.viewAll || false;
-                document.getElementById('permManageSettings').checked = r.manageSettings || false;
-                openModal('roleModal');
-            }
-
-            window.editRole = editRole;
-
-            document.getElementById('roleForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                var index = document.getElementById('editRoleId').value;
-                var data = {
-                    name: document.getElementById('roleName').value,
-                    createUser: document.getElementById('permCreateUser').checked,
-                    deleteUser: document.getElementById('permDeleteUser').checked,
-                    viewAll: document.getElementById('permViewAll').checked,
-                    manageSettings: document.getElementById('permManageSettings').checked
-                };
-                if (index !== '') {
-                    var roles = getRoles();
-                    if (parseInt(index) >= 0 && parseInt(index) < roles.length) {
-                        roles[parseInt(index)] = data;
-                        saveRoles(roles);
-                        alert('✅ Role updated!');
-                    }
-                } else {
-                    var roles2 = getRoles();
-                    roles2.push(data);
-                    saveRoles(roles2);
-                    alert('✅ Role added!');
-                }
-                closeModal('roleModal');
-                document.getElementById('roleForm').reset();
-                document.getElementById('editRoleId').value = '';
-                document.getElementById('roleModalTitle').textContent = 'Add Role';
-                loadRoles();
-                loadDropdowns();
             });
 
             // ============================================
@@ -1583,18 +1496,15 @@
             }
 
             // ============================================
-            // MODAL FUNCTIONS
+            // MODAL FUNCTIONS (GLOBAL)
             // ============================================
-            function openModal(id) {
+            window.openModal = function(id) {
                 document.getElementById(id).style.display = 'block';
-            }
+            };
 
-            function closeModal(id) {
+            window.closeModal = function(id) {
                 document.getElementById(id).style.display = 'none';
-            }
-
-            window.openModal = openModal;
-            window.closeModal = closeModal;
+            };
 
             window.addEventListener('click', function(e) {
                 document.querySelectorAll('.modal').forEach(function(modal) {
