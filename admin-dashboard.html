@@ -136,7 +136,9 @@
                                     <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
                                 </div>
                             </div>
-                            <div id="usersList"><p class="empty">Loading users...</p></div>
+                            <div class="table-container">
+                                <div id="usersList"><p class="empty">Loading users...</p></div>
+                            </div>
                         </div>
                     </div>
 
@@ -262,7 +264,9 @@
                             <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
                             <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
                         </div>
-                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
+                        <div class="table-container">
+                            <div id="vacationList"><p class="empty">No vacation requests found</p></div>
+                        </div>
                     </div>
                 </div>
 
@@ -292,7 +296,9 @@
                                 <span class="icon">📋</span> All
                             </button>
                         </div>
-                        <div id="checkinList"><p class="empty">No check in/out records found</p></div>
+                        <div class="table-container">
+                            <div id="checkinList"><p class="empty">No check in/out records found</p></div>
+                        </div>
                     </div>
                 </div>
 
@@ -707,7 +713,7 @@
             }
 
             // ============================================
-            // EMPLOYEE FUNCTIONS (Table View)
+            // EMPLOYEE FUNCTIONS
             // ============================================
             function loadEmployees() {
                 var employees = getEmployees();
@@ -746,7 +752,7 @@
             }
 
             // ============================================
-            // USER FUNCTIONS (Table View)
+            // USER FUNCTIONS (FULL WIDTH TABLE)
             // ============================================
             function loadUsers() {
                 var users = getUsers();
@@ -775,7 +781,7 @@
             }
 
             // ============================================
-            // BREAK LOG (Table View)
+            // BREAK LOG
             // ============================================
             function loadBreakLog() {
                 var breaks = getBreaks();
@@ -831,7 +837,7 @@
             }
 
             // ============================================
-            // CHECK IN/OUT FUNCTIONS
+            // CHECK IN/OUT FUNCTIONS (FIXED - Approve/Reject/Delete Working)
             // ============================================
             function loadCheckins(filter) {
                 filter = filter || 'pending';
@@ -869,7 +875,6 @@
                     var checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
                     var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
 
-                    // Find approver name
                     var approverName = '-';
                     if (c.approved_by) {
                         var approver = admins.find(function(a) { return a.id === c.approved_by; });
@@ -933,124 +938,7 @@
             }
 
             // ============================================
-            // OTHER FUNCTIONS
-            // ============================================
-            function loadDepartments() {
-                var depts = getDepartments();
-                var list = document.getElementById('departmentsList');
-                if (depts.length === 0) {
-                    list.innerHTML = '<p class="empty">No departments found</p>';
-                    return;
-                }
-                var html = '';
-                depts.forEach(function(d, i) {
-                    html += '<div class="config-item"><span><strong>' + d + '</strong></span><div class="actions"><button class="btn-warning btn-sm" onclick="editDepartment(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'department\',' + i + ',\'' + d + '\')">🗑️</button></div></div>';
-                });
-                list.innerHTML = html;
-            }
-
-            function loadRoles() {
-                var roles = getRoles();
-                var list = document.getElementById('rolesList');
-                if (roles.length === 0) {
-                    list.innerHTML = '<p class="empty">No roles found</p>';
-                    return;
-                }
-                var html = '';
-                roles.forEach(function(r, i) {
-                    var perms = [];
-                    if (r.createUser) perms.push('👤 Create Users');
-                    if (r.deleteUser) perms.push('🗑️ Delete Users');
-                    if (r.viewAll) perms.push('👁️ View All');
-                    if (r.manageSettings) perms.push('⚙️ Manage Settings');
-                    html += '<div class="config-item"><div><strong>' + r.name + '</strong><div style="font-size:12px;color:#666;margin-top:2px;">' + (perms.join(' • ') || 'No permissions') + '</div></div><div class="actions"><button class="btn-warning btn-sm" onclick="editRole(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'role\',' + i + ',\'' + r.name + '\')">🗑️</button></div></div>';
-                });
-                list.innerHTML = html;
-            }
-
-            function loadBreakStatus() {
-                var breaks = getBreaks();
-                var employees = getEmployees();
-                var settings = getSettings();
-                var active = breaks.filter(function(b) { return b.status === 'active'; });
-                var list = document.getElementById('breakStatusList');
-
-                if (active.length === 0) {
-                    list.innerHTML = '<p class="empty">✅ No one is on break</p>';
-                    return;
-                }
-
-                var html = '<div class="break-status-grid">';
-                active.forEach(function(b) {
-                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
-                    var empType = emp?.employeeType || 'Local';
-                    var maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-                    var elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
-                    var isOverdue = elapsed > maxMinutes;
-                    var duration = formatDuration(b.start_time);
-                    var breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-
-                    html += '<div class="break-status-card ' + (isOverdue ? 'overdue' : '') + '"><div class="name">' + (emp?.name || 'Unknown') + '</div><div class="dept">' + (emp?.department || 'N/A') + ' • ' + empType + ' • ' + (breakLabels[b.break_type] || 'Short') + '</div><div class="time">⏱️ ' + duration + ' elapsed</div><div class="time">' + (isOverdue ? '⚠️ Overdue! (' + elapsed + '/' + maxMinutes + ' min)' : '✅ Within limit (' + elapsed + '/' + maxMinutes + ' min)') + '</div><div class="action-btn"><button class="btn-danger btn-sm" onclick="endBreakFromAdmin(\'' + b.id + '\',\'' + b.employee_id + '\')">End Break</button></div></div>';
-                });
-                html += '</div>';
-                list.innerHTML = html;
-            }
-
-            function endBreakFromAdmin(breakId, employeeId) {
-                if (!confirm('End this break?')) return;
-
-                var breaks = getBreaks();
-                var index = breaks.findIndex(function(b) { return b.id === breakId; });
-                if (index === -1) return;
-
-                var endTime = new Date().toISOString();
-                var startTime = new Date(breaks[index].start_time);
-                var duration = Math.floor((new Date(endTime) - startTime) / 1000);
-
-                breaks[index] = { 
-                    ...breaks[index], 
-                    end_time: endTime, 
-                    status: 'completed', 
-                    duration: duration 
-                };
-                saveBreaks(breaks);
-
-                var employees = getEmployees();
-                var emp = employees.find(function(e) { return e.id === employeeId; });
-                if (emp) {
-                    emp.status = 'active';
-                    saveEmployees(employees);
-                }
-
-                loadBreakStatus();
-                loadStats();
-                alert('✅ Break ended!');
-            }
-
-            // ============================================
-            // SETTINGS
-            // ============================================
-            function loadSettings() {
-                var settings = getSettings();
-                document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
-                document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
-                document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
-
-                document.getElementById('currentSettings').innerHTML = '<div class="config-item"><span>Local Employee Break Duration</span><span><strong>' + (settings.localBreakMinutes || 30) + ' minutes</strong></span></div><div class="config-item"><span>Expat Employee Break Duration</span><span><strong>' + (settings.expatBreakMinutes || 45) + ' minutes</strong></span></div><div class="config-item"><span>Warning Time</span><span><strong>' + (settings.warningMinutes || 5) + ' minutes before overdue</strong></span></div>';
-            }
-
-            document.getElementById('settingsForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                var localBreakMinutes = parseInt(document.getElementById('localBreakMinutes').value);
-                var expatBreakMinutes = parseInt(document.getElementById('expatBreakMinutes').value);
-                var warningMinutes = parseInt(document.getElementById('warningMinutes').value);
-                saveSettings({ localBreakMinutes: localBreakMinutes, expatBreakMinutes: expatBreakMinutes, warningMinutes: warningMinutes });
-                loadSettings();
-                alert('✅ Settings saved successfully!');
-            });
-
-            // ============================================
-            // VACATION FUNCTIONS
+            // VACATION FUNCTIONS (FIXED - Approve/Reject/Delete Working)
             // ============================================
             function loadVacations(filter) {
                 filter = filter || 'pending';
@@ -1179,6 +1067,123 @@
                 var activeTab = document.querySelector('.vacation-tab-btn.active');
                 loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
                 alert('✅ Vacation adjusted successfully!');
+            });
+
+            // ============================================
+            // OTHER FUNCTIONS
+            // ============================================
+            function loadDepartments() {
+                var depts = getDepartments();
+                var list = document.getElementById('departmentsList');
+                if (depts.length === 0) {
+                    list.innerHTML = '<p class="empty">No departments found</p>';
+                    return;
+                }
+                var html = '';
+                depts.forEach(function(d, i) {
+                    html += '<div class="config-item"><span><strong>' + d + '</strong></span><div class="actions"><button class="btn-warning btn-sm" onclick="editDepartment(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'department\',' + i + ',\'' + d + '\')">🗑️</button></div></div>';
+                });
+                list.innerHTML = html;
+            }
+
+            function loadRoles() {
+                var roles = getRoles();
+                var list = document.getElementById('rolesList');
+                if (roles.length === 0) {
+                    list.innerHTML = '<p class="empty">No roles found</p>';
+                    return;
+                }
+                var html = '';
+                roles.forEach(function(r, i) {
+                    var perms = [];
+                    if (r.createUser) perms.push('👤 Create Users');
+                    if (r.deleteUser) perms.push('🗑️ Delete Users');
+                    if (r.viewAll) perms.push('👁️ View All');
+                    if (r.manageSettings) perms.push('⚙️ Manage Settings');
+                    html += '<div class="config-item"><div><strong>' + r.name + '</strong><div style="font-size:12px;color:#666;margin-top:2px;">' + (perms.join(' • ') || 'No permissions') + '</div></div><div class="actions"><button class="btn-warning btn-sm" onclick="editRole(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'role\',' + i + ',\'' + r.name + '\')">🗑️</button></div></div>';
+                });
+                list.innerHTML = html;
+            }
+
+            function loadBreakStatus() {
+                var breaks = getBreaks();
+                var employees = getEmployees();
+                var settings = getSettings();
+                var active = breaks.filter(function(b) { return b.status === 'active'; });
+                var list = document.getElementById('breakStatusList');
+
+                if (active.length === 0) {
+                    list.innerHTML = '<p class="empty">✅ No one is on break</p>';
+                    return;
+                }
+
+                var html = '<div class="break-status-grid">';
+                active.forEach(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var empType = emp?.employeeType || 'Local';
+                    var maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
+                    var elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                    var isOverdue = elapsed > maxMinutes;
+                    var duration = formatDuration(b.start_time);
+                    var breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
+
+                    html += '<div class="break-status-card ' + (isOverdue ? 'overdue' : '') + '"><div class="name">' + (emp?.name || 'Unknown') + '</div><div class="dept">' + (emp?.department || 'N/A') + ' • ' + empType + ' • ' + (breakLabels[b.break_type] || 'Short') + '</div><div class="time">⏱️ ' + duration + ' elapsed</div><div class="time">' + (isOverdue ? '⚠️ Overdue! (' + elapsed + '/' + maxMinutes + ' min)' : '✅ Within limit (' + elapsed + '/' + maxMinutes + ' min)') + '</div><div class="action-btn"><button class="btn-danger btn-sm" onclick="endBreakFromAdmin(\'' + b.id + '\',\'' + b.employee_id + '\')">End Break</button></div></div>';
+                });
+                html += '</div>';
+                list.innerHTML = html;
+            }
+
+            function endBreakFromAdmin(breakId, employeeId) {
+                if (!confirm('End this break?')) return;
+
+                var breaks = getBreaks();
+                var index = breaks.findIndex(function(b) { return b.id === breakId; });
+                if (index === -1) return;
+
+                var endTime = new Date().toISOString();
+                var startTime = new Date(breaks[index].start_time);
+                var duration = Math.floor((new Date(endTime) - startTime) / 1000);
+
+                breaks[index] = { 
+                    ...breaks[index], 
+                    end_time: endTime, 
+                    status: 'completed', 
+                    duration: duration 
+                };
+                saveBreaks(breaks);
+
+                var employees = getEmployees();
+                var emp = employees.find(function(e) { return e.id === employeeId; });
+                if (emp) {
+                    emp.status = 'active';
+                    saveEmployees(employees);
+                }
+
+                loadBreakStatus();
+                loadStats();
+                alert('✅ Break ended!');
+            }
+
+            // ============================================
+            // SETTINGS
+            // ============================================
+            function loadSettings() {
+                var settings = getSettings();
+                document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
+                document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
+                document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
+
+                document.getElementById('currentSettings').innerHTML = '<div class="config-item"><span>Local Employee Break Duration</span><span><strong>' + (settings.localBreakMinutes || 30) + ' minutes</strong></span></div><div class="config-item"><span>Expat Employee Break Duration</span><span><strong>' + (settings.expatBreakMinutes || 45) + ' minutes</strong></span></div><div class="config-item"><span>Warning Time</span><span><strong>' + (settings.warningMinutes || 5) + ' minutes before overdue</strong></span></div>';
+            }
+
+            document.getElementById('settingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var localBreakMinutes = parseInt(document.getElementById('localBreakMinutes').value);
+                var expatBreakMinutes = parseInt(document.getElementById('expatBreakMinutes').value);
+                var warningMinutes = parseInt(document.getElementById('warningMinutes').value);
+                saveSettings({ localBreakMinutes: localBreakMinutes, expatBreakMinutes: expatBreakMinutes, warningMinutes: warningMinutes });
+                loadSettings();
+                alert('✅ Settings saved successfully!');
             });
 
             // ============================================
