@@ -3,45 +3,83 @@
    ============================================ */
 
 /* ============================================
-   ADMIN TABS
+   DASHBOARD WRAPPER
    ============================================ */
-.admin-tabs {
+.dashboard-wrapper {
     display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
     background: white;
-    padding: 12px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 0;
+    height: fit-content;
+    position: sticky;
+    top: 90px;
 }
 
-.tab-btn {
-    padding: 10px 20px;
-    border: none;
-    background: #f0f2f5;
-    border-radius: 8px;
+.sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
     color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
 }
 
-.tab-btn:hover {
+.sidebar .nav-item:hover {
+    background: #f0f2f5;
+    color: #1a1a2e;
+}
+
+.sidebar .nav-item.active {
+    background: #f0f2f5;
+    border-left-color: #667eea;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.sidebar .nav-item .icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar-divider {
+    height: 1px;
     background: #e0e0e0;
+    margin: 8px 16px;
 }
 
-.tab-btn.active {
-    background: #667eea;
-    color: white;
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.main-content {
+    flex: 1;
+    min-width: 0;
 }
 
-.tab-content {
+/* ============================================
+   VIEW SECTIONS
+   ============================================ */
+.view-section {
     display: none;
 }
 
-.tab-content.active {
+.view-section.active {
     display: block;
 }
 
@@ -143,33 +181,147 @@
 }
 
 /* ============================================
-   TABLES
+   VACATION GRID
    ============================================ */
-.table-container {
-    overflow-x: auto;
+.vacation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-table th {
-    text-align: left;
-    padding: 10px;
+.vacation-card {
     background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s;
+}
+
+.vacation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vacation-card .emp-name {
     font-weight: 600;
-    border-bottom: 2px solid #e0e0e0;
+    font-size: 16px;
 }
 
-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
+.vacation-card .emp-dept {
+    font-size: 13px;
+    color: #666;
 }
 
-table tr:hover {
-    background: #f8f9fa;
+.vacation-card .vacation-dates {
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+
+.vacation-card .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.vacation-card .action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   VACATION STATUS COLORS
+   ============================================ */
+.vacation-status-approved { 
+    background: #4ecdc4; 
+    color: white; 
+}
+
+.vacation-status-pending { 
+    background: #ffd93d; 
+    color: #1a1a2e; 
+}
+
+.vacation-status-rejected { 
+    background: #ff6b6b; 
+    color: white; 
+}
+
+/* ============================================
+   VACATION ACTION BUTTONS
+   ============================================ */
+.btn-approve {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-approve:hover {
+    background: #45b7b0;
+}
+
+.btn-reject {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-reject:hover {
+    background: #e55a5a;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+}
+
+/* ============================================
+   VACATION TAB BUTTONS
+   ============================================ */
+.vacation-tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.vacation-tab-btn:hover {
+    background: #f0f2f5;
+}
+
+.vacation-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 /* ============================================
@@ -189,25 +341,6 @@ table tr:hover {
 .badge-red { background: #ff6b6b; }
 .badge-blue { background: #667eea; }
 .badge-purple { background: #a29bfe; }
-
-/* ============================================
-   CONFIG ITEMS
-   ============================================ */
-.config-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border-left: 4px solid #667eea;
-}
-
-.config-item .actions {
-    display: flex;
-    gap: 8px;
-}
 
 /* ============================================
    BREAK STATUS GRID
@@ -246,83 +379,123 @@ table tr:hover {
 }
 
 /* ============================================
-   BREAK LOG FILTERS
+   BREAK WALL
    ============================================ */
-.break-log-filters {
+.break-wall {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.break-log-filters .form-group {
-    margin-bottom: 0;
-}
-
-.break-log-filters .form-group label {
-    font-size: 12px;
-    margin-bottom: 2px;
-}
-
-.break-log-filters input,
-.break-log-filters select {
-    padding: 6px 10px;
-    font-size: 13px;
-}
-
-/* ============================================
-   VACATION LOG GRID
-   ============================================ */
-.vacation-log-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
 }
 
-.vacation-log-card {
+.break-card {
     background: #f8f9fa;
     padding: 16px;
     border-radius: 12px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #4ecdc4;
     transition: transform 0.2s;
 }
 
-.vacation-log-card:hover {
+.break-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.vacation-log-card .emp-name {
-    font-weight: 600;
-    font-size: 16px;
+.break-card.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
 }
 
-.vacation-log-card .emp-dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.vacation-log-card .vacation-dates {
-    font-size: 14px;
-    margin-top: 8px;
-    padding: 8px;
-    background: white;
-    border-radius: 6px;
-}
-
-.vacation-log-card .status-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.vacation-log-card .action-buttons {
+.break-card .card-header {
     display: flex;
-    gap: 8px;
-    margin-top: 8px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
+}
+
+.break-card .card-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.break-card .card-body p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.break-card .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.break-card .overdue-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+.break-card .on-time-text {
+    color: #4ecdc4;
+    font-weight: 600;
+}
+
+/* ============================================
+   HISTORY TABLE
+   ============================================ */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.history-table th {
+    text-align: left;
+    padding: 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.history-table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.history-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
+   NO BREAKS / EMPTY STATE
+   ============================================ */
+.no-breaks {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.no-breaks .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.empty {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-size: 14px;
+}
+
+.empty .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
 }
 
 /* ============================================
@@ -386,6 +559,52 @@ table tr:hover {
 }
 
 /* ============================================
+   FORM STYLES
+   ============================================ */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 12px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ============================================
    CHECKBOX GROUP
    ============================================ */
 .checkbox-group {
@@ -403,23 +622,142 @@ table tr:hover {
 }
 
 /* ============================================
+   BUTTONS (Admin Specific)
+   ============================================ */
+.btn-primary {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #5a6fd6;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #e55a5a;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    background: #667eea;
+    color: white;
+}
+
+.btn-warning {
+    background: #ffd93d;
+    color: #1a1a2e;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-warning:hover {
+    background: #f5c800;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 180px;
+    }
+}
+
 @media (max-width: 768px) {
+    .dashboard-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 8px;
+        gap: 4px;
+    }
+
+    .sidebar .nav-item {
+        padding: 8px 14px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        flex: 1;
+        justify-content: center;
+        min-width: 100px;
+    }
+
+    .sidebar .nav-item.active {
+        border-left: none;
+        border-bottom-color: #667eea;
+    }
+
+    .sidebar-divider {
+        display: none;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr 1fr;
+    }
+    
+    .vacation-grid {
+        grid-template-columns: 1fr;
     }
     
     .break-status-grid {
         grid-template-columns: 1fr;
     }
     
-    .vacation-log-grid {
+    .break-wall {
         grid-template-columns: 1fr;
-    }
-    
-    .admin-tabs {
-        flex-direction: column;
     }
     
     .filters {
@@ -429,10 +767,6 @@ table tr:hover {
     .filters input,
     .filters select {
         width: 100%;
-    }
-    
-    .break-log-filters {
-        grid-template-columns: 1fr 1fr;
     }
     
     .modal-content {
@@ -452,6 +786,18 @@ table tr:hover {
     .history-table td {
         padding: 6px 8px;
     }
+    
+    .break-card .card-header {
+        flex-wrap: wrap;
+    }
+    
+    .vacation-card .action-buttons {
+        flex-direction: column;
+    }
+    
+    .vacation-card .action-buttons button {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -466,8 +812,5 @@ table tr:hover {
     }
     .stat-card h3 {
         font-size: 11px;
-    }
-    .break-log-filters {
-        grid-template-columns: 1fr;
     }
 }
