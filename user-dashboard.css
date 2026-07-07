@@ -98,20 +98,22 @@
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .btn-checkin {
     background: #4ecdc4;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 28px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
+    font-size: 15px;
 }
 
-.btn-checkin:hover {
+.btn-checkin:hover:not(:disabled) {
     background: #45b7b0;
 }
 
@@ -124,14 +126,15 @@
     background: #ff6b6b;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 28px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
+    font-size: 15px;
 }
 
-.btn-checkout:hover {
+.btn-checkout:hover:not(:disabled) {
     background: #e55a5a;
 }
 
@@ -140,32 +143,30 @@
     cursor: not-allowed;
 }
 
-/* ============================================
-   CHECK IN/OUT STATUS
-   ============================================ */
-.checkin-status {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
+.checkin-status-badge {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
     font-weight: 600;
+    display: inline-block;
 }
 
-.status-pending {
+.checkin-status-pending {
     background: #ffd93d;
     color: #1a1a2e;
 }
 
-.status-approved {
+.checkin-status-approved {
     background: #4ecdc4;
     color: white;
 }
 
-.status-rejected {
+.checkin-status-rejected {
     background: #ff6b6b;
     color: white;
 }
 
-.status-checkedout {
+.checkin-status-checkedout {
     background: #667eea;
     color: white;
 }
@@ -181,64 +182,19 @@
 
 .checkin-table th {
     text-align: left;
-    padding: 10px;
+    padding: 10px 12px;
     background: #f8f9fa;
     font-weight: 600;
     border-bottom: 2px solid #e0e0e0;
 }
 
 .checkin-table td {
-    padding: 10px;
+    padding: 10px 12px;
     border-bottom: 1px solid #f0f0f0;
 }
 
 .checkin-table tr:hover {
     background: #f8f9fa;
-}
-
-/* ============================================
-   CHECK IN/OUT ACTION BUTTONS
-   ============================================ */
-.btn-approve-checkin {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-approve-checkin:hover {
-    background: #45b7b0;
-}
-
-.btn-reject-checkin {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-reject-checkin:hover {
-    background: #e55a5a;
-}
-
-.btn-delete-checkin {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-delete-checkin:hover {
-    background: #c82333;
 }
 
 /* ============================================
