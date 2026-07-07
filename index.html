@@ -20,7 +20,6 @@
     </nav>
 
     <div class="container">
-        <!-- Welcome Header -->
         <div class="welcome-header">
             <div>
                 <h1>📊 Dashboard</h1>
@@ -32,9 +31,7 @@
             </div>
         </div>
 
-        <!-- Dashboard Wrapper with Sidebar -->
         <div class="dashboard-wrapper">
-            <!-- Sidebar Navigation -->
             <div class="sidebar">
                 <div class="nav-item active" data-view="break-tracker">
                     <span class="icon">⏱️</span>
@@ -44,6 +41,10 @@
                     <span class="icon">🏖️</span>
                     <span>Vacation</span>
                 </div>
+                <div class="nav-item" data-view="checkin">
+                    <span class="icon">📋</span>
+                    <span>Check In/Out</span>
+                </div>
                 <div class="sidebar-divider"></div>
                 <div class="nav-item" style="opacity:0.5;cursor:default;border-left-color:transparent;">
                     <span class="icon">👤</span>
@@ -51,14 +52,11 @@
                 </div>
             </div>
 
-            <!-- Main Content Area -->
             <div class="main-content">
-
                 <!-- ========================================== -->
                 <!-- VIEW 1: BREAK TRACKER -->
                 <!-- ========================================== -->
                 <div id="view-break-tracker" class="view-section active">
-                    <!-- My Break Section -->
                     <div class="my-break-section">
                         <h2>☕ My Break</h2>
                         <div class="break-actions">
@@ -76,7 +74,6 @@
                         </div>
                     </div>
 
-                    <!-- Stats - Only Active Breaks & Today's Breaks -->
                     <div class="stats-grid">
                         <div class="stat-card" style="border-top:4px solid #ff6b6b;">
                             <h3>🔴 Active Breaks</h3>
@@ -89,7 +86,6 @@
                         </div>
                     </div>
 
-                    <!-- Active Breaks Wall -->
                     <div class="card">
                         <h2>🔴 Currently On Break</h2>
                         <div id="activeBreaksList">
@@ -97,7 +93,6 @@
                         </div>
                     </div>
 
-                    <!-- Break History -->
                     <div class="card">
                         <h2>📊 My Break History</h2>
                         <div style="overflow-x:auto;">
@@ -119,17 +114,40 @@
                                 <button id="addVacationBtn" class="btn-primary">+ Add Vacation Request</button>
                             </div>
                         </div>
-                        
-                        <!-- Vacation Type Tabs -->
                         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
                             <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
                             <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
                             <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
                             <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
                         </div>
-                        
-                        <div id="vacationList">
-                            <p class="empty">No vacation requests found</p>
+                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW 3: CHECK IN/OUT -->
+                <!-- ========================================== -->
+                <div id="view-checkin" class="view-section">
+                    <div class="checkin-card">
+                        <h2>📋 Check In / Out</h2>
+                        <div class="checkin-actions">
+                            <button id="checkInBtn" class="btn-checkin">✅ Check In</button>
+                            <button id="checkOutBtn" class="btn-checkout" disabled>❌ Check Out</button>
+                            <span id="checkinStatus" style="display:flex;align-items:center;margin-left:12px;"></span>
+                        </div>
+                        <div id="activeCheckinInfo" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;display:none;">
+                            <p><strong>⏱️ Checked In:</strong> <span id="checkinDuration">0m 0s</span></p>
+                            <p><strong>⏰ Checked In At:</strong> <span id="checkinTime">-</span></p>
+                            <p><strong>📋 Status:</strong> <span id="checkinStatusText">-</span></p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>📊 My Check In/Out History</h2>
+                        <div style="overflow-x:auto;">
+                            <div id="checkinHistory">
+                                <div class="no-breaks"><div class="icon">📋</div><p>No check in/out records found</p></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,7 +160,6 @@
     <!-- MODALS -->
     <!-- ========================================== -->
 
-    <!-- Change Password Modal -->
     <div id="passwordModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('passwordModal')">&times;</button>
@@ -169,7 +186,6 @@
         </div>
     </div>
 
-    <!-- Add Vacation Modal -->
     <div id="vacationModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('vacationModal')">&times;</button>
@@ -216,7 +232,7 @@
         // ============================================
         // USER DASHBOARD - COMPLETE SCRIPT
         // ============================================
-        
+
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         if (!currentUser) window.location.href = 'login.html';
 
@@ -228,7 +244,6 @@
         document.getElementById('userRole').textContent = currentUser.role || 'Employee';
         document.getElementById('userRole').style.background = currentUser.role === 'admin' ? '#ff6b6b' : '#667eea';
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', function() {
             localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
@@ -248,6 +263,9 @@
 
                 if (view === 'vacation') {
                     loadVacations('pending');
+                } else if (view === 'checkin') {
+                    loadCheckinHistory();
+                    updateCheckinUI();
                 }
             });
         });
@@ -274,33 +292,33 @@
 
         document.getElementById('passwordForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const errorMsg = document.getElementById('passwordError');
-            
+
             errorMsg.textContent = '';
             errorMsg.style.display = 'none';
-            
+
             if (currentPassword !== currentUser.password) {
                 errorMsg.textContent = '❌ Current password is incorrect!';
                 errorMsg.style.display = 'block';
                 return;
             }
-            
+
             if (newPassword.length < 6) {
                 errorMsg.textContent = '❌ New password must be at least 6 characters!';
                 errorMsg.style.display = 'block';
                 return;
             }
-            
+
             if (newPassword !== confirmPassword) {
                 errorMsg.textContent = '❌ Passwords do not match!';
                 errorMsg.style.display = 'block';
                 return;
             }
-            
+
             const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
             const userIndex = users.findIndex(u => u.id === currentUser.id);
             if (userIndex !== -1) {
@@ -309,14 +327,14 @@
                 currentUser.password = newPassword;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
-            
+
             const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
             const adminIndex = admins.findIndex(a => a.id === currentUser.id);
             if (adminIndex !== -1) {
                 admins[adminIndex].password = newPassword;
                 localStorage.setItem('adminUsers', JSON.stringify(admins));
             }
-            
+
             closeModal('passwordModal');
             alert('✅ Password changed successfully!');
         });
@@ -330,6 +348,8 @@
         function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"localBreakMinutes":30,"expatBreakMinutes":45,"warningMinutes":5}'); }
         function getVacations() { return JSON.parse(localStorage.getItem('vacations') || '[]'); }
         function saveVacations(v) { localStorage.setItem('vacations', JSON.stringify(v)); }
+        function getCheckins() { return JSON.parse(localStorage.getItem('checkins') || '[]'); }
+        function saveCheckins(c) { localStorage.setItem('checkins', JSON.stringify(c)); }
 
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
@@ -343,15 +363,15 @@
             return `${mins}m ${secs}s`;
         }
 
-        function formatTime(date) { 
-            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); 
+        function formatTime(date) {
+            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
 
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
+            return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
             });
         }
 
@@ -382,7 +402,7 @@
 
         function startMyBreak(breakType = 'short') {
             const emp = getMyEmployee();
-            
+
             if (!emp) {
                 const employees = getEmployees();
                 const newEmp = {
@@ -397,7 +417,7 @@
                 };
                 employees.push(newEmp);
                 localStorage.setItem('employees', JSON.stringify(employees));
-                
+
                 const newEmpRecord = getMyEmployee();
                 if (!newEmpRecord) {
                     alert('Error creating employee record. Please contact admin.');
@@ -407,26 +427,26 @@
                 return;
             }
 
-            if (getMyActiveBreak()) { 
-                alert('You are already on break!'); 
-                return; 
+            if (getMyActiveBreak()) {
+                alert('You are already on break!');
+                return;
             }
 
             const breakTypes = ['short', 'lunch', 'personal', 'meeting'];
             const breakLabels = ['☕ Short Break', '🍱 Lunch Break', '👤 Personal Break', '📋 Meeting Break'];
             const choice = prompt(
                 'Select break type:\n' +
-                breakLabels.map((label, i) => `${i+1}. ${label}`).join('\n') +
+                breakLabels.map((label, i) => `${i + 1}. ${label}`).join('\n') +
                 '\n\nEnter number (1-4):'
             );
-            
+
             if (!choice) return;
             const index = parseInt(choice) - 1;
             if (index < 0 || index > 3) {
                 alert('Invalid selection!');
                 return;
             }
-            
+
             performStartBreak(emp.id, breakTypes[index]);
         }
 
@@ -445,9 +465,9 @@
 
             const employees = getEmployees();
             const empIndex = employees.findIndex(e => e.id === employeeId);
-            if (empIndex !== -1) { 
-                employees[empIndex].status = 'on_break'; 
-                localStorage.setItem('employees', JSON.stringify(employees)); 
+            if (empIndex !== -1) {
+                employees[empIndex].status = 'on_break';
+                localStorage.setItem('employees', JSON.stringify(employees));
             }
 
             updateBreakUI();
@@ -457,11 +477,11 @@
 
         function endMyBreak() {
             const activeBreak = getMyActiveBreak();
-            if (!activeBreak) { 
-                alert('You are not on break!'); 
-                return; 
+            if (!activeBreak) {
+                alert('You are not on break!');
+                return;
             }
-            
+
             const emp = getMyEmployee();
             if (!emp) return;
 
@@ -473,19 +493,19 @@
             const startTime = new Date(breaks[index].start_time);
             const duration = Math.floor((new Date(endTime) - startTime) / 1000);
 
-            breaks[index] = { 
-                ...breaks[index], 
-                end_time: endTime, 
-                status: 'completed', 
-                duration: duration 
+            breaks[index] = {
+                ...breaks[index],
+                end_time: endTime,
+                status: 'completed',
+                duration: duration
             };
             saveBreaks(breaks);
 
             const employees = getEmployees();
             const empIndex = employees.findIndex(e => e.id === emp.id);
-            if (empIndex !== -1) { 
-                employees[empIndex].status = 'active'; 
-                localStorage.setItem('employees', JSON.stringify(employees)); 
+            if (empIndex !== -1) {
+                employees[empIndex].status = 'active';
+                localStorage.setItem('employees', JSON.stringify(employees));
             }
 
             updateBreakUI();
@@ -512,20 +532,20 @@
                 breakInfo.className = 'break-info active';
                 breakInfo.style.display = 'block';
                 startTimeSpan.textContent = formatTime(activeBreak.start_time);
-                
+
                 const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
                 breakTypeSpan.textContent = breakLabels[activeBreak.break_type] || 'Short';
-                
+
                 if (breakTimer) clearInterval(breakTimer);
                 breakTimer = setInterval(() => {
                     const duration = formatDuration(activeBreak.start_time);
                     durationSpan.textContent = duration;
                     const settings = getSettings();
-                    
+
                     const emp = getMyEmployee();
                     const empType = emp?.employeeType || 'Local';
                     const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-                    
+
                     const elapsed = Math.floor((new Date() - new Date(activeBreak.start_time)) / 60000);
                     if (elapsed > maxMinutes) {
                         warningSpan.style.display = 'block';
@@ -543,9 +563,9 @@
                 statusText.className = 'status-badge available';
                 breakInfo.className = 'break-info';
                 breakInfo.style.display = 'none';
-                if (breakTimer) { 
-                    clearInterval(breakTimer); 
-                    breakTimer = null; 
+                if (breakTimer) {
+                    clearInterval(breakTimer);
+                    breakTimer = null;
                 }
             }
         }
@@ -564,12 +584,12 @@
             const settings = getSettings();
             const active = breaks.filter(b => b.status === 'active');
             const list = document.getElementById('activeBreaksList');
-            
+
             document.getElementById('activeBreaks').textContent = active.length;
-            
-            const names = active.map(b => { 
-                const emp = employees.find(e => e.id === b.employee_id); 
-                return emp?.name || 'Unknown'; 
+
+            const names = active.map(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                return emp?.name || 'Unknown';
             });
             document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
 
@@ -587,7 +607,7 @@
                 const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
                 const isOverdue = elapsed > maxMinutes;
                 const initials = emp?.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
-                const colors = ['#667eea','#4ecdc4','#ff6b6b','#ffd93d','#a29bfe','#fd79a8'];
+                const colors = ['#667eea', '#4ecdc4', '#ff6b6b', '#ffd93d', '#a29bfe', '#fd79a8'];
                 const colorIndex = emp?.id ? parseInt(emp.id.slice(-2), 16) % colors.length : 0;
                 const isMe = emp?.email === currentUser.email;
                 const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
@@ -653,20 +673,20 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS (User - Request & Accept)
+        // VACATION FUNCTIONS
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
             const employees = getEmployees();
             const emp = getMyEmployee();
-            
+
             if (!emp) {
                 document.getElementById('vacationList').innerHTML = '<p class="empty">Please contact admin to create your employee profile first.</p>';
                 return;
             }
-            
+
             let filtered = vacations.filter(v => v.employee_id === emp.id);
-            
+
             if (filter === 'pending') {
                 filtered = filtered.filter(v => v.status === 'pending');
             } else if (filter === 'approved') {
@@ -674,24 +694,23 @@
             } else if (filter === 'rejected') {
                 filtered = filtered.filter(v => v.status === 'rejected');
             }
-            
+
             filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            
+
             const list = document.getElementById('vacationList');
             if (filtered.length === 0) {
                 list.innerHTML = `<p class="empty">No ${filter} vacation requests found</p>`;
                 return;
             }
-            
+
             let html = '<div class="vacation-grid">';
             filtered.forEach(v => {
                 const totalDays = calculateDays(v.startDate, v.endDate);
                 const statusClass = v.status === 'approved' ? 'vacation-status-approved' : (v.status === 'rejected' ? 'vacation-status-rejected' : 'vacation-status-pending');
-                
-                // Check if user can accept (approved but not yet accepted)
+
                 const canAccept = v.status === 'approved' && v.userAccepted !== true;
                 const isAccepted = v.userAccepted === true;
-                
+
                 html += `<div class="vacation-card">
                     <div class="emp-name">${emp.name}</div>
                     <div class="emp-dept">${emp.department || 'N/A'} • ${emp.employeeType || 'Local'}</div>
@@ -719,15 +738,15 @@
 
         function acceptVacation(id) {
             if (!confirm('Do you accept this vacation approval with the adjusted days?')) return;
-            
+
             let vacations = getVacations();
             const index = vacations.findIndex(v => v.id === id);
             if (index === -1) return;
-            
+
             vacations[index].userAccepted = true;
             vacations[index].acceptedDate = new Date().toISOString();
             saveVacations(vacations);
-            
+
             loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'pending');
             alert('✅ Vacation accepted successfully! Your vacation days have been recorded.');
         }
@@ -735,7 +754,7 @@
         function addVacation(data) {
             const vacations = getVacations();
             const totalDays = calculateDays(data.startDate, data.endDate);
-            const newVacation = { 
+            const newVacation = {
                 id: 'vac_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                 ...data,
                 totalDays: totalDays,
@@ -750,22 +769,21 @@
 
         document.getElementById('vacationForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const emp = getMyEmployee();
             if (!emp) {
                 alert('Please contact admin to create your employee profile first.');
                 return;
             }
-            
+
             const startDate = document.getElementById('vacationStartDate').value;
             const endDate = document.getElementById('vacationEndDate').value;
-            
-            // Validate dates
+
             if (new Date(startDate) > new Date(endDate)) {
                 alert('Start date cannot be after end date!');
                 return;
             }
-            
+
             const data = {
                 employee_id: emp.id,
                 vacationType: document.getElementById('vacationType').value,
@@ -774,7 +792,7 @@
                 status: document.getElementById('vacationStatus').value,
                 notes: document.getElementById('vacationNotes').value
             };
-            
+
             addVacation(data);
             closeModal('vacationModal');
             this.reset();
@@ -786,6 +804,199 @@
             document.getElementById('vacationForm').reset();
             openModal('vacationModal');
         });
+
+        // ============================================
+        // CHECK IN/OUT FUNCTIONS
+        // ============================================
+        let checkinTimer = null;
+
+        function getMyActiveCheckin() {
+            const emp = getMyEmployee();
+            if (!emp) return null;
+            const checkins = getCheckins();
+            return checkins.find(c => c.employee_id === emp.id && c.status === 'pending');
+        }
+
+        function checkIn() {
+            const emp = getMyEmployee();
+            if (!emp) {
+                alert('Please contact admin to create your employee profile first.');
+                return;
+            }
+
+            const activeCheckin = getMyActiveCheckin();
+            if (activeCheckin) {
+                alert('You already have a pending check-in request!');
+                return;
+            }
+
+            const checkins = getCheckins();
+            const newCheckin = {
+                id: 'cin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                employee_id: emp.id,
+                employee_name: emp.name,
+                department: emp.department,
+                employeeType: emp.employeeType || 'Local',
+                checkin_time: new Date().toISOString(),
+                checkout_time: null,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
+            checkins.push(newCheckin);
+            saveCheckins(checkins);
+
+            updateCheckinUI();
+            loadCheckinHistory();
+            alert('✅ Check-in request sent! Waiting for admin approval.');
+        }
+
+        function checkOut() {
+            const emp = getMyEmployee();
+            if (!emp) return;
+
+            const activeCheckin = getMyActiveCheckin();
+            if (!activeCheckin) {
+                alert('You have no active check-in!');
+                return;
+            }
+
+            if (activeCheckin.status !== 'approved') {
+                alert('Your check-in must be approved before you can check out!');
+                return;
+            }
+
+            const checkins = getCheckins();
+            const index = checkins.findIndex(c => c.id === activeCheckin.id);
+            if (index === -1) return;
+
+            checkins[index].checkout_time = new Date().toISOString();
+            checkins[index].status = 'checkedout';
+            saveCheckins(checkins);
+
+            updateCheckinUI();
+            loadCheckinHistory();
+            alert('✅ Check-out recorded successfully!');
+        }
+
+        function loadCheckinHistory() {
+            const checkins = getCheckins();
+            const emp = getMyEmployee();
+            if (!emp) {
+                document.getElementById('checkinHistory').innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No check in/out records found</p></div>';
+                return;
+            }
+
+            const userCheckins = checkins.filter(c => c.employee_id === emp.id).reverse();
+            const container = document.getElementById('checkinHistory');
+
+            if (userCheckins.length === 0) {
+                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No check in/out records found</p></div>';
+                return;
+            }
+
+            let html = `<table class="checkin-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            userCheckins.forEach(c => {
+                const checkinTime = formatTime(c.checkin_time);
+                const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
+                const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+                let statusClass = '';
+                let statusText = c.status;
+
+                if (c.status === 'pending') {
+                    statusClass = 'status-pending';
+                    statusText = '⏳ Pending';
+                } else if (c.status === 'approved') {
+                    statusClass = 'status-approved';
+                    statusText = '✅ Approved';
+                } else if (c.status === 'rejected') {
+                    statusClass = 'status-rejected';
+                    statusText = '❌ Rejected';
+                } else if (c.status === 'checkedout') {
+                    statusClass = 'status-checkedout';
+                    statusText = '📤 Checked Out';
+                }
+
+                html += `<tr>
+                    <td><strong>${c.employee_name || 'Unknown'}</strong></td>
+                    <td>${checkinTime}</td>
+                    <td>${checkoutTime}</td>
+                    <td>${duration}</td>
+                    <td><span class="checkin-status ${statusClass}">${statusText}</span></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateCheckinUI() {
+            const activeCheckin = getMyActiveCheckin();
+            const checkInBtn = document.getElementById('checkInBtn');
+            const checkOutBtn = document.getElementById('checkOutBtn');
+            const statusSpan = document.getElementById('checkinStatus');
+            const infoDiv = document.getElementById('activeCheckinInfo');
+            const durationSpan = document.getElementById('checkinDuration');
+            const timeSpan = document.getElementById('checkinTime');
+            const statusTextSpan = document.getElementById('checkinStatusText');
+
+            if (activeCheckin) {
+                checkInBtn.disabled = true;
+                checkOutBtn.disabled = true;
+
+                if (activeCheckin.status === 'pending') {
+                    statusSpan.innerHTML = '<span class="checkin-status status-pending">⏳ Pending Approval</span>';
+                    checkOutBtn.disabled = true;
+                    infoDiv.style.display = 'block';
+                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
+                    statusTextSpan.textContent = '⏳ Pending Approval';
+
+                    if (checkinTimer) clearInterval(checkinTimer);
+                    checkinTimer = setInterval(() => {
+                        durationSpan.textContent = formatDuration(activeCheckin.checkin_time);
+                    }, 1000);
+                } else if (activeCheckin.status === 'approved') {
+                    statusSpan.innerHTML = '<span class="checkin-status status-approved">✅ Approved</span>';
+                    checkOutBtn.disabled = false;
+                    infoDiv.style.display = 'block';
+                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
+                    statusTextSpan.textContent = '✅ Approved - You can check out now';
+
+                    if (checkinTimer) clearInterval(checkinTimer);
+                    checkinTimer = setInterval(() => {
+                        durationSpan.textContent = formatDuration(activeCheckin.checkin_time);
+                    }, 1000);
+                } else if (activeCheckin.status === 'rejected') {
+                    statusSpan.innerHTML = '<span class="checkin-status status-rejected">❌ Rejected</span>';
+                    checkOutBtn.disabled = true;
+                    infoDiv.style.display = 'block';
+                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
+                    statusTextSpan.textContent = '❌ Rejected by Admin';
+                }
+            } else {
+                checkInBtn.disabled = false;
+                checkOutBtn.disabled = true;
+                statusSpan.innerHTML = '';
+                infoDiv.style.display = 'none';
+                if (checkinTimer) {
+                    clearInterval(checkinTimer);
+                    checkinTimer = null;
+                }
+            }
+        }
+
+        document.getElementById('checkInBtn').addEventListener('click', checkIn);
+        document.getElementById('checkOutBtn').addEventListener('click', checkOut);
 
         // ============================================
         // MODAL FUNCTIONS
@@ -807,6 +1018,7 @@
             loadTodayBreaks();
             loadUserHistory();
             updateBreakUI();
+            updateCheckinUI();
         }
 
         setInterval(refreshAll, 10000);
