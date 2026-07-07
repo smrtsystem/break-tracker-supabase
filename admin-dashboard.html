@@ -40,6 +40,10 @@
                     <span class="icon">🏖️</span>
                     <span>Vacation</span>
                 </div>
+                <div class="nav-item" data-section="checkin">
+                    <span class="icon">📋</span>
+                    <span>Check In/Out</span>
+                </div>
                 <div class="admin-sidebar-divider"></div>
                 <div class="nav-item" style="opacity:0.5;cursor:default;border-left-color:transparent;">
                     <span class="icon">👤</span>
@@ -48,8 +52,10 @@
             </div>
 
             <div class="admin-content">
+                <!-- ========================================== -->
+                <!-- SECTION 1: BREAK TRACKER -->
+                <!-- ========================================== -->
                 <div id="section-break-tracker" class="admin-section active">
-                    <!-- Stats -->
                     <div class="stats-grid">
                         <div class="stat-card" style="border-left-color:#667eea;">
                             <h3>👥 Total Employees</h3>
@@ -70,7 +76,6 @@
                         </div>
                     </div>
 
-                    <!-- Sub Navigation Buttons -->
                     <div class="admin-sub-nav">
                         <button class="admin-sub-nav-btn active" data-sub="employee-management">
                             <span class="icon">👥</span> Employee Management
@@ -95,7 +100,7 @@
                         </button>
                     </div>
 
-                    <!-- SUB: Employee Management -->
+                    <!-- Employee Management -->
                     <div id="sub-employee-management" class="admin-section active">
                         <div class="card">
                             <div class="card-header">
@@ -122,7 +127,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB: User Management -->
+                    <!-- User Management -->
                     <div id="sub-user-management" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -136,7 +141,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Department -->
+                    <!-- Department -->
                     <div id="sub-department" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -147,7 +152,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Role -->
+                    <!-- Role -->
                     <div id="sub-role" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -158,7 +163,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Break Status -->
+                    <!-- Break Status -->
                     <div id="sub-break-status" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -169,7 +174,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Break Log -->
+                    <!-- Break Log -->
                     <div id="sub-break-log" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -211,7 +216,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB: Settings -->
+                    <!-- Settings -->
                     <div id="sub-settings" class="admin-section">
                         <div class="card">
                             <h2>⚙️ Break Settings</h2>
@@ -243,6 +248,9 @@
                     </div>
                 </div>
 
+                <!-- ========================================== -->
+                <!-- SECTION 2: VACATION -->
+                <!-- ========================================== -->
                 <div id="section-vacation" class="admin-section">
                     <div class="card">
                         <div class="card-header">
@@ -260,6 +268,29 @@
                         <div id="vacationList"><p class="empty">No vacation requests found</p></div>
                     </div>
                 </div>
+
+                <!-- ========================================== -->
+                <!-- SECTION 3: CHECK IN/OUT -->
+                <!-- ========================================== -->
+                <div id="section-checkin" class="admin-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>📋 Check In/Out Management</h2>
+                            <div>
+                                <button id="exportCheckinBtn" class="btn-outline">📥 Export CSV</button>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                            <button class="checkin-tab-btn active" data-checkin-type="pending">⏳ Pending</button>
+                            <button class="checkin-tab-btn" data-checkin-type="approved">✅ Approved</button>
+                            <button class="checkin-tab-btn" data-checkin-type="rejected">❌ Rejected</button>
+                            <button class="checkin-tab-btn" data-checkin-type="checkedout">📤 Checked Out</button>
+                            <button class="checkin-tab-btn" data-checkin-type="all">📋 All</button>
+                        </div>
+                        <div id="checkinList"><p class="empty">No check in/out records found</p></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -492,6 +523,8 @@
                     loadSettings();
                 } else if (section === 'vacation') {
                     loadVacations('pending');
+                } else if (section === 'checkin') {
+                    loadCheckins('pending');
                 }
             });
         });
@@ -522,6 +555,17 @@
         });
 
         // ============================================
+        // CHECKIN TAB BUTTONS
+        // ============================================
+        document.querySelectorAll('.checkin-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.checkin-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadCheckins(this.dataset.checkinType);
+            });
+        });
+
+        // ============================================
         // DATA FUNCTIONS
         // ============================================
         function getEmployees() { return JSON.parse(localStorage.getItem('employees') || '[]'); }
@@ -540,6 +584,8 @@
         function saveSettings(s) { localStorage.setItem('breakSettings', JSON.stringify(s)); }
         function getVacations() { return JSON.parse(localStorage.getItem('vacations') || '[]'); }
         function saveVacations(v) { localStorage.setItem('vacations', JSON.stringify(v)); }
+        function getCheckins() { return JSON.parse(localStorage.getItem('checkins') || '[]'); }
+        function saveCheckins(c) { localStorage.setItem('checkins', JSON.stringify(c)); }
 
         function formatDuration(startTime, endTime = null) {
             const start = new Date(startTime);
@@ -554,11 +600,15 @@
         }
 
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
+            return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
             });
+        }
+
+        function formatTime(date) {
+            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
 
         function calculateDays(startDate, endDate) {
@@ -578,7 +628,7 @@
             const admins = getAdmins();
             const breaks = getBreaks();
             const settings = getSettings();
-            
+
             const activeBreaks = breaks.filter(b => b.status === 'active');
             const overdue = activeBreaks.filter(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
@@ -587,39 +637,39 @@
                 const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
                 return elapsed > maxMinutes;
             });
-            
+
             document.getElementById('totalEmployees').textContent = employees.length;
             document.getElementById('activeBreaks').textContent = activeBreaks.length;
             document.getElementById('overdueBreaks').textContent = overdue.length;
             document.getElementById('totalUsers').textContent = users.length + admins.length;
-            
-            const names = activeBreaks.map(b => { 
-                const emp = employees.find(e => e.id === b.employee_id); 
-                return emp?.name || 'Unknown'; 
+
+            const names = activeBreaks.map(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                return emp?.name || 'Unknown';
             });
             document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
         }
 
         // ============================================
-        // EMPLOYEE FUNCTIONS (Full CRUD)
+        // EMPLOYEE FUNCTIONS
         // ============================================
         function loadEmployees() {
             const employees = getEmployees();
             const search = document.getElementById('empSearch').value.toLowerCase();
             const statusFilter = document.getElementById('empStatusFilter').value;
             const typeFilter = document.getElementById('empTypeFilter').value;
-            
+
             let filtered = employees;
             if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.email.toLowerCase().includes(search) || e.department.toLowerCase().includes(search));
             if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
             if (typeFilter !== 'all') filtered = filtered.filter(e => e.employeeType === typeFilter);
-            
+
             const list = document.getElementById('employeesList');
-            if (filtered.length === 0) { 
-                list.innerHTML = '<p class="empty">No employees found</p>'; 
-                return; 
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty">No employees found</p>';
+                return;
             }
-            
+
             let html = `<table>
                 <thead>
                     <tr>
@@ -633,7 +683,7 @@
                     </tr>
                 </thead>
                 <tbody>`;
-                
+
             filtered.forEach(e => {
                 const statusColor = e.status === 'on_break' ? 'badge-orange' : (e.status === 'inactive' ? 'badge-red' : 'badge-green');
                 html += `<tr>
@@ -655,11 +705,11 @@
 
         function addEmployee(data) {
             const employees = getEmployees();
-            const newEmp = { 
-                id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), 
-                ...data, 
-                status: 'active', 
-                created_at: new Date().toISOString() 
+            const newEmp = {
+                id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                ...data,
+                status: 'active',
+                created_at: new Date().toISOString()
             };
             employees.push(newEmp);
             saveEmployees(employees);
@@ -685,7 +735,7 @@
             const employees = getEmployees();
             const emp = employees.find(e => e.id === id);
             if (!emp) return;
-            
+
             document.getElementById('editEmpId').value = id;
             document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
             document.getElementById('empName').value = emp.name;
@@ -706,12 +756,12 @@
                 employeeType: document.getElementById('empEmployeeType').value,
                 position: document.getElementById('empPosition').value
             };
-            if (id) { 
-                updateEmployee(id, data); 
-                alert('✅ Employee updated!'); 
-            } else { 
-                addEmployee(data); 
-                alert('✅ Employee added!'); 
+            if (id) {
+                updateEmployee(id, data);
+                alert('✅ Employee updated!');
+            } else {
+                addEmployee(data);
+                alert('✅ Employee added!');
             }
             closeModal('employeeModal');
             this.reset();
@@ -729,12 +779,12 @@
             const admins = getAdmins();
             const allUsers = [...users, ...admins];
             const list = document.getElementById('usersList');
-            
-            if (allUsers.length === 0) { 
-                list.innerHTML = '<p class="empty">No users found</p>'; 
-                return; 
+
+            if (allUsers.length === 0) {
+                list.innerHTML = '<p class="empty">No users found</p>';
+                return;
             }
-            
+
             let html = `<table>
                 <thead>
                     <tr>
@@ -748,7 +798,7 @@
                     </tr>
                 </thead>
                 <tbody>`;
-                
+
             allUsers.forEach(u => {
                 const isAdmin = u.role === 'admin';
                 html += `<tr>
@@ -768,7 +818,7 @@
             });
             html += '</tbody></table>';
             list.innerHTML = html;
-            
+
             document.getElementById('selectAllUsers')?.addEventListener('change', function() {
                 document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
             });
@@ -778,7 +828,7 @@
             const users = getUsers();
             const user = users.find(u => u.id === id);
             if (!user) return;
-            
+
             document.getElementById('editUserId').value = id;
             document.getElementById('userModalTitle').textContent = 'Edit User';
             document.getElementById('userName').value = user.name;
@@ -792,19 +842,19 @@
 
         function createUser(name, email, password, role, department, employeeType) {
             const users = getUsers();
-            if (users.find(u => u.email === email)) { 
-                alert('❌ User already exists!'); 
-                return false; 
+            if (users.find(u => u.email === email)) {
+                alert('❌ User already exists!');
+                return false;
             }
             const admins = getAdmins();
-            if (admins.find(a => a.email === email)) { 
-                alert('❌ User already exists as admin!'); 
-                return false; 
+            if (admins.find(a => a.email === email)) {
+                alert('❌ User already exists as admin!');
+                return false;
             }
-            const newUser = { 
-                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), 
-                name, email, password, role, department, employeeType, 
-                created_at: new Date().toISOString() 
+            const newUser = {
+                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                name, email, password, role, department, employeeType,
+                created_at: new Date().toISOString()
             };
             users.push(newUser);
             saveUsers(users);
@@ -830,9 +880,9 @@
 
         function deleteSelectedUsers() {
             const selected = document.querySelectorAll('.user-checkbox:checked');
-            if (selected.length === 0) { 
-                alert('Please select users to delete!'); 
-                return; 
+            if (selected.length === 0) {
+                alert('Please select users to delete!');
+                return;
             }
             if (confirm(`Delete ${selected.length} selected user(s)?`)) {
                 selected.forEach(cb => deleteUser(cb.value));
@@ -851,7 +901,7 @@
             const role = document.getElementById('userRole').value;
             const department = document.getElementById('userDepartment').value;
             const employeeType = document.getElementById('userEmployeeType').value;
-            
+
             if (id) {
                 const data = { name, email, role, department, employeeType };
                 if (password && password.length >= 6) data.password = password;
@@ -880,9 +930,9 @@
         function loadDepartments() {
             const depts = getDepartments();
             const list = document.getElementById('departmentsList');
-            if (depts.length === 0) { 
-                list.innerHTML = '<p class="empty">No departments found</p>'; 
-                return; 
+            if (depts.length === 0) {
+                list.innerHTML = '<p class="empty">No departments found</p>';
+                return;
             }
             let html = '';
             depts.forEach((d, i) => {
@@ -897,50 +947,50 @@
             list.innerHTML = html;
         }
 
-        function addDepartment(name) { 
-            const depts = getDepartments(); 
-            depts.push(name); 
-            saveDepartments(depts); 
-            loadDepartments(); 
-            loadDropdowns(); 
+        function addDepartment(name) {
+            const depts = getDepartments();
+            depts.push(name);
+            saveDepartments(depts);
+            loadDepartments();
+            loadDropdowns();
         }
-        
-        function updateDepartment(index, name) { 
-            const depts = getDepartments(); 
-            if (index >= 0 && index < depts.length) { 
-                depts[index] = name; 
-                saveDepartments(depts); 
-                loadDepartments(); 
-                loadDropdowns(); 
-            } 
+
+        function updateDepartment(index, name) {
+            const depts = getDepartments();
+            if (index >= 0 && index < depts.length) {
+                depts[index] = name;
+                saveDepartments(depts);
+                loadDepartments();
+                loadDropdowns();
+            }
         }
-        
-        function deleteDepartment(index) { 
-            let depts = getDepartments(); 
-            depts.splice(index, 1); 
-            saveDepartments(depts); 
-            loadDepartments(); 
-            loadDropdowns(); 
+
+        function deleteDepartment(index) {
+            let depts = getDepartments();
+            depts.splice(index, 1);
+            saveDepartments(depts);
+            loadDepartments();
+            loadDropdowns();
         }
-        
-        function editDepartment(index) { 
-            const depts = getDepartments(); 
-            document.getElementById('editDeptId').value = index; 
-            document.getElementById('deptModalTitle').textContent = 'Edit Department'; 
-            document.getElementById('deptName').value = depts[index]; 
-            openModal('deptModal'); 
+
+        function editDepartment(index) {
+            const depts = getDepartments();
+            document.getElementById('editDeptId').value = index;
+            document.getElementById('deptModalTitle').textContent = 'Edit Department';
+            document.getElementById('deptName').value = depts[index];
+            openModal('deptModal');
         }
 
         document.getElementById('deptForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const index = document.getElementById('editDeptId').value;
             const name = document.getElementById('deptName').value;
-            if (index !== '') { 
-                updateDepartment(parseInt(index), name); 
-                alert('✅ Department updated!'); 
-            } else { 
-                addDepartment(name); 
-                alert('✅ Department added!'); 
+            if (index !== '') {
+                updateDepartment(parseInt(index), name);
+                alert('✅ Department updated!');
+            } else {
+                addDepartment(name);
+                alert('✅ Department added!');
             }
             closeModal('deptModal');
             this.reset();
@@ -954,9 +1004,9 @@
         function loadRoles() {
             const roles = getRoles();
             const list = document.getElementById('rolesList');
-            if (roles.length === 0) { 
-                list.innerHTML = '<p class="empty">No roles found</p>'; 
-                return; 
+            if (roles.length === 0) {
+                list.innerHTML = '<p class="empty">No roles found</p>';
+                return;
             }
             let html = '';
             roles.forEach((r, i) => {
@@ -979,61 +1029,61 @@
             list.innerHTML = html;
         }
 
-        function addRole(data) { 
-            const roles = getRoles(); 
-            roles.push(data); 
-            saveRoles(roles); 
-            loadRoles(); 
-            loadDropdowns(); 
+        function addRole(data) {
+            const roles = getRoles();
+            roles.push(data);
+            saveRoles(roles);
+            loadRoles();
+            loadDropdowns();
         }
-        
-        function updateRole(index, data) { 
-            const roles = getRoles(); 
-            if (index >= 0 && index < roles.length) { 
-                roles[index] = data; 
-                saveRoles(roles); 
-                loadRoles(); 
-                loadDropdowns(); 
-            } 
+
+        function updateRole(index, data) {
+            const roles = getRoles();
+            if (index >= 0 && index < roles.length) {
+                roles[index] = data;
+                saveRoles(roles);
+                loadRoles();
+                loadDropdowns();
+            }
         }
-        
-        function deleteRole(index) { 
-            let roles = getRoles(); 
-            roles.splice(index, 1); 
-            saveRoles(roles); 
-            loadRoles(); 
-            loadDropdowns(); 
+
+        function deleteRole(index) {
+            let roles = getRoles();
+            roles.splice(index, 1);
+            saveRoles(roles);
+            loadRoles();
+            loadDropdowns();
         }
-        
-        function editRole(index) { 
-            const roles = getRoles(); 
-            const r = roles[index]; 
-            document.getElementById('editRoleId').value = index; 
-            document.getElementById('roleModalTitle').textContent = 'Edit Role'; 
-            document.getElementById('roleName').value = r.name; 
-            document.getElementById('permCreateUser').checked = r.createUser || false; 
-            document.getElementById('permDeleteUser').checked = r.deleteUser || false; 
-            document.getElementById('permViewAll').checked = r.viewAll || false; 
-            document.getElementById('permManageSettings').checked = r.manageSettings || false; 
-            openModal('roleModal'); 
+
+        function editRole(index) {
+            const roles = getRoles();
+            const r = roles[index];
+            document.getElementById('editRoleId').value = index;
+            document.getElementById('roleModalTitle').textContent = 'Edit Role';
+            document.getElementById('roleName').value = r.name;
+            document.getElementById('permCreateUser').checked = r.createUser || false;
+            document.getElementById('permDeleteUser').checked = r.deleteUser || false;
+            document.getElementById('permViewAll').checked = r.viewAll || false;
+            document.getElementById('permManageSettings').checked = r.manageSettings || false;
+            openModal('roleModal');
         }
 
         document.getElementById('roleForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const index = document.getElementById('editRoleId').value;
-            const data = { 
-                name: document.getElementById('roleName').value, 
-                createUser: document.getElementById('permCreateUser').checked, 
-                deleteUser: document.getElementById('permDeleteUser').checked, 
-                viewAll: document.getElementById('permViewAll').checked, 
-                manageSettings: document.getElementById('permManageSettings').checked 
+            const data = {
+                name: document.getElementById('roleName').value,
+                createUser: document.getElementById('permCreateUser').checked,
+                deleteUser: document.getElementById('permDeleteUser').checked,
+                viewAll: document.getElementById('permViewAll').checked,
+                manageSettings: document.getElementById('permManageSettings').checked
             };
-            if (index !== '') { 
-                updateRole(parseInt(index), data); 
-                alert('✅ Role updated!'); 
-            } else { 
-                addRole(data); 
-                alert('✅ Role added!'); 
+            if (index !== '') {
+                updateRole(parseInt(index), data);
+                alert('✅ Role updated!');
+            } else {
+                addRole(data);
+                alert('✅ Role added!');
             }
             closeModal('roleModal');
             this.reset();
@@ -1050,12 +1100,12 @@
             const settings = getSettings();
             const active = breaks.filter(b => b.status === 'active');
             const list = document.getElementById('breakStatusList');
-            
-            if (active.length === 0) { 
-                list.innerHTML = '<p class="empty">✅ No one is on break</p>'; 
-                return; 
+
+            if (active.length === 0) {
+                list.innerHTML = '<p class="empty">✅ No one is on break</p>';
+                return;
             }
-            
+
             let html = '<div class="break-status-grid">';
             active.forEach(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
@@ -1065,7 +1115,7 @@
                 const isOverdue = elapsed > maxMinutes;
                 const duration = formatDuration(b.start_time);
                 const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-                
+
                 html += `<div class="break-status-card ${isOverdue ? 'overdue' : ''}">
                     <div class="name">${emp?.name || 'Unknown'}</div>
                     <div class="dept">${emp?.department || 'N/A'} • ${empType} • ${breakLabels[b.break_type] || 'Short'}</div>
@@ -1082,25 +1132,25 @@
 
         function endBreakFromAdmin(breakId, employeeId) {
             if (!confirm('End this break?')) return;
-            
+
             let breaks = getBreaks();
             const index = breaks.findIndex(b => b.id === breakId);
             if (index === -1) return;
-            
+
             const endTime = new Date().toISOString();
             const startTime = new Date(breaks[index].start_time);
             const duration = Math.floor((new Date(endTime) - startTime) / 1000);
-            
+
             breaks[index] = { ...breaks[index], end_time: endTime, status: 'completed', duration: duration };
             saveBreaks(breaks);
-            
+
             const employees = getEmployees();
             const emp = employees.find(e => e.id === employeeId);
-            if (emp) { 
-                emp.status = 'active'; 
-                saveEmployees(employees); 
+            if (emp) {
+                emp.status = 'active';
+                saveEmployees(employees);
             }
-            
+
             loadBreakStatus();
             loadStats();
             alert('✅ Break ended!');
@@ -1112,32 +1162,32 @@
         function loadBreakLog() {
             const breaks = getBreaks();
             const employees = getEmployees();
-            
+
             const empFilter = document.getElementById('breakLogEmployee');
             empFilter.innerHTML = '<option value="all">All</option>';
             employees.forEach(e => {
                 empFilter.innerHTML += `<option value="${e.id}">${e.name}</option>`;
             });
-            
+
             const startDate = document.getElementById('breakLogStartDate').value;
             const endDate = document.getElementById('breakLogEndDate').value;
             const employeeId = document.getElementById('breakLogEmployee').value;
             const status = document.getElementById('breakLogStatus').value;
-            
+
             let filtered = [...breaks];
             if (startDate) filtered = filtered.filter(b => b.start_time >= startDate);
             if (endDate) { const d = new Date(endDate); d.setDate(d.getDate() + 1); filtered = filtered.filter(b => new Date(b.start_time) <= d); }
             if (employeeId !== 'all') filtered = filtered.filter(b => b.employee_id === employeeId);
             if (status !== 'all') filtered = filtered.filter(b => b.status === status);
-            
+
             filtered.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
-            
+
             const list = document.getElementById('breakLogList');
             if (filtered.length === 0) {
                 list.innerHTML = '<p class="empty">No break records found</p>';
                 return;
             }
-            
+
             const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
             let html = `<table>
                 <thead>
@@ -1152,7 +1202,7 @@
                     </tr>
                 </thead>
                 <tbody>`;
-                
+
             filtered.forEach(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
                 const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
@@ -1177,9 +1227,9 @@
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
             const employees = getEmployees();
-            
+
             let filtered = [...vacations];
-            
+
             if (filter === 'pending') {
                 filtered = filtered.filter(v => v.status === 'pending');
             } else if (filter === 'approved') {
@@ -1187,15 +1237,15 @@
             } else if (filter === 'rejected') {
                 filtered = filtered.filter(v => v.status === 'rejected');
             }
-            
+
             filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            
+
             const list = document.getElementById('vacationList');
             if (filtered.length === 0) {
                 list.innerHTML = `<p class="empty">No ${filter} vacation requests found</p>`;
                 return;
             }
-            
+
             let html = `<table class="vacation-table">
                 <thead>
                     <tr>
@@ -1211,12 +1261,12 @@
                     </tr>
                 </thead>
                 <tbody>`;
-                
+
             filtered.forEach(v => {
                 const emp = employees.find(e => e.id === v.employee_id);
                 const totalDays = calculateDays(v.startDate, v.endDate);
                 const adjustedDays = v.adjustedDays || totalDays;
-                
+
                 let statusClass = '';
                 let statusText = v.status;
                 if (v.status === 'approved' && v.userAccepted === true) {
@@ -1232,10 +1282,10 @@
                     statusClass = 'vacation-status-rejected';
                     statusText = 'Rejected';
                 }
-                
+
                 const isApproved = v.status === 'approved' && v.userAccepted !== true;
                 const isPending = v.status === 'pending';
-                
+
                 html += `<tr>
                     <td><strong>${emp?.name || 'Unknown'}</strong></td>
                     <td>${emp?.department || 'N/A'}</td>
@@ -1265,17 +1315,17 @@
 
         function updateVacationStatus(id, status) {
             if (!confirm(`Are you sure you want to ${status} this vacation request?`)) return;
-            
+
             let vacations = getVacations();
             const index = vacations.findIndex(v => v.id === id);
             if (index === -1) return;
-            
+
             vacations[index].status = status;
             if (status === 'approved' && !vacations[index].adjustedDays) {
                 vacations[index].adjustedDays = calculateDays(vacations[index].startDate, vacations[index].endDate);
             }
             saveVacations(vacations);
-            
+
             const activeTab = document.querySelector('.vacation-tab-btn.active');
             loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
             alert(`✅ Vacation ${status}!`);
@@ -1285,9 +1335,9 @@
             const vacations = getVacations();
             const vacation = vacations.find(v => v.id === id);
             if (!vacation) return;
-            
+
             const totalDays = calculateDays(vacation.startDate, vacation.endDate);
-            
+
             document.getElementById('adjustVacationId').value = id;
             document.getElementById('adjustStartDate').value = vacation.startDate;
             document.getElementById('adjustEndDate').value = vacation.endDate;
@@ -1298,42 +1348,253 @@
 
         document.getElementById('adjustForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('adjustVacationId').value;
             const startDate = document.getElementById('adjustStartDate').value;
             const endDate = document.getElementById('adjustEndDate').value;
             const adjustedDays = parseInt(document.getElementById('adjustedDays').value);
-            
+
             if (!startDate || !endDate) {
                 alert('Please select both start and end dates!');
                 return;
             }
-            
+
             if (new Date(startDate) > new Date(endDate)) {
                 alert('Start date cannot be after end date!');
                 return;
             }
-            
+
             if (adjustedDays < 1) {
                 alert('Days must be at least 1!');
                 return;
             }
-            
+
             let vacations = getVacations();
             const index = vacations.findIndex(v => v.id === id);
             if (index === -1) return;
-            
+
             vacations[index].startDate = startDate;
             vacations[index].endDate = endDate;
             vacations[index].adjustedDays = adjustedDays;
             saveVacations(vacations);
-            
+
             closeModal('adjustModal');
             const activeTab = document.querySelector('.vacation-tab-btn.active');
             loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
             alert('✅ Vacation adjusted successfully!');
         });
 
+        // ============================================
+        // CHECK IN/OUT FUNCTIONS
+        // ============================================
+        function loadCheckins(filter = 'pending') {
+            const checkins = getCheckins();
+            const employees = getEmployees();
+
+            let filtered = [...checkins];
+
+            if (filter === 'pending') {
+                filtered = filtered.filter(c => c.status === 'pending');
+            } else if (filter === 'approved') {
+                filtered = filtered.filter(c => c.status === 'approved');
+            } else if (filter === 'rejected') {
+                filtered = filtered.filter(c => c.status === 'rejected');
+            } else if (filter === 'checkedout') {
+                filtered = filtered.filter(c => c.status === 'checkedout');
+            }
+
+            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            const list = document.getElementById('checkinList');
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="empty">No ${filter} check in/out records found</p>`;
+                return;
+            }
+
+            let html = `<table class="checkin-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            filtered.forEach(c => {
+                const emp = employees.find(e => e.id === c.employee_id);
+                const checkinTime = formatTime(c.checkin_time);
+                const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
+                const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+
+                let statusClass = '';
+                let statusText = c.status;
+                if (c.status === 'pending') {
+                    statusClass = 'checkin-status-pending';
+                    statusText = '⏳ Pending';
+                } else if (c.status === 'approved') {
+                    statusClass = 'checkin-status-approved';
+                    statusText = '✅ Approved';
+                } else if (c.status === 'rejected') {
+                    statusClass = 'checkin-status-rejected';
+                    statusText = '❌ Rejected';
+                } else if (c.status === 'checkedout') {
+                    statusClass = 'checkin-status-checkedout';
+                    statusText = '📤 Checked Out';
+                }
+
+                const isPending = c.status === 'pending';
+
+                html += `<tr>
+                    <td><strong>${c.employee_name || 'Unknown'}</strong></td>
+                    <td>${c.department || 'N/A'}</td>
+                    <td>${checkinTime}</td>
+                    <td>${checkoutTime}</td>
+                    <td>${duration}</td>
+                    <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="checkin-actions-cell">
+                            ${isPending ? `
+                                <button class="btn-approve-checkin" onclick="updateCheckinStatus('${c.id}','approved')">✅ Approve</button>
+                                <button class="btn-reject-checkin" onclick="updateCheckinStatus('${c.id}','rejected')">❌ Reject</button>
+                            ` : ''}
+                            <button class="btn-delete-checkin" onclick="deleteCheckin('${c.id}')">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        }
+
+        function updateCheckinStatus(id, status) {
+            if (!confirm(`Are you sure you want to ${status} this check-in request?`)) return;
+
+            let checkins = getCheckins();
+            const index = checkins.findIndex(c => c.id === id);
+            if (index === -1) return;
+
+            checkins[index].status = status;
+            saveCheckins(checkins);
+
+            const activeTab = document.querySelector('.checkin-tab-btn.active');
+            loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+            alert(`✅ Check-in ${status}!`);
+        }
+
+        function deleteCheckin(id) {
+            if (!confirm('Delete this check-in record?')) return;
+
+            let checkins = getCheckins();
+            checkins = checkins.filter(c => c.id !== id);
+            saveCheckins(checkins);
+
+            const activeTab = document.querySelector('.checkin-tab-btn.active');
+            loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+            alert('✅ Check-in deleted!');
+        }
+
+        // ============================================
+        // EXPORT CHECKIN CSV
+        // ============================================
+        document.getElementById('exportCheckinBtn').addEventListener('click', function() {
+            const checkins = getCheckins();
+            const employees = getEmployees();
+
+            if (checkins.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+
+            let csv = 'Employee,Department,Check In,Check Out,Duration,Status\n';
+            checkins.forEach(c => {
+                const emp = employees.find(e => e.id === c.employee_id);
+                const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+                csv += `${c.employee_name || 'Unknown'},${c.department || 'N/A'},${new Date(c.checkin_time).toLocaleString()},${c.checkout_time ? new Date(c.checkout_time).toLocaleString() : '-'},${duration},${c.status}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `checkin_log_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
+        document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
+            const breaks = getBreaks();
+            const employees = getEmployees();
+
+            if (breaks.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+
+            let csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
+            breaks.forEach(b => {
+                const emp = employees.find(e => e.id === b.employee_id);
+                const breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
+                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${breakLabels[b.break_type] || 'Short'},${new Date(b.start_time).toLocaleString()},${b.end_time ? new Date(b.end_time).toLocaleString() : '-'},${duration},${b.status}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `break_log_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('exportVacationBtn').addEventListener('click', function() {
+            const vacations = getVacations();
+            const employees = getEmployees();
+
+            if (vacations.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+
+            let csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
+            vacations.forEach(v => {
+                const emp = employees.find(e => e.id === v.employee_id);
+                const totalDays = calculateDays(v.startDate, v.endDate);
+                const adjustedDays = v.adjustedDays || totalDays;
+                const isAccepted = v.userAccepted ? 'Yes' : 'No';
+                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${v.vacationType || 'Local'},${v.startDate},${v.endDate},${totalDays},${adjustedDays},${v.status},${isAccepted}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vacation_log_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
+            if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
+                saveBreaks([]);
+                loadBreakLog();
+                loadStats();
+                alert('✅ All break records cleared!');
+            }
+        });
+
+        // ============================================
+        // DELETE CONFIRMATION
+        // ============================================
         function confirmDelete(type, id, name) {
             deleteTarget = id;
             deleteType = type;
@@ -1342,22 +1603,28 @@
         }
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteType === 'employee') { 
-                deleteEmployee(deleteTarget); 
-                loadEmployees(); 
-            } else if (deleteType === 'user') { 
-                deleteUser(deleteTarget); 
-                loadUsers(); 
-            } else if (deleteType === 'department') { 
-                deleteDepartment(parseInt(deleteTarget)); 
-            } else if (deleteType === 'role') { 
-                deleteRole(parseInt(deleteTarget)); 
+            if (deleteType === 'employee') {
+                deleteEmployee(deleteTarget);
+                loadEmployees();
+            } else if (deleteType === 'user') {
+                deleteUser(deleteTarget);
+                loadUsers();
+            } else if (deleteType === 'department') {
+                deleteDepartment(parseInt(deleteTarget));
+            } else if (deleteType === 'role') {
+                deleteRole(parseInt(deleteTarget));
             } else if (deleteType === 'vacation') {
                 let vacations = getVacations();
                 vacations = vacations.filter(v => v.id !== deleteTarget);
                 saveVacations(vacations);
                 const activeTab = document.querySelector('.vacation-tab-btn.active');
                 loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+            } else if (deleteType === 'checkin') {
+                let checkins = getCheckins();
+                checkins = checkins.filter(c => c.id !== deleteTarget);
+                saveCheckins(checkins);
+                const activeTab = document.querySelector('.checkin-tab-btn.active');
+                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
             }
             loadStats();
             closeModal('deleteModal');
@@ -1378,24 +1645,24 @@
         function loadDropdowns() {
             const depts = getDepartments();
             const roles = getRoles();
-            
+
             ['empDepartment', 'userDepartment'].forEach(id => {
                 const select = document.getElementById(id);
-                if (select) { 
-                    select.innerHTML = ''; 
-                    depts.forEach(d => { 
-                        select.innerHTML += `<option value="${d}">${d}</option>`; 
-                    }); 
+                if (select) {
+                    select.innerHTML = '';
+                    depts.forEach(d => {
+                        select.innerHTML += `<option value="${d}">${d}</option>`;
+                    });
                 }
             });
-            
+
             const userRoleSelect = document.getElementById('userRole');
             if (userRoleSelect) {
                 userRoleSelect.innerHTML = '<option value="employee">Employee</option>';
-                roles.forEach(r => { 
-                    if (r.name !== 'Admin' && r.name !== 'admin') { 
-                        userRoleSelect.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`; 
-                    } 
+                roles.forEach(r => {
+                    if (r.name !== 'Admin' && r.name !== 'admin') {
+                        userRoleSelect.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`;
+                    }
                 });
             }
         }
@@ -1408,7 +1675,7 @@
             document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
             document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
             document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
-            
+
             document.getElementById('currentSettings').innerHTML = `
                 <div class="config-item"><span>Local Employee Break Duration</span><span><strong>${settings.localBreakMinutes || 30} minutes</strong></span></div>
                 <div class="config-item"><span>Expat Employee Break Duration</span><span><strong>${settings.expatBreakMinutes || 45} minutes</strong></span></div>
@@ -1424,71 +1691,6 @@
             saveSettings({ localBreakMinutes, expatBreakMinutes, warningMinutes });
             loadSettings();
             alert('✅ Settings saved successfully!');
-        });
-
-        // ============================================
-        // EXPORT FUNCTIONS
-        // ============================================
-        document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
-            
-            if (breaks.length === 0) {
-                alert('No data to export!');
-                return;
-            }
-            
-            let csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
-            breaks.forEach(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${breakLabels[b.break_type] || 'Short'},${new Date(b.start_time).toLocaleString()},${b.end_time ? new Date(b.end_time).toLocaleString() : '-'},${duration},${b.status}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `break_log_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        document.getElementById('exportVacationBtn').addEventListener('click', function() {
-            const vacations = getVacations();
-            const employees = getEmployees();
-            
-            if (vacations.length === 0) {
-                alert('No data to export!');
-                return;
-            }
-            
-            let csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
-            vacations.forEach(v => {
-                const emp = employees.find(e => e.id === v.employee_id);
-                const totalDays = calculateDays(v.startDate, v.endDate);
-                const adjustedDays = v.adjustedDays || totalDays;
-                const isAccepted = v.userAccepted ? 'Yes' : 'No';
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${v.vacationType || 'Local'},${v.startDate},${v.endDate},${totalDays},${adjustedDays},${v.status},${isAccepted}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vacation_log_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
-            if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
-                saveBreaks([]);
-                loadBreakLog();
-                loadStats();
-                alert('✅ All break records cleared!');
-            }
         });
 
         // ============================================
@@ -1536,9 +1738,9 @@
         });
 
         document.getElementById('deleteSelectedUsersBtn').addEventListener('click', deleteSelectedUsers);
-        document.getElementById('refreshBreakStatus').addEventListener('click', function() { 
-            loadBreakStatus(); 
-            alert('✅ Break status refreshed!'); 
+        document.getElementById('refreshBreakStatus').addEventListener('click', function() {
+            loadBreakStatus();
+            alert('✅ Break status refreshed!');
         });
 
         document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
@@ -1576,6 +1778,9 @@
         if (!localStorage.getItem('vacations')) {
             saveVacations([]);
         }
+        if (!localStorage.getItem('checkins')) {
+            saveCheckins([]);
+        }
 
         loadDropdowns();
         loadStats();
@@ -1586,6 +1791,7 @@
         loadBreakStatus();
         loadBreakLog();
         loadVacations('pending');
+        loadCheckins('pending');
         loadSettings();
 
         console.log('✅ Admin Dashboard loaded successfully!');
