@@ -52,9 +52,7 @@
             </div>
 
             <div class="admin-content">
-                <!-- ========================================== -->
-                <!-- SECTION 1: BREAK TRACKER -->
-                <!-- ========================================== -->
+                <!-- Break Tracker Section -->
                 <div id="section-break-tracker" class="admin-section active">
                     <div class="stats-grid">
                         <div class="stat-card" style="border-left-color:#667eea;">
@@ -248,9 +246,7 @@
                     </div>
                 </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 2: VACATION -->
-                <!-- ========================================== -->
+                <!-- Vacation Section -->
                 <div id="section-vacation" class="admin-section">
                     <div class="card">
                         <div class="card-header">
@@ -269,9 +265,7 @@
                     </div>
                 </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 3: CHECK IN/OUT -->
-                <!-- ========================================== -->
+                <!-- Check In/Out Section -->
                 <div id="section-checkin" class="admin-section">
                     <div class="card">
                         <div class="card-header">
@@ -281,11 +275,21 @@
                             </div>
                         </div>
                         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-                            <button class="checkin-tab-btn active" data-checkin-type="pending">⏳ Pending</button>
-                            <button class="checkin-tab-btn" data-checkin-type="approved">✅ Approved</button>
-                            <button class="checkin-tab-btn" data-checkin-type="rejected">❌ Rejected</button>
-                            <button class="checkin-tab-btn" data-checkin-type="checkedout">📤 Checked Out</button>
-                            <button class="checkin-tab-btn" data-checkin-type="all">📋 All</button>
+                            <button class="checkin-tab-btn active" data-checkin-type="pending">
+                                <span class="icon">⏳</span> Pending
+                            </button>
+                            <button class="checkin-tab-btn" data-checkin-type="approved">
+                                <span class="icon">✅</span> Approved
+                            </button>
+                            <button class="checkin-tab-btn" data-checkin-type="rejected">
+                                <span class="icon">❌</span> Rejected
+                            </button>
+                            <button class="checkin-tab-btn" data-checkin-type="checkedout">
+                                <span class="icon">📤</span> Checked Out
+                            </button>
+                            <button class="checkin-tab-btn" data-checkin-type="all">
+                                <span class="icon">📋</span> All
+                            </button>
                         </div>
                         <div id="checkinList"><p class="empty">No check in/out records found</p></div>
                     </div>
@@ -1390,6 +1394,7 @@
         function loadCheckins(filter = 'pending') {
             const checkins = getCheckins();
             const employees = getEmployees();
+            const admins = getAdmins();
 
             let filtered = [...checkins];
 
@@ -1419,6 +1424,7 @@
                         <th>Check In</th>
                         <th>Check Out</th>
                         <th>Duration</th>
+                        <th>Approved By</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -1430,6 +1436,13 @@
                 const checkinTime = formatTime(c.checkin_time);
                 const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
                 const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+
+                // Find approver name
+                let approverName = '-';
+                if (c.approved_by) {
+                    const approver = admins.find(a => a.id === c.approved_by);
+                    approverName = approver?.name || 'Unknown Admin';
+                }
 
                 let statusClass = '';
                 let statusText = c.status;
@@ -1455,6 +1468,7 @@
                     <td>${checkinTime}</td>
                     <td>${checkoutTime}</td>
                     <td>${duration}</td>
+                    <td>${approverName}</td>
                     <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
                     <td>
                         <div class="checkin-actions-cell">
@@ -1480,6 +1494,11 @@
             if (index === -1) return;
 
             checkins[index].status = status;
+            // Store who approved it
+            if (status === 'approved' || status === 'rejected') {
+                checkins[index].approved_by = adminSession.id;
+                checkins[index].approved_name = adminSession.name || 'Admin';
+            }
             saveCheckins(checkins);
 
             const activeTab = document.querySelector('.checkin-tab-btn.active');
@@ -1511,11 +1530,12 @@
                 return;
             }
 
-            let csv = 'Employee,Department,Check In,Check Out,Duration,Status\n';
+            let csv = 'Employee,Department,Check In,Check Out,Duration,Status,Approved By\n';
             checkins.forEach(c => {
                 const emp = employees.find(e => e.id === c.employee_id);
                 const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
-                csv += `${c.employee_name || 'Unknown'},${c.department || 'N/A'},${new Date(c.checkin_time).toLocaleString()},${c.checkout_time ? new Date(c.checkout_time).toLocaleString() : '-'},${duration},${c.status}\n`;
+                const approverName = c.approved_name || '-';
+                csv += `${c.employee_name || 'Unknown'},${c.department || 'N/A'},${new Date(c.checkin_time).toLocaleString()},${c.checkout_time ? new Date(c.checkout_time).toLocaleString() : '-'},${duration},${c.status},${approverName}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
