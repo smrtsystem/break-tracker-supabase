@@ -1,223 +1,198 @@
 /* ============================================
-   BREAK TRACKER - MAIN STYLES
-   (For Login, Signup, Navbar, Buttons, Forms, etc.)
+   USER DASHBOARD - SIDEBAR & VACATION STYLES
    ============================================ */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Dashboard Wrapper */
+.dashboard-wrapper {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 0;
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+}
+
+.sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.sidebar .nav-item:hover {
     background: #f0f2f5;
     color: #1a1a2e;
 }
 
-/* ============================================
-   NAVBAR
-   ============================================ */
-.navbar {
-    background: white;
-    padding: 16px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    flex-wrap: wrap;
-    gap: 10px;
+.sidebar .nav-item.active {
+    background: #f0f2f5;
+    border-left-color: #667eea;
+    color: #667eea;
+    font-weight: 600;
 }
 
-.nav-brand {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a2e;
-}
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-/* ============================================
-   CONTAINER - 80% WIDTH
-   ============================================ */
-.container {
-    max-width: 80%;
-    margin: 0 auto;
-    padding: 24px;
-}
-
-/* ============================================
-   CARDS
-   ============================================ */
-.card {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    margin-bottom: 24px;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.card h2 {
+.sidebar .nav-item .icon {
     font-size: 18px;
-    color: #1a1a2e;
-    margin: 0 0 16px 0;
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 8px 16px;
 }
 
 /* ============================================
-   STATS
+   MAIN CONTENT
    ============================================ */
-.stats-grid {
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ============================================
+   VIEW SECTIONS
+   ============================================ */
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+}
+
+/* ============================================
+   VACATION STYLES
+   ============================================ */
+.vacation-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
-    margin-bottom: 24px;
 }
 
-.stat-card {
-    background: white;
-    padding: 20px;
+.vacation-card {
+    background: #f8f9fa;
+    padding: 16px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    text-align: center;
-    border-top: 4px solid #667eea;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s;
 }
 
-.stat-card h3 {
+.vacation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vacation-card .emp-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.vacation-card .emp-dept {
     font-size: 13px;
     color: #666;
-    font-weight: 500;
-    margin-bottom: 8px;
 }
 
-.stat-card p {
-    font-size: 28px;
-    font-weight: 700;
-    color: #1a1a2e;
+.vacation-card .vacation-dates {
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
 }
 
-.stat-card .sub-text {
+.vacation-card .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
     font-size: 12px;
-    color: #999;
-    margin-top: 4px;
+    font-weight: 600;
+}
+
+.status-approved { 
+    background: #4ecdc4; 
+    color: white; 
+}
+
+.status-pending { 
+    background: #ffd93d; 
+    color: #1a1a2e; 
+}
+
+.status-rejected { 
+    background: #ff6b6b; 
+    color: white; 
 }
 
 /* ============================================
-   BUTTONS
+   VACATION TAB BUTTONS
    ============================================ */
-.btn-primary {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-primary:hover {
-    background: #5a6fd6;
-}
-
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-success {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-success:hover {
-    background: #45b7b0;
-}
-
-.btn-danger {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-danger:hover {
-    background: #e55a5a;
-}
-
-.btn-outline {
-    background: transparent;
-    color: #667eea;
-    border: 2px solid #667eea;
+.vacation-tab-btn {
     padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
     border-radius: 8px;
-    font-weight: 600;
     cursor: pointer;
+    font-weight: 600;
     transition: all 0.2s;
 }
 
-.btn-outline:hover {
+.vacation-tab-btn:hover {
+    background: #f0f2f5;
+}
+
+.vacation-tab-btn.active {
     background: #667eea;
     color: white;
+    border-color: #667eea;
 }
 
-.btn-warning {
-    background: #ffd93d;
-    color: #1a1a2e;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+/* ============================================
+   VACATION STATUS COLORS
+   ============================================ */
+.vacation-status-approved { background: #4ecdc4; color: white; }
+.vacation-status-pending { background: #ffd93d; color: #1a1a2e; }
+.vacation-status-rejected { background: #ff6b6b; color: white; }
 
-.btn-warning:hover {
-    background: #f5c800;
-}
-
-.btn-sm {
-    padding: 6px 12px;
-    font-size: 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.btn-block {
-    width: 100%;
+/* ============================================
+   VACATION ACTION BUTTONS
+   ============================================ */
+.vacation-action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
 }
 
 .btn-approve {
     background: #4ecdc4;
     color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
 }
 
 .btn-approve:hover {
@@ -227,685 +202,79 @@ body {
 .btn-reject {
     background: #ff6b6b;
     color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
 }
 
 .btn-reject:hover {
     background: #e55a5a;
 }
 
-/* ============================================
-   BREAK ACTION BUTTONS
-   ============================================ */
-.btn-start-break {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 14px 32px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-    min-width: 150px;
-}
-
-.btn-start-break:hover:not(:disabled) {
-    background: #45b7b0;
-    transform: scale(1.02);
-}
-
-.btn-start-break:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btn-end-break {
+.btn-delete {
     background: #ff6b6b;
     color: white;
     border: none;
-    padding: 14px 32px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-    min-width: 150px;
-}
-
-.btn-end-break:hover:not(:disabled) {
-    background: #e55a5a;
-    transform: scale(1.02);
-}
-
-.btn-end-break:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* ============================================
-   MY BREAK SECTION
-   ============================================ */
-.my-break-section {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    margin-bottom: 24px;
-}
-
-.my-break-section h2 {
-    font-size: 18px;
-    margin-bottom: 16px;
-    color: #1a1a2e;
-}
-
-.break-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.break-status-display {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    min-width: 200px;
-}
-
-.break-status-display .status-badge {
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.break-status-display .status-badge.available {
-    color: #4ecdc4;
-}
-
-.break-status-display .status-badge.on-break {
-    color: #ff6b6b;
-}
-
-/* Break Info */
-.break-info {
-    margin-top: 16px;
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border-left: 4px solid #4ecdc4;
-    display: none;
-}
-
-.break-info.active {
-    display: block;
-    border-left-color: #ff6b6b;
-}
-
-.break-info.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-info p {
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-.break-info .overdue-text {
-    color: #ff6b6b;
-    font-weight: 600;
-}
-
-/* ============================================
-   WELCOME HEADER
-   ============================================ */
-.welcome-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.welcome-header h1 {
-    font-size: 24px;
-    color: #1a1a2e;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #667eea;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 18px;
-}
-
-/* ============================================
-   BADGES
-   ============================================ */
-.badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-}
-
-.badge-green { background: #4ecdc4; }
-.badge-orange { background: #ffd93d; color: #1a1a2e; }
-.badge-red { background: #ff6b6b; }
-.badge-blue { background: #667eea; }
-.badge-purple { background: #a29bfe; }
-
-/* ============================================
-   BREAK WALL
-   ============================================ */
-.break-wall {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.break-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #4ecdc4;
-    transition: transform 0.2s;
-}
-
-.break-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.break-card.overdue {
-    border-left-color: #ff6b6b;
-    background: #fff5f5;
-}
-
-.break-card .card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-}
-
-.break-card .card-header h3 {
-    font-size: 16px;
-    margin: 0;
-}
-
-.break-card .card-body p {
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-.break-card .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.break-card .overdue-text {
-    color: #ff6b6b;
-    font-weight: 600;
-}
-
-.break-card .on-time-text {
-    color: #4ecdc4;
-    font-weight: 600;
-}
-
-/* ============================================
-   HISTORY TABLE
-   ============================================ */
-.history-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.history-table th {
-    text-align: left;
-    padding: 10px;
-    background: #f8f9fa;
-    font-weight: 600;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.history-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.history-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* ============================================
-   NO BREAKS / EMPTY STATE
-   ============================================ */
-.no-breaks {
-    text-align: center;
-    padding: 40px;
-    color: #999;
-}
-
-.no-breaks .icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-}
-
-.empty {
-    text-align: center;
-    color: #999;
-    padding: 30px;
-    font-size: 14px;
-}
-
-.empty .icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-}
-
-/* ============================================
-   AUTH PAGES
-   ============================================ */
-.auth-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
-}
-
-.auth-card {
-    background: white;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 400px;
-}
-
-.auth-card h1 {
-    text-align: center;
-    font-size: 28px;
-    margin-bottom: 8px;
-}
-
-.auth-card .subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 30px;
-}
-
-.auth-footer {
-    text-align: center;
-    margin-top: 20px;
-    color: #666;
-}
-
-.auth-footer a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.auth-footer a:hover {
-    text-decoration: underline;
-}
-
-/* ============================================
-   FORMS
-   ============================================ */
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-    font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.form-group small {
-    display: block;
-    margin-top: 4px;
-    color: #666;
-    font-size: 12px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.error {
-    color: #ff6b6b;
-    font-size: 14px;
-    margin-bottom: 12px;
-    display: none;
-}
-
-/* ============================================
-   FILTERS
-   ============================================ */
-.filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.filters input,
-.filters select {
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    flex: 1;
-    min-width: 150px;
-}
-
-.filters input:focus,
-.filters select:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-/* ============================================
-   MODAL
-   ============================================ */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    overflow: auto;
-    padding: 20px;
-}
-
-.modal-content {
-    background: white;
-    margin: 30px auto;
-    padding: 32px;
-    border-radius: 16px;
-    max-width: 600px;
-    width: 100%;
-    position: relative;
-    animation: slideDown 0.3s ease;
-}
-
-.modal-content.wide {
-    max-width: 800px;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-close {
-    position: absolute;
-    right: 20px;
-    top: 16px;
-    font-size: 28px;
-    font-weight: 700;
-    cursor: pointer;
-    color: #999;
-    transition: color 0.2s;
-    border: none;
-    background: none;
-}
-
-.modal-close:hover {
-    color: #333;
-}
-
-.modal-footer {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-    justify-content: flex-end;
-}
-
-/* ============================================
-   CHECKBOX GROUP
-   ============================================ */
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 0;
-}
-
-.checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #667eea;
-}
-
-/* ============================================
-   VACATION LOG - ADMIN ONLY
-   ============================================ */
-.vacation-log-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-}
-
-.vacation-log-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #667eea;
-}
-
-.vacation-log-card .emp-name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.vacation-log-card .emp-dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.vacation-log-card .vacation-dates {
-    font-size: 14px;
-    margin-top: 8px;
-    padding: 8px;
-    background: white;
+    padding: 4px 12px;
     border-radius: 6px;
-}
-
-.vacation-log-card .status-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
     font-weight: 600;
-}
-
-.vacation-log-card .action-buttons {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
-
-/* ============================================
-   SELECT ALL
-   ============================================ */
-.select-all {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 14px;
     cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-delete:hover {
+    background: #e55a5a;
 }
 
 /* ============================================
    RESPONSIVE
    ============================================ */
-@media (max-width: 992px) {
-    .container {
-        max-width: 95%;
-        padding: 16px;
-    }
-}
-
 @media (max-width: 768px) {
-    .navbar {
-        padding: 12px 16px;
+    .dashboard-wrapper {
         flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .nav-right {
-        justify-content: space-between;
-    }
-    
-    .container {
-        max-width: 98%;
-        padding: 12px;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .break-wall {
-        grid-template-columns: 1fr;
-    }
-    
-    .break-actions {
-        flex-direction: column;
-        align-items: stretch;
     }
 
-    .break-actions .btn-start-break,
-    .break-actions .btn-end-break {
+    .sidebar {
         width: 100%;
-    }
-
-    .break-status-display {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .welcome-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .modal-content {
-        padding: 20px;
-        margin: 10px auto;
-        max-width: 98%;
-    }
-    
-    .auth-card {
-        padding: 24px;
-    }
-    
-    .filters {
-        flex-direction: column;
-    }
-    
-    .filters input,
-    .filters select {
-        width: 100%;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .history-table {
-        font-size: 12px;
-    }
-    .history-table th,
-    .history-table td {
-        padding: 6px 8px;
-    }
-    
-    .break-card .card-header {
+        position: static;
+        display: flex;
         flex-wrap: wrap;
+        padding: 8px;
+        gap: 4px;
     }
-    
-    .vacation-log-grid {
+
+    .sidebar .nav-item {
+        padding: 8px 14px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        flex: 1;
+        justify-content: center;
+        min-width: 100px;
+    }
+
+    .sidebar .nav-item.active {
+        border-left: none;
+        border-bottom-color: #667eea;
+    }
+
+    .sidebar-divider {
+        display: none;
+    }
+
+    .vacation-grid {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr 1fr;
+    .vacation-grid {
+        grid-template-columns: 1fr;
     }
-    .stat-card p {
-        font-size: 20px;
-    }
-    .stat-card {
+    
+    .vacation-card {
         padding: 12px;
-    }
-    .stat-card h3 {
-        font-size: 11px;
     }
 }
