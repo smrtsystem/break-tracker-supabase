@@ -362,6 +362,16 @@
             return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
 
+        function formatDateFull(date) {
+            return new Date(date).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function formatDate(date) {
             return new Date(date).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -904,8 +914,8 @@
                 <tbody>`;
 
             userCheckins.forEach(c => {
-                const checkinTime = formatTime(c.checkin_time);
-                const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
+                const checkinFull = formatDateFull(c.checkin_time);
+                const checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
                 const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
                 const approvedBy = c.approved_by || '-';
 
@@ -927,8 +937,8 @@
 
                 html += `<tr>
                     <td><strong>${c.employee_name || 'Unknown'}</strong></td>
-                    <td>${checkinTime}</td>
-                    <td>${checkoutTime}</td>
+                    <td>${checkinFull}</td>
+                    <td>${checkoutFull}</td>
                     <td>${duration}</td>
                     <td>${approvedBy}</td>
                     <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
@@ -957,7 +967,7 @@
                     statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-pending">⏳ Pending Approval</span>';
                     checkOutBtn.disabled = true;
                     infoDiv.style.display = 'block';
-                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
+                    timeSpan.textContent = formatDateFull(activeCheckin.checkin_time);
                     statusTextSpan.textContent = '⏳ Pending Approval';
                     approvedBySpan.textContent = '-';
 
@@ -969,7 +979,7 @@
                     statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-approved">✅ Approved</span>';
                     checkOutBtn.disabled = false;
                     infoDiv.style.display = 'block';
-                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
+                    timeSpan.textContent = formatDateFull(activeCheckin.checkin_time);
                     statusTextSpan.textContent = '✅ Approved - You can check out now';
                     approvedBySpan.textContent = activeCheckin.approved_by || '-';
 
@@ -981,7 +991,7 @@
                     statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-rejected">❌ Rejected</span>';
                     checkOutBtn.disabled = true;
                     infoDiv.style.display = 'block';
-                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
+                    timeSpan.textContent = formatDateFull(activeCheckin.checkin_time);
                     statusTextSpan.textContent = '❌ Rejected by Admin';
                     approvedBySpan.textContent = activeCheckin.approved_by || '-';
                 }
