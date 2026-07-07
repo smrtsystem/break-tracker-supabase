@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Break Tracker</title>
     <link rel="stylesheet" href="login.css">
-    <!-- Include Font Awesome for icons (optional) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <h1>
-                <span class="icon">🕐</span> Break Tracker
-            </h1>
+            <h1><span class="icon">🕐</span> Break Tracker</h1>
             <p class="subtitle">Sign in to continue to your dashboard</p>
             
-            <!-- Messages -->
             <div id="successMsg" class="success-msg">
                 <i class="fas fa-check-circle"></i>
                 <span id="successText">Login successful! Redirecting...</span>
@@ -26,314 +22,109 @@
                 <span id="errorText">Invalid credentials</span>
             </div>
             
-            <!-- Login Form -->
-            <form id="loginForm" autocomplete="on">
+            <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">
-                        Email Address
-                        <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email"
-                        required 
-                        placeholder="your@email.com" 
-                        value="sonu@customerupoort.com"
-                        autocomplete="email"
-                    >
+                    <label for="email">Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" required placeholder="your@email.com" autocomplete="email">
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">
-                        Password
-                        <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password"
-                        required 
-                        placeholder="••••••••" 
-                        value="123456"
-                        autocomplete="current-password"
-                    >
-                    <div class="password-hint">
-                        <i class="fas fa-info-circle"></i>
-                        Default: <strong>123456</strong>
-                    </div>
-                </div>
-                
-                <div class="remember-me">
-                    <input type="checkbox" id="rememberMe" checked>
-                    <label for="rememberMe">Remember me</label>
+                    <label for="password">Password <span class="required">*</span></label>
+                    <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
                 </div>
                 
                 <button type="submit" class="btn-primary" id="loginBtn">
-                    <span class="btn-text">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </span>
+                    <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Login</span>
                     <span class="spinner"></span>
                 </button>
             </form>
             
-            <!-- Divider -->
             <div class="divider">or</div>
             
-            <!-- Footer Links -->
             <p class="auth-footer">
-                <a href="admin-login.html">
-                    <i class="fas fa-user-shield"></i> Admin Login
-                </a>
+                <a href="admin-login.html"><i class="fas fa-user-shield"></i> Admin Login</a>
             </p>
             <p class="small-text">
-                <i class="fas fa-info-circle"></i>
-                Accounts are created by administrators only
-            </p>
-            <p class="small-text" style="margin-top:4px;color:#667eea;">
-                <i class="fas fa-user"></i>
-                Demo: sonu@customerupoort.com / 123456
+                <i class="fas fa-info-circle"></i> Accounts are created by administrators only
             </p>
         </div>
     </div>
 
-    <script>
-        (function() {
-            'use strict';
+    <script type="module">
+        import { signIn, getCurrentUser } from './supabase.js'
+        
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+        const successMsg = document.getElementById('successMsg');
+        const successText = document.getElementById('successText');
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMsg.style.display = 'block';
+            successMsg.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successText.textContent = message;
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+        }
+
+        function hideMessages() {
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+        }
+
+        // Check if already logged in
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+            window.location.href = 'index.html';
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // ============================================
-            // DOM ELEMENTS
-            // ============================================
-            const form = document.getElementById('loginForm');
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            const loginBtn = document.getElementById('loginBtn');
-            const errorMsg = document.getElementById('errorMsg');
-            const errorText = document.getElementById('errorText');
-            const successMsg = document.getElementById('successMsg');
-            const successText = document.getElementById('successText');
-            const rememberMe = document.getElementById('rememberMe');
-
-            // ============================================
-            // LOCAL STORAGE FUNCTIONS
-            // ============================================
-            function getLocalStorage(key) {
-                try {
-                    const data = localStorage.getItem(key);
-                    if (!data) return [];
-                    return JSON.parse(data);
-                } catch (e) {
-                    console.warn('Storage read error:', e);
-                    return [];
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            hideMessages();
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            
+            try {
+                if (!email || !password) {
+                    throw new Error('Please enter both email and password.');
                 }
-            }
-
-            function setLocalStorage(key, value) {
-                try {
-                    localStorage.setItem(key, JSON.stringify(value));
-                } catch (e) {
-                    console.warn('Storage write error:', e);
-                }
-            }
-
-            function removeLocalStorage(key) {
-                try {
-                    localStorage.removeItem(key);
-                } catch (e) {
-                    console.warn('Storage remove error:', e);
-                }
-            }
-
-            // ============================================
-            // ENSURE DEFAULT USERS EXIST
-            // ============================================
-            function ensureUsersExist() {
-                try {
-                    // Check if appUsers exists
-                    let users = getLocalStorage('appUsers');
-                    
-                    // If no users, create default user
-                    if (users.length === 0) {
-                        const defaultUser = {
-                            id: 'user_' + Date.now(),
-                            name: 'Sonu User',
-                            email: 'sonu@customerupoort.com',
-                            password: '123456',
-                            role: 'employee',
-                            department: 'Engineering',
-                            employeeType: 'Local',
-                            created_at: new Date().toISOString()
-                        };
-                        users.push(defaultUser);
-                        setLocalStorage('appUsers', users);
-                        console.log('✅ Default user created:', defaultUser.email);
-                    }
-                    
-                    // Check if admin exists
-                    let admins = getLocalStorage('adminUsers');
-                    if (admins.length === 0) {
-                        const defaultAdmin = {
-                            id: 'admin_' + Date.now(),
-                            name: 'Admin User',
-                            email: 'admin@break-tracker.com',
-                            password: '535680',
-                            role: 'admin',
-                            department: 'Management',
-                            created_at: new Date().toISOString()
-                        };
-                        admins.push(defaultAdmin);
-                        setLocalStorage('adminUsers', admins);
-                        console.log('✅ Default admin created:', defaultAdmin.email);
-                    }
-                    
-                    return true;
-                } catch (e) {
-                    console.error('Error ensuring users:', e);
-                    return false;
-                }
-            }
-
-            // ============================================
-            // LOAD REMEMBERED EMAIL
-            // ============================================
-            function loadRememberedEmail() {
-                try {
-                    const remembered = localStorage.getItem('rememberedEmail');
-                    if (remembered) {
-                        emailInput.value = remembered;
-                        rememberMe.checked = true;
-                    }
-                } catch (e) {
-                    console.warn('Error loading remembered email:', e);
-                }
-            }
-
-            // ============================================
-            // SHOW/HIDE MESSAGES
-            // ============================================
-            function showError(message) {
-                errorText.textContent = message;
-                errorMsg.style.display = 'block';
-                successMsg.style.display = 'none';
-            }
-
-            function showSuccess(message) {
-                successText.textContent = message;
-                successMsg.style.display = 'block';
-                errorMsg.style.display = 'none';
-            }
-
-            function hideMessages() {
-                errorMsg.style.display = 'none';
-                successMsg.style.display = 'none';
-            }
-
-            // ============================================
-            // LOGIN HANDLER
-            // ============================================
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
                 
-                const email = emailInput.value.trim();
-                const password = passwordInput.value.trim();
+                const result = await signIn(email, password);
                 
-                // Reset messages
-                hideMessages();
-                loginBtn.classList.add('loading');
-                loginBtn.disabled = true;
-                
-                try {
-                    // Ensure users exist
-                    ensureUsersExist();
-                    
-                    // Validate inputs
-                    if (!email) {
-                        throw new Error('Please enter your email address.');
-                    }
-                    if (!password) {
-                        throw new Error('Please enter your password.');
-                    }
-                    
-                    // Get all users
-                    const users = getLocalStorage('appUsers');
-                    const admins = getLocalStorage('adminUsers');
-                    const allUsers = [...users, ...admins];
-                    
-                    console.log('🔍 Searching for user:', email);
-                    console.log('📋 Total users in DB:', allUsers.length);
-                    
-                    // Find user
-                    const user = allUsers.find(function(u) {
-                        return u.email.toLowerCase() === email.toLowerCase() && 
-                               u.password === password;
-                    });
-                    
-                    if (!user) {
-                        // Check if email exists but password wrong
-                        const emailExists = allUsers.find(function(u) {
-                            return u.email.toLowerCase() === email.toLowerCase();
-                        });
-                        
-                        if (emailExists) {
-                            throw new Error('Invalid password! Please try again.');
-                        } else {
-                            throw new Error('Account not found! Please contact administrator.');
-                        }
-                    }
-                    
-                    // Save current user session
-                    setLocalStorage('currentUser', user);
-                    
-                    // Remember email if checked
-                    if (rememberMe.checked) {
-                        localStorage.setItem('rememberedEmail', email);
-                    } else {
-                        localStorage.removeItem('rememberedEmail');
-                    }
-                    
-                    // Show success
-                    showSuccess('✅ Login successful! Redirecting to dashboard...');
-                    
-                    // Redirect after delay
-                    setTimeout(function() {
-                        window.location.href = 'index.html';
-                    }, 800);
-                    
-                } catch (error) {
-                    console.error('Login error:', error);
-                    showError('❌ ' + error.message);
-                    loginBtn.classList.remove('loading');
-                    loginBtn.disabled = false;
+                if (!result.success) {
+                    throw new Error(result.error);
                 }
-            });
-
-            // ============================================
-            // KEYBOARD SHORTCUTS
-            // ============================================
-            document.addEventListener('keydown', function(e) {
-                // Press Ctrl+Enter to submit
-                if (e.ctrlKey && e.key === 'Enter') {
-                    form.dispatchEvent(new Event('submit'));
-                }
-            });
-
-            // ============================================
-            // INIT
-            // ============================================
-            document.addEventListener('DOMContentLoaded', function() {
-                ensureUsersExist();
-                loadRememberedEmail();
-                hideMessages();
                 
-                console.log('✅ Login page ready');
-                console.log('📧 Default email: sonu@customerupoort.com');
-                console.log('🔑 Default password: 123456');
-                console.log('👑 Admin email: admin@break-tracker.com');
-                console.log('🔑 Admin password: 535680');
-                console.log('💡 Press Ctrl+Enter to submit');
-            });
+                showSuccess('✅ Login successful! Redirecting...');
+                
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 800);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('❌ ' + error.message);
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+            }
+        });
 
-        })();
+        // Check if there's a saved session
+        document.addEventListener('DOMContentLoaded', function() {
+            hideMessages();
+            console.log('✅ Login page ready - Using Supabase Auth');
+        });
     </script>
 </body>
 </html>
