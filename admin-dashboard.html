@@ -54,7 +54,7 @@
 
         <!-- Admin Dashboard with Sidebar -->
         <div class="admin-wrapper">
-            <!-- Sidebar Navigation -->
+            <!-- Sidebar Navigation - Only Break Tracker & Vacation -->
             <div class="admin-sidebar">
                 <div class="nav-item active" data-section="break-tracker">
                     <span class="icon">⏱️</span>
@@ -63,32 +63,6 @@
                 <div class="nav-item" data-section="vacation">
                     <span class="icon">🏖️</span>
                     <span>Vacation</span>
-                </div>
-                <div class="admin-sidebar-divider"></div>
-                <div class="nav-item" data-section="user-management">
-                    <span class="icon">👤</span>
-                    <span>User Management</span>
-                </div>
-                <div class="nav-item" data-section="department">
-                    <span class="icon">🏢</span>
-                    <span>Department</span>
-                </div>
-                <div class="nav-item" data-section="role">
-                    <span class="icon">👔</span>
-                    <span>Role</span>
-                </div>
-                <div class="admin-sidebar-divider"></div>
-                <div class="nav-item" data-section="break-status">
-                    <span class="icon">⏱️</span>
-                    <span>Break Status</span>
-                </div>
-                <div class="nav-item" data-section="break-log">
-                    <span class="icon">📋</span>
-                    <span>Break Log</span>
-                </div>
-                <div class="nav-item" data-section="settings">
-                    <span class="icon">⚙️</span>
-                    <span>Settings</span>
                 </div>
                 <div class="admin-sidebar-divider"></div>
                 <div class="nav-item" style="opacity:0.5;cursor:default;border-left-color:transparent;">
@@ -101,9 +75,31 @@
             <div class="admin-content">
 
                 <!-- ========================================== -->
-                <!-- SECTION 1: BREAK TRACKER -->
+                <!-- SECTION 1: BREAK TRACKER (All Functions Here) -->
                 <!-- ========================================== -->
                 <div id="section-break-tracker" class="admin-section active">
+                    
+                    <!-- Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card" style="border-left-color:#667eea;">
+                            <h3>👥 Total Employees</h3>
+                            <p id="totalEmployees2">0</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color:#ff6b6b;">
+                            <h3>🔴 Active Breaks</h3>
+                            <p id="activeBreaks2">0</p>
+                            <div style="font-size:12px;color:#999;margin-top:4px;" id="activeBreakUsers2"></div>
+                        </div>
+                        <div class="stat-card" style="border-left-color:#ffd93d;">
+                            <h3>⚠️ Overdue Breaks</h3>
+                            <p id="overdueBreaks2">0</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color:#4ecdc4;">
+                            <h3>👤 Total Users</h3>
+                            <p id="totalUsers2">0</p>
+                        </div>
+                    </div>
+
                     <!-- Active Breaks Wall -->
                     <div class="card">
                         <h2>🔴 Currently On Break</h2>
@@ -121,33 +117,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 2: VACATION -->
-                <!-- ========================================== -->
-                <div id="section-vacation" class="admin-section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>🏖️ Vacation Management</h2>
-                            <div>
-                                <button id="exportVacationBtn" class="btn-outline">📥 Export CSV</button>
-                            </div>
-                        </div>
-                        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-                            <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
-                            <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
-                            <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
-                            <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
-                        </div>
-                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- SECTION 3: USER MANAGEMENT -->
-                <!-- ========================================== -->
-                <div id="section-user-management" class="admin-section">
+                    <!-- User Management -->
                     <div class="card">
                         <div class="card-header">
                             <h2>👤 User Management</h2>
@@ -158,12 +129,8 @@
                         </div>
                         <div id="usersList"><p class="empty">Loading users...</p></div>
                     </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 4: DEPARTMENT -->
-                <!-- ========================================== -->
-                <div id="section-department" class="admin-section">
+                    <!-- Departments -->
                     <div class="card">
                         <div class="card-header">
                             <h2>🏢 Departments</h2>
@@ -171,12 +138,8 @@
                         </div>
                         <div id="departmentsList"><p class="empty">Loading departments...</p></div>
                     </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 5: ROLE -->
-                <!-- ========================================== -->
-                <div id="section-role" class="admin-section">
+                    <!-- Roles -->
                     <div class="card">
                         <div class="card-header">
                             <h2>👔 Roles</h2>
@@ -184,12 +147,8 @@
                         </div>
                         <div id="rolesList"><p class="empty">Loading roles...</p></div>
                     </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 6: BREAK STATUS -->
-                <!-- ========================================== -->
-                <div id="section-break-status" class="admin-section">
+                    <!-- Break Status -->
                     <div class="card">
                         <div class="card-header">
                             <h2>⏱️ Break Status</h2>
@@ -197,12 +156,8 @@
                         </div>
                         <div id="breakStatusList"><p class="empty">Loading break status...</p></div>
                     </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 7: BREAK LOG -->
-                <!-- ========================================== -->
-                <div id="section-break-log" class="admin-section">
+                    <!-- Break Log -->
                     <div class="card">
                         <div class="card-header">
                             <h2>📋 Break Log</h2>
@@ -241,12 +196,8 @@
                             <div id="breakLogList"><p class="empty">Loading break log...</p></div>
                         </div>
                     </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!-- SECTION 8: SETTINGS -->
-                <!-- ========================================== -->
-                <div id="section-settings" class="admin-section">
+                    <!-- Settings -->
                     <div class="card">
                         <h2>⚙️ Break Settings</h2>
                         <form id="settingsForm">
@@ -274,6 +225,28 @@
                     <div class="card">
                         <h2>📊 Current Settings</h2>
                         <div id="currentSettings"><p class="empty">Loading settings...</p></div>
+                    </div>
+
+                </div>
+
+                <!-- ========================================== -->
+                <!-- SECTION 2: VACATION -->
+                <!-- ========================================== -->
+                <div id="section-vacation" class="admin-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>🏖️ Vacation Management</h2>
+                            <div>
+                                <button id="exportVacationBtn" class="btn-outline">📥 Export CSV</button>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                            <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
+                            <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
+                            <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
+                            <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
+                        </div>
+                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
                     </div>
                 </div>
 
@@ -432,22 +405,9 @@
 
                 // Load data based on section
                 if (section === 'break-tracker') {
-                    loadActiveBreaks();
-                    loadBreakHistory();
+                    loadAllBreakTrackerData();
                 } else if (section === 'vacation') {
                     loadVacations('pending');
-                } else if (section === 'user-management') {
-                    loadUsers();
-                } else if (section === 'department') {
-                    loadDepartments();
-                } else if (section === 'role') {
-                    loadRoles();
-                } else if (section === 'break-status') {
-                    loadBreakStatus();
-                } else if (section === 'break-log') {
-                    loadBreakLog();
-                } else if (section === 'settings') {
-                    loadSettings();
                 }
             });
         });
@@ -508,6 +468,21 @@
         }
 
         // ============================================
+        // LOAD ALL BREAK TRACKER DATA
+        // ============================================
+        function loadAllBreakTrackerData() {
+            loadStats();
+            loadActiveBreaks();
+            loadBreakHistory();
+            loadUsers();
+            loadDepartments();
+            loadRoles();
+            loadBreakStatus();
+            loadBreakLog();
+            loadSettings();
+        }
+
+        // ============================================
         // LOAD STATS
         // ============================================
         function loadStats() {
@@ -527,15 +502,21 @@
             });
             
             document.getElementById('totalEmployees').textContent = employees.length;
+            document.getElementById('totalEmployees2').textContent = employees.length;
             document.getElementById('activeBreaks').textContent = activeBreaks.length;
+            document.getElementById('activeBreaks2').textContent = activeBreaks.length;
             document.getElementById('overdueBreaks').textContent = overdue.length;
+            document.getElementById('overdueBreaks2').textContent = overdue.length;
             document.getElementById('totalUsers').textContent = users.length + admins.length;
+            document.getElementById('totalUsers2').textContent = users.length + admins.length;
             
             const names = activeBreaks.map(b => { 
                 const emp = employees.find(e => e.id === b.employee_id); 
                 return emp?.name || 'Unknown'; 
             });
-            document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
+            const namesText = names.length > 0 ? names.join(', ') : 'No one on break';
+            document.getElementById('activeBreakUsers').textContent = namesText;
+            document.getElementById('activeBreakUsers2').textContent = namesText;
         }
 
         // ============================================
@@ -1371,16 +1352,8 @@
         }
 
         loadDropdowns();
-        loadStats();
-        loadUsers();
-        loadDepartments();
-        loadRoles();
-        loadBreakStatus();
-        loadBreakLog();
+        loadAllBreakTrackerData();
         loadVacations('pending');
-        loadSettings();
-        loadActiveBreaks();
-        loadBreakHistory();
 
         console.log('✅ Admin Dashboard loaded successfully!');
         console.log('👥 Total Employees:', getEmployees().length);
