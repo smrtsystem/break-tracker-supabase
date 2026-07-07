@@ -23,7 +23,7 @@
         <div class="welcome-header">
             <div>
                 <h1>📊 Dashboard</h1>
-                <p style="color:#666;font-size:14px;">Live break tracking - Auto refreshes every 10 seconds</p>
+                <p style="color:#666;font-size:14px;">Admin Panel - Manage everything from here</p>
             </div>
             <div class="user-info">
                 <div class="user-avatar" id="adminAvatar">A</div>
@@ -31,53 +31,79 @@
             </div>
         </div>
 
-        <!-- Dashboard Wrapper with Sidebar -->
-        <div class="dashboard-wrapper">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left-color:#667eea;">
+                <h3>👥 Total Employees</h3>
+                <p id="totalEmployees">0</p>
+            </div>
+            <div class="stat-card" style="border-left-color:#ff6b6b;">
+                <h3>🔴 Active Breaks</h3>
+                <p id="activeBreaks">0</p>
+                <div style="font-size:12px;color:#999;margin-top:4px;" id="activeBreakUsers"></div>
+            </div>
+            <div class="stat-card" style="border-left-color:#ffd93d;">
+                <h3>⚠️ Overdue Breaks</h3>
+                <p id="overdueBreaks">0</p>
+            </div>
+            <div class="stat-card" style="border-left-color:#4ecdc4;">
+                <h3>👤 Total Users</h3>
+                <p id="totalUsers">0</p>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard with Sidebar -->
+        <div class="admin-wrapper">
             <!-- Sidebar Navigation -->
-            <div class="sidebar">
-                <div class="nav-item active" data-view="break-tracker">
+            <div class="admin-sidebar">
+                <div class="nav-item active" data-section="break-tracker">
                     <span class="icon">⏱️</span>
                     <span>Break Tracker</span>
                 </div>
-                <div class="nav-item" data-view="vacation">
+                <div class="nav-item" data-section="vacation">
                     <span class="icon">🏖️</span>
                     <span>Vacation</span>
                 </div>
-                <div class="sidebar-divider"></div>
+                <div class="admin-sidebar-divider"></div>
+                <div class="nav-item" data-section="user-management">
+                    <span class="icon">👤</span>
+                    <span>User Management</span>
+                </div>
+                <div class="nav-item" data-section="department">
+                    <span class="icon">🏢</span>
+                    <span>Department</span>
+                </div>
+                <div class="nav-item" data-section="role">
+                    <span class="icon">👔</span>
+                    <span>Role</span>
+                </div>
+                <div class="admin-sidebar-divider"></div>
+                <div class="nav-item" data-section="break-status">
+                    <span class="icon">⏱️</span>
+                    <span>Break Status</span>
+                </div>
+                <div class="nav-item" data-section="break-log">
+                    <span class="icon">📋</span>
+                    <span>Break Log</span>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </div>
+                <div class="admin-sidebar-divider"></div>
                 <div class="nav-item" style="opacity:0.5;cursor:default;border-left-color:transparent;">
                     <span class="icon">👤</span>
                     <span style="font-size:12px;color:#999;">Logged in as <span id="sidebarAdminName">Admin</span></span>
                 </div>
             </div>
 
-            <!-- Main Content Area -->
-            <div class="main-content">
+            <!-- Main Content -->
+            <div class="admin-content">
 
                 <!-- ========================================== -->
-                <!-- VIEW 1: BREAK TRACKER -->
+                <!-- SECTION 1: BREAK TRACKER -->
                 <!-- ========================================== -->
-                <div id="view-break-tracker" class="view-section active">
-                    <!-- Stats - Full Stats for Admin -->
-                    <div class="stats-grid">
-                        <div class="stat-card" style="border-left-color:#667eea;">
-                            <h3>👥 Total Employees</h3>
-                            <p id="totalEmployees">0</p>
-                        </div>
-                        <div class="stat-card" style="border-left-color:#ff6b6b;">
-                            <h3>🔴 Active Breaks</h3>
-                            <p id="activeBreaks">0</p>
-                            <div style="font-size:12px;color:#999;margin-top:4px;" id="activeBreakUsers"></div>
-                        </div>
-                        <div class="stat-card" style="border-left-color:#ffd93d;">
-                            <h3>⚠️ Overdue Breaks</h3>
-                            <p id="overdueBreaks">0</p>
-                        </div>
-                        <div class="stat-card" style="border-left-color:#4ecdc4;">
-                            <h3>👤 Total Users</h3>
-                            <p id="totalUsers">0</p>
-                        </div>
-                    </div>
-
+                <div id="section-break-tracker" class="admin-section active">
                     <!-- Active Breaks Wall -->
                     <div class="card">
                         <h2>🔴 Currently On Break</h2>
@@ -98,9 +124,9 @@
                 </div>
 
                 <!-- ========================================== -->
-                <!-- VIEW 2: VACATION (Admin Management) -->
+                <!-- SECTION 2: VACATION -->
                 <!-- ========================================== -->
-                <div id="view-vacation" class="view-section">
+                <div id="section-vacation" class="admin-section">
                     <div class="card">
                         <div class="card-header">
                             <h2>🏖️ Vacation Management</h2>
@@ -108,51 +134,20 @@
                                 <button id="exportVacationBtn" class="btn-outline">📥 Export CSV</button>
                             </div>
                         </div>
-                        
-                        <!-- Vacation Type Tabs -->
                         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
                             <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
                             <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
                             <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
                             <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
                         </div>
-                        
-                        <div id="vacationList">
-                            <p class="empty">No vacation requests found</p>
-                        </div>
+                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
                     </div>
                 </div>
 
                 <!-- ========================================== -->
-                <!-- Additional Admin Functions (Hidden in Sidebar) -->
+                <!-- SECTION 3: USER MANAGEMENT -->
                 <!-- ========================================== -->
-                <div style="margin-top:24px;">
-                    <!-- Employees Management -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>👥 Employee Management</h2>
-                            <button id="addEmployeeBtn" class="btn-primary">+ Add Employee</button>
-                        </div>
-                        <div class="filters">
-                            <input type="text" id="empSearch" placeholder="Search employees...">
-                            <select id="empStatusFilter">
-                                <option value="all">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="on_break">On Break</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                            <select id="empTypeFilter">
-                                <option value="all">All Types</option>
-                                <option value="Local">Local</option>
-                                <option value="Expat">Expat</option>
-                            </select>
-                        </div>
-                        <div class="table-container">
-                            <div id="employeesList"><p class="empty">Loading employees...</p></div>
-                        </div>
-                    </div>
-
-                    <!-- Users Management -->
+                <div id="section-user-management" class="admin-section">
                     <div class="card">
                         <div class="card-header">
                             <h2>👤 User Management</h2>
@@ -163,8 +158,12 @@
                         </div>
                         <div id="usersList"><p class="empty">Loading users...</p></div>
                     </div>
+                </div>
 
-                    <!-- Departments -->
+                <!-- ========================================== -->
+                <!-- SECTION 4: DEPARTMENT -->
+                <!-- ========================================== -->
+                <div id="section-department" class="admin-section">
                     <div class="card">
                         <div class="card-header">
                             <h2>🏢 Departments</h2>
@@ -172,8 +171,12 @@
                         </div>
                         <div id="departmentsList"><p class="empty">Loading departments...</p></div>
                     </div>
+                </div>
 
-                    <!-- Roles -->
+                <!-- ========================================== -->
+                <!-- SECTION 5: ROLE -->
+                <!-- ========================================== -->
+                <div id="section-role" class="admin-section">
                     <div class="card">
                         <div class="card-header">
                             <h2>👔 Roles</h2>
@@ -181,8 +184,12 @@
                         </div>
                         <div id="rolesList"><p class="empty">Loading roles...</p></div>
                     </div>
+                </div>
 
-                    <!-- Break Status -->
+                <!-- ========================================== -->
+                <!-- SECTION 6: BREAK STATUS -->
+                <!-- ========================================== -->
+                <div id="section-break-status" class="admin-section">
                     <div class="card">
                         <div class="card-header">
                             <h2>⏱️ Break Status</h2>
@@ -190,8 +197,12 @@
                         </div>
                         <div id="breakStatusList"><p class="empty">Loading break status...</p></div>
                     </div>
+                </div>
 
-                    <!-- Break Log -->
+                <!-- ========================================== -->
+                <!-- SECTION 7: BREAK LOG -->
+                <!-- ========================================== -->
+                <div id="section-break-log" class="admin-section">
                     <div class="card">
                         <div class="card-header">
                             <h2>📋 Break Log</h2>
@@ -230,8 +241,12 @@
                             <div id="breakLogList"><p class="empty">Loading break log...</p></div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Settings -->
+                <!-- ========================================== -->
+                <!-- SECTION 8: SETTINGS -->
+                <!-- ========================================== -->
+                <div id="section-settings" class="admin-section">
                     <div class="card">
                         <h2>⚙️ Break Settings</h2>
                         <form id="settingsForm">
@@ -269,48 +284,6 @@
     <!-- ========================================== -->
     <!-- MODALS -->
     <!-- ========================================== -->
-
-    <!-- Add/Edit Employee Modal -->
-    <div id="employeeModal" class="modal">
-        <div class="modal-content wide">
-            <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
-            <h2 id="employeeModalTitle">Add Employee</h2>
-            <form id="employeeForm">
-                <input type="hidden" id="editEmpId">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="empName" required placeholder="John Doe">
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="empEmail" required placeholder="john@company.com">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Department</label>
-                        <select id="empDepartment" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Employee Type</label>
-                        <select id="empEmployeeType" required>
-                            <option value="Local">Local</option>
-                            <option value="Expat">Expat</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Position</label>
-                    <input type="text" id="empPosition" placeholder="e.g., Developer">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('employeeModal')">Cancel</button>
-                    <button type="submit" class="btn-primary">Save Employee</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- Add/Edit User Modal -->
     <div id="userModal" class="modal">
@@ -393,18 +366,10 @@
                 <div class="form-group">
                     <label>Permissions</label>
                     <div style="display:flex;flex-direction:column;gap:8px;padding:8px 0;">
-                        <label class="checkbox-group">
-                            <input type="checkbox" id="permCreateUser"> Create Users
-                        </label>
-                        <label class="checkbox-group">
-                            <input type="checkbox" id="permDeleteUser"> Delete Users
-                        </label>
-                        <label class="checkbox-group">
-                            <input type="checkbox" id="permViewAll"> View All Data
-                        </label>
-                        <label class="checkbox-group">
-                            <input type="checkbox" id="permManageSettings"> Manage Settings
-                        </label>
+                        <label><input type="checkbox" id="permCreateUser"> Create Users</label>
+                        <label><input type="checkbox" id="permDeleteUser"> Delete Users</label>
+                        <label><input type="checkbox" id="permViewAll"> View All Data</label>
+                        <label><input type="checkbox" id="permManageSettings"> Manage Settings</label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -427,12 +392,6 @@
         </div>
     </div>
 
-    <!-- Notification Banner -->
-    <div id="notification" style="display:none;position:fixed;top:80px;right:20px;z-index:9999;background:#ff6b6b;color:white;padding:16px 24px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);max-width:400px;">
-        <strong>⚠️ Break Overdue!</strong>
-        <p id="notificationMessage" style="margin:4px 0 0;font-size:14px;"></p>
-    </div>
-
     <script>
         // ============================================
         // ADMIN DASHBOARD - COMPLETE SCRIPT
@@ -445,7 +404,6 @@
 
         let deleteTarget = null;
         let deleteType = null;
-        let notificationTimeout = null;
 
         // Set admin info
         document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
@@ -463,17 +421,33 @@
         // ============================================
         // SIDEBAR NAVIGATION
         // ============================================
-        document.querySelectorAll('.sidebar .nav-item[data-view]').forEach(item => {
+        document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(item => {
             item.addEventListener('click', function() {
-                document.querySelectorAll('.sidebar .nav-item[data-view]').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
 
-                const view = this.dataset.view;
-                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-                document.getElementById('view-' + view).classList.add('active');
+                const section = this.dataset.section;
+                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('section-' + section).classList.add('active');
 
-                if (view === 'vacation') {
+                // Load data based on section
+                if (section === 'break-tracker') {
+                    loadActiveBreaks();
+                    loadBreakHistory();
+                } else if (section === 'vacation') {
                     loadVacations('pending');
+                } else if (section === 'user-management') {
+                    loadUsers();
+                } else if (section === 'department') {
+                    loadDepartments();
+                } else if (section === 'role') {
+                    loadRoles();
+                } else if (section === 'break-status') {
+                    loadBreakStatus();
+                } else if (section === 'break-log') {
+                    loadBreakLog();
+                } else if (section === 'settings') {
+                    loadSettings();
                 }
             });
         });
@@ -534,7 +508,7 @@
         }
 
         // ============================================
-        // LOAD STATS (Full Admin Stats)
+        // LOAD STATS
         // ============================================
         function loadStats() {
             const employees = getEmployees();
@@ -643,127 +617,6 @@
             html += '</tbody></table>';
             container.innerHTML = html;
         }
-
-        // ============================================
-        // EMPLOYEE FUNCTIONS
-        // ============================================
-        function loadEmployees() {
-            const employees = getEmployees();
-            const search = document.getElementById('empSearch').value.toLowerCase();
-            const statusFilter = document.getElementById('empStatusFilter').value;
-            const typeFilter = document.getElementById('empTypeFilter').value;
-            
-            let filtered = employees;
-            if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.email.toLowerCase().includes(search) || e.department.toLowerCase().includes(search));
-            if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
-            if (typeFilter !== 'all') filtered = filtered.filter(e => e.employeeType === typeFilter);
-            
-            const list = document.getElementById('employeesList');
-            if (filtered.length === 0) { 
-                list.innerHTML = '<p class="empty">No employees found</p>'; 
-                return; 
-            }
-            
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Department</th>
-                        <th>Employee Type</th>
-                        <th>Position</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-                
-            filtered.forEach(e => {
-                const statusColor = e.status === 'on_break' ? 'badge-orange' : (e.status === 'inactive' ? 'badge-red' : 'badge-green');
-                html += `<tr>
-                    <td><strong>${e.name}</strong></td>
-                    <td>${e.email}</td>
-                    <td>${e.department}</td>
-                    <td><span class="badge badge-purple">${e.employeeType || 'Local'}</span></td>
-                    <td>${e.position || 'N/A'}</td>
-                    <td><span class="badge ${statusColor}">${e.status || 'active'}</span></td>
-                    <td>
-                        <button class="btn-primary btn-sm" onclick="editEmployee('${e.id}')">✏️ Edit</button>
-                        <button class="btn-danger btn-sm" onclick="confirmDelete('employee','${e.id}','${e.name}')">🗑️ Delete</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            list.innerHTML = html;
-        }
-
-        function addEmployee(data) {
-            const employees = getEmployees();
-            const newEmp = { 
-                id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), 
-                ...data, 
-                status: 'active', 
-                created_at: new Date().toISOString() 
-            };
-            employees.push(newEmp);
-            saveEmployees(employees);
-            return newEmp;
-        }
-
-        function updateEmployee(id, data) {
-            const employees = getEmployees();
-            const index = employees.findIndex(e => e.id === id);
-            if (index === -1) return null;
-            employees[index] = { ...employees[index], ...data };
-            saveEmployees(employees);
-            return employees[index];
-        }
-
-        function deleteEmployee(id) {
-            let employees = getEmployees();
-            employees = employees.filter(e => e.id !== id);
-            saveEmployees(employees);
-        }
-
-        function editEmployee(id) {
-            const employees = getEmployees();
-            const emp = employees.find(e => e.id === id);
-            if (!emp) return;
-            
-            document.getElementById('editEmpId').value = id;
-            document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
-            document.getElementById('empName').value = emp.name;
-            document.getElementById('empEmail').value = emp.email;
-            document.getElementById('empDepartment').value = emp.department;
-            document.getElementById('empEmployeeType').value = emp.employeeType || 'Local';
-            document.getElementById('empPosition').value = emp.position || '';
-            openModal('employeeModal');
-        }
-
-        document.getElementById('employeeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editEmpId').value;
-            const data = {
-                name: document.getElementById('empName').value,
-                email: document.getElementById('empEmail').value,
-                department: document.getElementById('empDepartment').value,
-                employeeType: document.getElementById('empEmployeeType').value,
-                position: document.getElementById('empPosition').value
-            };
-            if (id) { 
-                updateEmployee(id, data); 
-                alert('✅ Employee updated!'); 
-            } else { 
-                addEmployee(data); 
-                alert('✅ Employee added!'); 
-            }
-            closeModal('employeeModal');
-            this.reset();
-            document.getElementById('editEmpId').value = '';
-            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
-            loadEmployees();
-            loadStats();
-        });
 
         // ============================================
         // USER FUNCTIONS
@@ -1115,7 +968,7 @@
                     <div class="dept">${emp?.department || 'N/A'} • ${empType} • ${breakLabels[b.break_type] || 'Short'}</div>
                     <div class="time">⏱️ ${duration} elapsed</div>
                     <div class="time">${isOverdue ? `⚠️ Overdue! (${elapsed}/${maxMinutes} min)` : `✅ Within limit (${elapsed}/${maxMinutes} min)`}</div>
-                    <div style="margin-top:8px;">
+                    <div class="action-btn">
                         <button class="btn-danger btn-sm" onclick="endBreakFromAdmin('${b.id}','${b.employee_id}')">End Break</button>
                     </div>
                 </div>`;
@@ -1216,7 +1069,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS (Admin)
+        // VACATION FUNCTIONS
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -1391,10 +1244,7 @@
         }
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteType === 'employee') { 
-                deleteEmployee(deleteTarget); 
-                loadEmployees(); 
-            } else if (deleteType === 'user') { 
+            if (deleteType === 'user') { 
                 deleteUser(deleteTarget); 
                 loadUsers(); 
             } else if (deleteType === 'department') { 
@@ -1422,7 +1272,7 @@
             const depts = getDepartments();
             const roles = getRoles();
             
-            ['empDepartment', 'userDepartment'].forEach(id => {
+            ['userDepartment'].forEach(id => {
                 const select = document.getElementById(id);
                 if (select) { 
                     select.innerHTML = ''; 
@@ -1458,13 +1308,6 @@
         // ============================================
         // EVENT LISTENERS
         // ============================================
-        document.getElementById('addEmployeeBtn').addEventListener('click', function() {
-            document.getElementById('editEmpId').value = '';
-            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
-            document.getElementById('employeeForm').reset();
-            openModal('employeeModal');
-        });
-
         document.getElementById('addUserBtn').addEventListener('click', function() {
             document.getElementById('editUserId').value = '';
             document.getElementById('userModalTitle').textContent = 'Create User';
@@ -1494,10 +1337,6 @@
         });
 
         document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
-
-        document.getElementById('empSearch').addEventListener('input', loadEmployees);
-        document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
-        document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
 
         // ============================================
         // AUTO REFRESH
@@ -1533,7 +1372,6 @@
 
         loadDropdowns();
         loadStats();
-        loadEmployees();
         loadUsers();
         loadDepartments();
         loadRoles();
