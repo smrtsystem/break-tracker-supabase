@@ -84,6 +84,186 @@
 }
 
 /* ============================================
+   VACATION TABLE (For All tab)
+   ============================================ */
+.vacation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.vacation-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.vacation-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.vacation-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
+   VACATION STATUS BADGES
+   ============================================ */
+.vacation-status-approved {
+    background: #4ecdc4;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.vacation-status-pending {
+    background: #ffd93d;
+    color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.vacation-status-rejected {
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.vacation-status-accepted {
+    background: #667eea;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* ============================================
+   VACATION GRID (For Pending/Approved/Rejected)
+   ============================================ */
+.vacation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.vacation-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s;
+}
+
+.vacation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vacation-card .emp-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.vacation-card .emp-dept {
+    font-size: 13px;
+    color: #666;
+}
+
+.vacation-card .vacation-dates {
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+
+.vacation-card .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.vacation-card .days-info {
+    font-size: 14px;
+    margin-top: 4px;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.vacation-card .day-adjust-info {
+    font-size: 13px;
+    color: #ff6b6b;
+    margin-top: 4px;
+}
+
+.vacation-card .action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   VACATION TAB BUTTONS
+   ============================================ */
+.vacation-tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.vacation-tab-btn:hover {
+    background: #f0f2f5;
+}
+
+.vacation-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.accept-btn {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.accept-btn:hover {
+    background: #45b7b0;
+}
+
+.accept-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
    BREAK WALL
    ============================================ */
 .break-wall {
@@ -175,134 +355,6 @@
 
 .history-table tr:hover {
     background: #f8f9fa;
-}
-
-/* ============================================
-   VACATION STYLES
-   ============================================ */
-.vacation-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-}
-
-.vacation-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid #667eea;
-    transition: transform 0.2s;
-}
-
-.vacation-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.vacation-card .emp-name {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.vacation-card .emp-dept {
-    font-size: 13px;
-    color: #666;
-}
-
-.vacation-card .vacation-dates {
-    font-size: 14px;
-    margin-top: 8px;
-    padding: 8px;
-    background: white;
-    border-radius: 6px;
-}
-
-.vacation-card .status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.vacation-card .days-info {
-    font-size: 14px;
-    margin-top: 4px;
-    color: #667eea;
-    font-weight: 600;
-}
-
-.vacation-card .day-adjust-info {
-    font-size: 13px;
-    color: #ff6b6b;
-    margin-top: 4px;
-}
-
-.vacation-card .action-buttons {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
-
-.vacation-status-approved {
-    background: #4ecdc4;
-    color: white;
-}
-
-.vacation-status-pending {
-    background: #ffd93d;
-    color: #1a1a2e;
-}
-
-.vacation-status-rejected {
-    background: #ff6b6b;
-    color: white;
-}
-
-.vacation-status-accepted {
-    background: #667eea;
-    color: white;
-}
-
-.vacation-tab-btn {
-    padding: 8px 16px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.vacation-tab-btn:hover {
-    background: #f0f2f5;
-}
-
-.vacation-tab-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-.accept-btn {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.accept-btn:hover {
-    background: #45b7b0;
-}
-
-.accept-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* ============================================
@@ -482,6 +534,15 @@
 
     .vacation-grid {
         grid-template-columns: 1fr;
+    }
+
+    .vacation-table {
+        font-size: 12px;
+    }
+
+    .vacation-table th,
+    .vacation-table td {
+        padding: 6px 8px;
     }
 
     .break-wall {
