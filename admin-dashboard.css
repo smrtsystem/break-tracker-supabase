@@ -3,40 +3,70 @@
    ============================================ */
 
 /* ============================================
-   ADMIN NAV BUTTONS
+   ADMIN LAYOUT
    ============================================ */
-.admin-nav-buttons {
+.admin-wrapper {
     display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 20px;
 }
 
-.admin-nav-btn {
-    padding: 10px 20px;
-    border: 2px solid #e0e0e0;
+/* ============================================
+   ADMIN SIDEBAR
+   ============================================ */
+.admin-sidebar {
+    width: 220px;
+    flex-shrink: 0;
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 0;
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+}
+
+.admin-sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
     color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
 }
 
-.admin-nav-btn:hover {
+.admin-sidebar .nav-item:hover {
     background: #f0f2f5;
-    border-color: #667eea;
+    color: #1a1a2e;
 }
 
-.admin-nav-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
+.admin-sidebar .nav-item.active {
+    background: #f0f2f5;
+    border-left-color: #667eea;
+    color: #667eea;
+    font-weight: 600;
 }
 
-.admin-nav-btn .icon {
-    margin-right: 6px;
+.admin-sidebar .nav-item .icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.admin-sidebar-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 8px 16px;
+}
+
+.admin-content {
+    flex: 1;
+    min-width: 0;
 }
 
 /* ============================================
@@ -48,6 +78,92 @@
 
 .admin-section.active {
     display: block;
+}
+
+/* ============================================
+   STATS
+   ============================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: left;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.stat-card p {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.stat-card .sub-text {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+    word-wrap: break-word;
+}
+
+/* ============================================
+   ADMIN SUB NAV BUTTONS
+   ============================================ */
+.admin-sub-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.admin-sub-nav-btn {
+    padding: 8px 16px;
+    border: 2px solid transparent;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    transition: all 0.3s;
+    color: #555;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.admin-sub-nav-btn:hover {
+    border-color: #667eea;
+    background: #f0f2f5;
+}
+
+.admin-sub-nav-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.admin-sub-nav-btn .icon {
+    margin-right: 4px;
 }
 
 /* ============================================
@@ -592,14 +708,63 @@ table tr:hover {
 /* ============================================
    RESPONSIVE
    ============================================ */
+@media (max-width: 992px) {
+    .admin-sidebar {
+        width: 180px;
+    }
+}
+
 @media (max-width: 768px) {
-    .admin-nav-buttons {
+    .admin-wrapper {
         flex-direction: column;
     }
 
-    .admin-nav-btn {
+    .admin-sidebar {
+        width: 100%;
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 8px;
+        gap: 4px;
+    }
+
+    .admin-sidebar .nav-item {
+        padding: 8px 14px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        flex: 1;
+        justify-content: center;
+        min-width: 100px;
+    }
+
+    .admin-sidebar .nav-item.active {
+        border-left: none;
+        border-bottom-color: #667eea;
+    }
+
+    .admin-sidebar-divider {
+        display: none;
+    }
+
+    .admin-sub-nav {
+        flex-direction: column;
+    }
+
+    .admin-sub-nav-btn {
         width: 100%;
         text-align: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .vacation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .break-status-grid {
+        grid-template-columns: 1fr;
     }
 
     .filters {
@@ -633,14 +798,6 @@ table tr:hover {
         padding: 6px 8px;
     }
 
-    .vacation-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .break-status-grid {
-        grid-template-columns: 1fr;
-    }
-
     .vacation-card .action-buttons {
         flex-direction: column;
     }
@@ -651,10 +808,19 @@ table tr:hover {
 }
 
 @media (max-width: 480px) {
-    .break-log-filters {
-        grid-template-columns: 1fr;
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
     }
     .stat-card p {
         font-size: 20px;
+    }
+    .stat-card {
+        padding: 12px;
+    }
+    .stat-card h3 {
+        font-size: 11px;
+    }
+    .break-log-filters {
+        grid-template-columns: 1fr;
     }
 }
