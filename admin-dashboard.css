@@ -84,7 +84,7 @@
 }
 
 /* ============================================
-   STATS - LEFT SIDE
+   STATS
    ============================================ */
 .stats-grid {
     display: grid;
@@ -235,9 +235,6 @@
     flex-wrap: wrap;
 }
 
-/* ============================================
-   VACATION STATUS COLORS
-   ============================================ */
 .vacation-status-approved { 
     background: #4ecdc4; 
     color: white; 
@@ -251,6 +248,29 @@
 .vacation-status-rejected { 
     background: #ff6b6b; 
     color: white; 
+}
+
+/* ============================================
+   VACATION TAB BUTTONS
+   ============================================ */
+.vacation-tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.vacation-tab-btn:hover {
+    background: #f0f2f5;
+}
+
+.vacation-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 /* ============================================
@@ -299,29 +319,6 @@
 
 .btn-delete:hover {
     background: #c82333;
-}
-
-/* ============================================
-   VACATION TAB BUTTONS
-   ============================================ */
-.vacation-tab-btn {
-    padding: 8px 16px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.vacation-tab-btn:hover {
-    background: #f0f2f5;
-}
-
-.vacation-tab-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
 }
 
 /* ============================================
@@ -622,7 +619,7 @@
 }
 
 /* ============================================
-   BUTTONS (Admin Specific)
+   BUTTONS
    ============================================ */
 .btn-primary {
     background: #667eea;
@@ -701,6 +698,50 @@
 
 .btn-block {
     width: 100%;
+}
+
+/* ============================================
+   CONFIG ITEMS
+   ============================================ */
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.config-item .actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================
+   BREAK LOG FILTERS
+   ============================================ */
+.break-log-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.break-log-filters .form-group {
+    margin-bottom: 0;
+}
+
+.break-log-filters .form-group label {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.break-log-filters input,
+.break-log-filters select {
+    padding: 6px 10px;
+    font-size: 13px;
 }
 
 /* ============================================
@@ -798,6 +839,10 @@
     .vacation-card .action-buttons button {
         width: 100%;
     }
+    
+    .break-log-filters {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -812,5 +857,8 @@
     }
     .stat-card h3 {
         font-size: 11px;
+    }
+    .break-log-filters {
+        grid-template-columns: 1fr;
     }
 }
