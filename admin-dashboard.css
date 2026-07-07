@@ -250,10 +250,10 @@
 }
 
 /* ============================================
-   CHECK IN/OUT TAB BUTTONS (Beautiful)
+   CHECK IN/OUT TAB BUTTONS
    ============================================ */
 .checkin-tab-btn {
-    padding: 8px 18px;
+    padding: 8px 16px;
     border: 2px solid #e0e0e0;
     background: white;
     border-radius: 25px;
@@ -291,7 +291,6 @@
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
-    transition: background 0.2s;
 }
 
 .btn-approve-checkin:hover {
@@ -307,7 +306,6 @@
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
-    transition: background 0.2s;
 }
 
 .btn-reject-checkin:hover {
@@ -323,11 +321,16 @@
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
-    transition: background 0.2s;
 }
 
 .btn-delete-checkin:hover {
     background: #c82333;
+}
+
+.checkin-actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 /* ============================================
@@ -530,6 +533,31 @@
 }
 
 /* ============================================
+   BREAK LOG FILTERS
+   ============================================ */
+.break-log-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.break-log-filters .form-group {
+    margin-bottom: 0;
+}
+
+.break-log-filters .form-group label {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.break-log-filters input,
+.break-log-filters select {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* ============================================
    FILTERS
    ============================================ */
 .filters {
@@ -556,28 +584,36 @@
 }
 
 /* ============================================
-   BREAK LOG FILTERS
+   BADGES
    ============================================ */
-.break-log-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.break-log-filters .form-group {
-    margin-bottom: 0;
-}
-
-.break-log-filters .form-group label {
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
     font-size: 12px;
-    margin-bottom: 2px;
+    font-weight: 600;
+    color: white;
 }
 
-.break-log-filters input,
-.break-log-filters select {
-    padding: 6px 10px;
-    font-size: 13px;
+.badge-green {
+    background: #4ecdc4;
+}
+
+.badge-orange {
+    background: #ffd93d;
+    color: #1a1a2e;
+}
+
+.badge-red {
+    background: #ff6b6b;
+}
+
+.badge-blue {
+    background: #667eea;
+}
+
+.badge-purple {
+    background: #a29bfe;
 }
 
 /* ============================================
@@ -869,6 +905,14 @@
         padding: 6px 8px;
     }
 
+    .checkin-actions-cell {
+        flex-direction: column;
+    }
+
+    .checkin-actions-cell button {
+        width: 100%;
+    }
+
     .vacation-table {
         font-size: 12px;
     }
@@ -886,6 +930,10 @@
         width: 100%;
     }
 
+    .break-log-filters {
+        grid-template-columns: 1fr 1fr;
+    }
+
     .filters {
         flex-direction: column;
     }
@@ -893,10 +941,6 @@
     .filters input,
     .filters select {
         width: 100%;
-    }
-
-    .break-log-filters {
-        grid-template-columns: 1fr 1fr;
     }
 
     .modal-content {
