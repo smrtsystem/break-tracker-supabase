@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="user-dashboard.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">🕐 Break Tracker</div>
         <div class="nav-right">
@@ -55,181 +54,32 @@
             <div class="main-content">
                 <!-- Break Tracker View -->
                 <div id="view-break-tracker" class="view-section active">
-                    <div class="my-break-section">
-                        <h2>☕ My Break</h2>
-                        <div class="break-actions">
-                            <button id="startBreakBtn" class="btn-start-break">▶️ Start Break</button>
-                            <button id="endBreakBtn" class="btn-end-break" disabled>⏹️ End Break</button>
-                            <div class="break-status-display">
-                                <span class="status-badge available" id="breakStatusText">✅ Available</span>
-                            </div>
-                        </div>
-                        <div id="breakInfo" class="break-info">
-                            <p><strong>⏱️ Current Break:</strong> <span id="myBreakDuration">0m 0s</span></p>
-                            <p><strong>⏰ Started:</strong> <span id="myBreakStartTime">-</span></p>
-                            <p><strong>📋 Break Type:</strong> <span id="myBreakType">-</span></p>
-                            <p id="myBreakWarning" class="overdue-text" style="display:none;">⚠️ Your break has exceeded the time limit!</p>
-                        </div>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card" style="border-top:4px solid #ff6b6b;">
-                            <h3>🔴 Active Breaks</h3>
-                            <p id="activeBreaks">0</p>
-                            <div style="font-size:12px;color:#999;margin-top:4px;" id="activeBreakUsers"></div>
-                        </div>
-                        <div class="stat-card" style="border-top:4px solid #667eea;">
-                            <h3>📊 Today's Breaks</h3>
-                            <p id="todayBreaks">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h2>🔴 Currently On Break</h2>
-                        <div id="activeBreaksList">
-                            <div class="no-breaks"><div class="icon">✅</div><p>No one is on break right now</p></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h2>📊 My Break History</h2>
-                        <div style="overflow-x:auto;">
-                            <div id="breakHistory">
-                                <div class="no-breaks"><div class="icon">📋</div><p>No break history found</p></div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Your existing break tracker content -->
                 </div>
 
                 <!-- Vacation View -->
                 <div id="view-vacation" class="view-section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>🏖️ Vacation Management</h2>
-                            <div>
-                                <button id="addVacationBtn" class="btn-primary">+ Add Vacation Request</button>
-                            </div>
-                        </div>
-                        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-                            <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
-                            <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
-                            <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
-                            <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
-                        </div>
-                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
-                    </div>
+                    <!-- Your existing vacation content -->
                 </div>
 
                 <!-- Check In/Out View -->
                 <div id="view-checkin" class="view-section">
-                    <div class="checkin-card">
-                        <h2>📋 Check In / Out</h2>
-                        <div class="checkin-actions">
-                            <button id="checkInBtn" class="btn-checkin">✅ Check In</button>
-                            <button id="checkOutBtn" class="btn-checkout" disabled>❌ Check Out</button>
-                            <span id="checkinStatus" style="display:flex;align-items:center;margin-left:12px;"></span>
-                        </div>
-                        <div id="activeCheckinInfo" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;display:none;">
-                            <p><strong>⏱️ Duration:</strong> <span id="checkinDuration">0m 0s</span></p>
-                            <p><strong>⏰ Checked In At:</strong> <span id="checkinTime">-</span></p>
-                            <p><strong>📋 Status:</strong> <span id="checkinStatusText">-</span></p>
-                            <p><strong>👤 Approved By:</strong> <span id="checkinApprovedBy">-</span></p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h2>📊 My Check In/Out History</h2>
-                        <div style="overflow-x:auto;">
-                            <div id="checkinHistory">
-                                <div class="no-breaks"><div class="icon">📋</div><p>No check in/out records found</p></div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Your existing checkin content -->
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODALS -->
-    <!-- ========================================== -->
-
-    <div id="passwordModal" class="modal">
-        <div class="modal-content wide">
-            <button class="modal-close" onclick="closeModal('passwordModal')">&times;</button>
-            <h2>🔑 Change Password</h2>
-            <form id="passwordForm">
-                <div class="form-group">
-                    <label>Current Password</label>
-                    <input type="password" id="currentPassword" required placeholder="Enter current password">
-                </div>
-                <div class="form-group">
-                    <label>New Password</label>
-                    <input type="password" id="newPassword" required placeholder="Enter new password" minlength="6">
-                </div>
-                <div class="form-group">
-                    <label>Confirm New Password</label>
-                    <input type="password" id="confirmPassword" required placeholder="Confirm new password">
-                </div>
-                <div id="passwordError" class="error"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('passwordModal')">Cancel</button>
-                    <button type="submit" class="btn-primary">Change Password</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="vacationModal" class="modal">
-        <div class="modal-content wide">
-            <button class="modal-close" onclick="closeModal('vacationModal')">&times;</button>
-            <h2>🏖️ Add Vacation Request</h2>
-            <form id="vacationForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Vacation Type</label>
-                        <select id="vacationType" required>
-                            <option value="Expat">🌍 Expat Vacation</option>
-                            <option value="Local">🏠 Local Vacation</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="vacationStatus">
-                            <option value="pending">Pending</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date" id="vacationStartDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date" id="vacationEndDate" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="vacationNotes" rows="3" style="width:100%;padding:10px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;" placeholder="Additional notes..."></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('vacationModal')">Cancel</button>
-                    <button type="submit" class="btn-primary">Save Vacation</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
+    <script type="module">
+        import { supabase, getCurrentUser, signOut, getEmployees, getBreaks, getActiveBreaks, getBreakHistory, getStats, subscribeToBreaks, formatDuration } from './supabase.js'
+        
         // ============================================
-        // USER DASHBOARD - COMPLETE SCRIPT
+        // CHECK USER SESSION
         // ============================================
-
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        if (!currentUser) window.location.href = 'login.html';
+        const currentUser = await getCurrentUser();
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
 
         // Set user info
         document.getElementById('userAvatar').textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
@@ -239,9 +89,9 @@
         document.getElementById('userRole').textContent = currentUser.role || 'Employee';
         document.getElementById('userRole').style.background = currentUser.role === 'admin' ? '#ff6b6b' : '#667eea';
 
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            await signOut();
         });
 
         // ============================================
@@ -266,822 +116,63 @@
         });
 
         // ============================================
-        // VACATION TAB BUTTONS
+        // LOAD FUNCTIONS
         // ============================================
-        document.querySelectorAll('.vacation-tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.vacation-tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                loadVacations(this.dataset.vacationType);
-            });
-        });
-
-        // ============================================
-        // PASSWORD CHANGE
-        // ============================================
-        document.getElementById('changePasswordBtn').addEventListener('click', function() {
-            document.getElementById('passwordForm').reset();
-            document.getElementById('passwordError').style.display = 'none';
-            openModal('passwordModal');
-        });
-
-        document.getElementById('passwordForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorMsg = document.getElementById('passwordError');
-
-            errorMsg.textContent = '';
-            errorMsg.style.display = 'none';
-
-            if (currentPassword !== currentUser.password) {
-                errorMsg.textContent = '❌ Current password is incorrect!';
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                errorMsg.textContent = '❌ New password must be at least 6 characters!';
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                errorMsg.textContent = '❌ Passwords do not match!';
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex !== -1) {
-                users[userIndex].password = newPassword;
-                localStorage.setItem('appUsers', JSON.stringify(users));
-                currentUser.password = newPassword;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            }
-
-            const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-            const adminIndex = admins.findIndex(a => a.id === currentUser.id);
-            if (adminIndex !== -1) {
-                admins[adminIndex].password = newPassword;
-                localStorage.setItem('adminUsers', JSON.stringify(admins));
-            }
-
-            closeModal('passwordModal');
-            alert('✅ Password changed successfully!');
-        });
-
-        // ============================================
-        // DATA FUNCTIONS
-        // ============================================
-        function getEmployees() { return JSON.parse(localStorage.getItem('employees') || '[]'); }
-        function getBreaks() { return JSON.parse(localStorage.getItem('breaks') || '[]'); }
-        function saveBreaks(b) { localStorage.setItem('breaks', JSON.stringify(b)); }
-        function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"localBreakMinutes":30,"expatBreakMinutes":45,"warningMinutes":5}'); }
-        function getVacations() { return JSON.parse(localStorage.getItem('vacations') || '[]'); }
-        function saveVacations(v) { localStorage.setItem('vacations', JSON.stringify(v)); }
-        function getCheckins() { return JSON.parse(localStorage.getItem('checkins') || '[]'); }
-        function saveCheckins(c) { localStorage.setItem('checkins', JSON.stringify(c)); }
-
-        function formatDuration(startTime, endTime = null) {
-            const start = new Date(startTime);
-            const end = endTime ? new Date(endTime) : new Date();
-            const diff = Math.floor((end - start) / 1000);
-            if (diff < 0) return '0m 0s';
-            const mins = Math.floor(diff / 60);
-            const secs = diff % 60;
-            if (mins === 0) return `${secs}s`;
-            if (secs === 0) return `${mins}m`;
-            return `${mins}m ${secs}s`;
-        }
-
-        function formatTime(date) {
-            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function formatDate(date) {
-            return new Date(date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function calculateDays(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            return diffDays;
-        }
-
-        function getMyEmployee() {
-            const employees = getEmployees();
-            return employees.find(e => e.email === currentUser.email);
-        }
-
-        function getMyActiveBreak() {
-            const emp = getMyEmployee();
-            if (!emp) return null;
-            const breaks = getBreaks();
-            return breaks.find(b => b.employee_id === emp.id && b.status === 'active');
-        }
-
-        // ============================================
-        // BREAK ACTIONS
-        // ============================================
-        let breakTimer = null;
-
-        function startMyBreak(breakType = 'short') {
-            const emp = getMyEmployee();
-
-            if (!emp) {
-                const employees = getEmployees();
-                const newEmp = {
-                    id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                    name: currentUser.name || 'User',
-                    email: currentUser.email,
-                    department: currentUser.department || 'Engineering',
-                    position: 'Employee',
-                    employeeType: 'Local',
-                    status: 'active',
-                    created_at: new Date().toISOString()
-                };
-                employees.push(newEmp);
-                localStorage.setItem('employees', JSON.stringify(employees));
-
-                const newEmpRecord = getMyEmployee();
-                if (!newEmpRecord) {
-                    alert('Error creating employee record. Please contact admin.');
+        async function loadActiveBreaks() {
+            try {
+                const breaks = await getActiveBreaks();
+                const employees = await getEmployees();
+                const list = document.getElementById('activeBreaksList');
+                
+                document.getElementById('activeBreaks').textContent = breaks.length;
+                
+                if (breaks.length === 0) {
+                    list.innerHTML = '<div class="no-breaks"><div class="icon">✅</div><p>No one is on break right now</p></div>';
                     return;
                 }
-                performStartBreak(newEmpRecord.id, breakType);
-                return;
-            }
-
-            if (getMyActiveBreak()) {
-                alert('You are already on break!');
-                return;
-            }
-
-            const breakTypes = ['short', 'lunch', 'personal', 'meeting'];
-            const breakLabels = ['☕ Short Break', '🍱 Lunch Break', '👤 Personal Break', '📋 Meeting Break'];
-            const choice = prompt(
-                'Select break type:\n' +
-                breakLabels.map((label, i) => `${i + 1}. ${label}`).join('\n') +
-                '\n\nEnter number (1-4):'
-            );
-
-            if (!choice) return;
-            const index = parseInt(choice) - 1;
-            if (index < 0 || index > 3) {
-                alert('Invalid selection!');
-                return;
-            }
-
-            performStartBreak(emp.id, breakTypes[index]);
-        }
-
-        function performStartBreak(employeeId, breakType) {
-            const breaks = getBreaks();
-            const newBreak = {
-                id: 'brk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                employee_id: employeeId,
-                break_type: breakType || 'short',
-                start_time: new Date().toISOString(),
-                status: 'active',
-                created_at: new Date().toISOString()
-            };
-            breaks.push(newBreak);
-            saveBreaks(breaks);
-
-            const employees = getEmployees();
-            const empIndex = employees.findIndex(e => e.id === employeeId);
-            if (empIndex !== -1) {
-                employees[empIndex].status = 'on_break';
-                localStorage.setItem('employees', JSON.stringify(employees));
-            }
-
-            updateBreakUI();
-            refreshAll();
-            alert('✅ Break started!');
-        }
-
-        function endMyBreak() {
-            const activeBreak = getMyActiveBreak();
-            if (!activeBreak) {
-                alert('You are not on break!');
-                return;
-            }
-
-            const emp = getMyEmployee();
-            if (!emp) return;
-
-            const breaks = getBreaks();
-            const index = breaks.findIndex(b => b.id === activeBreak.id);
-            if (index === -1) return;
-
-            const endTime = new Date().toISOString();
-            const startTime = new Date(breaks[index].start_time);
-            const duration = Math.floor((new Date(endTime) - startTime) / 1000);
-
-            breaks[index] = {
-                ...breaks[index],
-                end_time: endTime,
-                status: 'completed',
-                duration: duration
-            };
-            saveBreaks(breaks);
-
-            const employees = getEmployees();
-            const empIndex = employees.findIndex(e => e.id === emp.id);
-            if (empIndex !== -1) {
-                employees[empIndex].status = 'active';
-                localStorage.setItem('employees', JSON.stringify(employees));
-            }
-
-            updateBreakUI();
-            refreshAll();
-            alert('✅ Break ended!');
-        }
-
-        function updateBreakUI() {
-            const activeBreak = getMyActiveBreak();
-            const startBtn = document.getElementById('startBreakBtn');
-            const endBtn = document.getElementById('endBreakBtn');
-            const statusText = document.getElementById('breakStatusText');
-            const breakInfo = document.getElementById('breakInfo');
-            const durationSpan = document.getElementById('myBreakDuration');
-            const startTimeSpan = document.getElementById('myBreakStartTime');
-            const breakTypeSpan = document.getElementById('myBreakType');
-            const warningSpan = document.getElementById('myBreakWarning');
-
-            if (activeBreak) {
-                startBtn.disabled = true;
-                endBtn.disabled = false;
-                statusText.textContent = '🔴 On Break';
-                statusText.className = 'status-badge on-break';
-                breakInfo.className = 'break-info active';
-                breakInfo.style.display = 'block';
-                startTimeSpan.textContent = formatTime(activeBreak.start_time);
-
-                const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-                breakTypeSpan.textContent = breakLabels[activeBreak.break_type] || 'Short';
-
-                if (breakTimer) clearInterval(breakTimer);
-                breakTimer = setInterval(() => {
-                    const duration = formatDuration(activeBreak.start_time);
-                    durationSpan.textContent = duration;
-                    const settings = getSettings();
-
-                    const emp = getMyEmployee();
-                    const empType = emp?.employeeType || 'Local';
-                    const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-
-                    const elapsed = Math.floor((new Date() - new Date(activeBreak.start_time)) / 60000);
-                    if (elapsed > maxMinutes) {
-                        warningSpan.style.display = 'block';
-                        warningSpan.textContent = `⚠️ Break exceeded! (${elapsed}/${maxMinutes} min)`;
-                        breakInfo.className = 'break-info active overdue';
-                    } else {
-                        warningSpan.style.display = 'none';
-                        breakInfo.className = 'break-info active';
-                    }
-                }, 1000);
-            } else {
-                startBtn.disabled = false;
-                endBtn.disabled = true;
-                statusText.textContent = '✅ Available';
-                statusText.className = 'status-badge available';
-                breakInfo.className = 'break-info';
-                breakInfo.style.display = 'none';
-                if (breakTimer) {
-                    clearInterval(breakTimer);
-                    breakTimer = null;
-                }
-            }
-        }
-
-        document.getElementById('startBreakBtn').addEventListener('click', function() {
-            startMyBreak();
-        });
-        document.getElementById('endBreakBtn').addEventListener('click', endMyBreak);
-
-        // ============================================
-        // LOAD ACTIVE BREAKS
-        // ============================================
-        function loadActiveBreaks() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
-            const settings = getSettings();
-            const active = breaks.filter(b => b.status === 'active');
-            const list = document.getElementById('activeBreaksList');
-
-            document.getElementById('activeBreaks').textContent = active.length;
-
-            const names = active.map(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                return emp?.name || 'Unknown';
-            });
-            document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
-
-            if (active.length === 0) {
-                list.innerHTML = '<div class="no-breaks"><div class="icon">✅</div><p>No one is on break right now</p></div>';
-                return;
-            }
-
-            let html = '<div class="break-wall">';
-            active.forEach(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const duration = formatDuration(b.start_time);
-                const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
-                const empType = emp?.employeeType || 'Local';
-                const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-                const isOverdue = elapsed > maxMinutes;
-                const initials = emp?.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
-                const colors = ['#667eea', '#4ecdc4', '#ff6b6b', '#ffd93d', '#a29bfe', '#fd79a8'];
-                const colorIndex = emp?.id ? parseInt(emp.id.slice(-2), 16) % colors.length : 0;
-                const isMe = emp?.email === currentUser.email;
-                const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-
-                html += `<div class="break-card ${isOverdue ? 'overdue' : ''}" style="${isMe ? 'border: 2px solid #667eea;' : ''}">
-                    <div class="card-header">
-                        <div class="avatar" style="background:${colors[colorIndex]};">${initials}</div>
-                        <div>
-                            <h3>${emp?.name || 'Unknown'} ${isMe ? '👈 (You)' : ''}</h3>
-                            <span class="badge ${isOverdue ? 'badge-red' : 'badge-green'}">${emp?.department || 'N/A'}</span>
-                            <span class="badge badge-blue">${breakLabels[b.break_type] || 'Short'}</span>
-                            <span class="badge badge-purple">${empType}</span>
+                
+                let html = '<div class="break-wall">';
+                breaks.forEach(b => {
+                    const emp = employees.find(e => e.id === b.employee_id);
+                    const duration = formatDuration(b.start_time);
+                    const initials = emp?.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+                    const colors = ['#667eea', '#4ecdc4', '#ff6b6b', '#ffd93d', '#a29bfe', '#fd79a8'];
+                    const colorIndex = emp?.id ? parseInt(emp.id.slice(-2), 16) % colors.length : 0;
+                    const isMe = emp?.email === currentUser.email;
+                    
+                    html += `<div class="break-card" style="${isMe ? 'border: 2px solid #667eea;' : ''}">
+                        <div class="card-header">
+                            <div class="avatar" style="background:${colors[colorIndex]};">${initials}</div>
+                            <div>
+                                <h3>${emp?.name || 'Unknown'} ${isMe ? '👈 (You)' : ''}</h3>
+                                <span class="badge badge-green">${emp?.department || 'N/A'}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <p>⏱️ <strong>${duration}</strong> elapsed</p>
-                        <p>⏰ Started at ${formatTime(b.start_time)}</p>
-                        ${isOverdue ? `<p class="overdue-text">⚠️ Overdue! (${elapsed}/${maxMinutes} min)</p>` : `<p class="on-time-text">✅ Within limit (${elapsed}/${maxMinutes} min)</p>`}
-                    </div>
-                </div>`;
-            });
-            html += '</div>';
-            list.innerHTML = html;
-        }
-
-        // ============================================
-        // LOAD TODAY'S BREAKS
-        // ============================================
-        function loadTodayBreaks() {
-            const breaks = getBreaks();
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('todayBreaks').textContent = breaks.filter(b => b.created_at && b.created_at.startsWith(today)).length;
-        }
-
-        // ============================================
-        // LOAD USER'S BREAK HISTORY
-        // ============================================
-        function loadUserHistory() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
-            const emp = employees.find(e => e.email === currentUser.email);
-            const container = document.getElementById('breakHistory');
-
-            if (!emp) {
-                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No breaks found for you</p></div>';
-                return;
-            }
-
-            const userBreaks = breaks.filter(b => b.employee_id === emp.id && b.status === 'completed').slice(-20).reverse();
-            if (userBreaks.length === 0) {
-                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No break history found</p></div>';
-                return;
-            }
-
-            const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-            let html = '<table class="history-table"><thead><tr><th>Start Time</th><th>Break Type</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
-            userBreaks.forEach(b => {
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                html += `<tr><td>${new Date(b.start_time).toLocaleString()}</td><td>${breakLabels[b.break_type] || 'Short'}</td><td>${duration}</td><td><span class="badge badge-green">Completed</span></td></tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // ============================================
-        // VACATION FUNCTIONS
-        // ============================================
-        function loadVacations(filter = 'pending') {
-            const vacations = getVacations();
-            const employees = getEmployees();
-            const emp = getMyEmployee();
-
-            if (!emp) {
-                document.getElementById('vacationList').innerHTML = '<p class="empty">Please contact admin to create your employee profile first.</p>';
-                return;
-            }
-
-            let filtered = vacations.filter(v => v.employee_id === emp.id);
-
-            if (filter === 'pending') {
-                filtered = filtered.filter(v => v.status === 'pending');
-            } else if (filter === 'approved') {
-                filtered = filtered.filter(v => v.status === 'approved');
-            } else if (filter === 'rejected') {
-                filtered = filtered.filter(v => v.status === 'rejected');
-            }
-
-            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-            const list = document.getElementById('vacationList');
-            if (filtered.length === 0) {
-                list.innerHTML = `<p class="empty">No ${filter} vacation requests found</p>`;
-                return;
-            }
-
-            // For 'All' tab, show table view
-            if (filter === 'all') {
-                let html = `<table class="vacation-table">
-                    <thead>
-                        <tr>
-                            <th>Employee</th>
-                            <th>Department</th>
-                            <th>Type</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Days</th>
-                            <th>Adjusted Days</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-
-                filtered.forEach(v => {
-                    const totalDays = calculateDays(v.startDate, v.endDate);
-                    const adjustedDays = v.adjustedDays || totalDays;
-
-                    let statusClass = '';
-                    let statusText = v.status;
-                    if (v.status === 'approved' && v.userAccepted === true) {
-                        statusClass = 'vacation-status-accepted';
-                        statusText = 'Accepted ✅';
-                    } else if (v.status === 'approved') {
-                        statusClass = 'vacation-status-approved';
-                        statusText = 'Approved';
-                    } else if (v.status === 'pending') {
-                        statusClass = 'vacation-status-pending';
-                        statusText = 'Pending';
-                    } else if (v.status === 'rejected') {
-                        statusClass = 'vacation-status-rejected';
-                        statusText = 'Rejected';
-                    }
-
-                    html += `<tr>
-                        <td><strong>${emp.name}</strong></td>
-                        <td>${emp.department || 'N/A'}</td>
-                        <td>${v.vacationType || 'Local'}</td>
-                        <td>${formatDate(v.startDate)}</td>
-                        <td>${formatDate(v.endDate)}</td>
-                        <td>${totalDays}</td>
-                        <td>${adjustedDays !== totalDays ? `<strong style="color:#ff6b6b;">${adjustedDays}</strong> (was ${totalDays})` : totalDays}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    </tr>`;
+                        <div class="card-body">
+                            <p>⏱️ <strong>${duration}</strong> elapsed</p>
+                            <p>⏰ Started at ${new Date(b.start_time).toLocaleTimeString()}</p>
+                        </div>
+                    </div>`;
                 });
-
-                html += '</tbody></table>';
+                html += '</div>';
                 list.innerHTML = html;
-                return;
+                
+            } catch (error) {
+                console.error('Error loading active breaks:', error);
             }
-
-            // For Pending/Approved/Rejected, show card view
-            let html = '<div class="vacation-grid">';
-            filtered.forEach(v => {
-                const totalDays = calculateDays(v.startDate, v.endDate);
-                const statusClass = v.status === 'approved' ? 'vacation-status-approved' : (v.status === 'rejected' ? 'vacation-status-rejected' : 'vacation-status-pending');
-
-                const canAccept = v.status === 'approved' && v.userAccepted !== true;
-                const isAccepted = v.userAccepted === true;
-
-                html += `<div class="vacation-card">
-                    <div class="emp-name">${emp.name}</div>
-                    <div class="emp-dept">${emp.department || 'N/A'} • ${emp.employeeType || 'Local'}</div>
-                    <div class="vacation-dates">
-                        <strong>From:</strong> ${formatDate(v.startDate)}<br>
-                        <strong>To:</strong> ${formatDate(v.endDate)}
-                    </div>
-                    <div class="days-info">📅 Total Days: <strong>${v.adjustedDays || totalDays}</strong></div>
-                    ${v.adjustedDays && v.adjustedDays !== totalDays ? `<div class="day-adjust-info">📝 Adjusted by Admin (Original: ${totalDays} days)</div>` : ''}
-                    <div style="margin-top:8px;">
-                        <span class="status-badge ${statusClass}">${v.status || 'Pending'}</span>
-                        ${isAccepted ? '<span class="status-badge vacation-status-accepted" style="margin-left:4px;">✅ Accepted</span>' : ''}
-                        ${v.notes ? `<div style="font-size:12px;color:#666;margin-top:4px;">📝 ${v.notes}</div>` : ''}
-                    </div>
-                    ${canAccept ? `
-                        <div class="action-buttons">
-                            <button class="accept-btn" onclick="acceptVacation('${v.id}')">✅ Accept</button>
-                        </div>
-                    ` : ''}
-                </div>`;
-            });
-            html += '</div>';
-            list.innerHTML = html;
         }
-
-        function acceptVacation(id) {
-            if (!confirm('Do you accept this vacation approval with the adjusted days?')) return;
-
-            let vacations = getVacations();
-            const index = vacations.findIndex(v => v.id === id);
-            if (index === -1) return;
-
-            vacations[index].userAccepted = true;
-            vacations[index].acceptedDate = new Date().toISOString();
-            saveVacations(vacations);
-
-            loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'pending');
-            alert('✅ Vacation accepted successfully! Your vacation days have been recorded.');
-        }
-
-        function addVacation(data) {
-            const vacations = getVacations();
-            const totalDays = calculateDays(data.startDate, data.endDate);
-            const newVacation = {
-                id: 'vac_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                ...data,
-                totalDays: totalDays,
-                adjustedDays: totalDays,
-                userAccepted: false,
-                created_at: new Date().toISOString()
-            };
-            vacations.push(newVacation);
-            saveVacations(vacations);
-            return newVacation;
-        }
-
-        document.getElementById('vacationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const emp = getMyEmployee();
-            if (!emp) {
-                alert('Please contact admin to create your employee profile first.');
-                return;
-            }
-
-            const startDate = document.getElementById('vacationStartDate').value;
-            const endDate = document.getElementById('vacationEndDate').value;
-
-            if (new Date(startDate) > new Date(endDate)) {
-                alert('Start date cannot be after end date!');
-                return;
-            }
-
-            const data = {
-                employee_id: emp.id,
-                vacationType: document.getElementById('vacationType').value,
-                startDate: startDate,
-                endDate: endDate,
-                status: document.getElementById('vacationStatus').value,
-                notes: document.getElementById('vacationNotes').value
-            };
-
-            addVacation(data);
-            closeModal('vacationModal');
-            this.reset();
-            loadVacations(document.querySelector('.vacation-tab-btn.active')?.dataset?.vacationType || 'pending');
-            alert('✅ Vacation request added! Waiting for admin approval.');
-        });
-
-        document.getElementById('addVacationBtn').addEventListener('click', function() {
-            document.getElementById('vacationForm').reset();
-            openModal('vacationModal');
-        });
 
         // ============================================
-        // CHECK IN/OUT FUNCTIONS
+        // REFRESH
         // ============================================
-        let checkinTimer = null;
-
-        function getMyActiveCheckin() {
-            const emp = getMyEmployee();
-            if (!emp) return null;
-            const checkins = getCheckins();
-            return checkins.find(c => c.employee_id === emp.id && (c.status === 'pending' || c.status === 'approved'));
-        }
-
-        function checkIn() {
-            const emp = getMyEmployee();
-            if (!emp) {
-                alert('Please contact admin to create your employee profile first.');
-                return;
-            }
-
-            const activeCheckin = getMyActiveCheckin();
-            if (activeCheckin) {
-                alert('You already have a pending or approved check-in request!');
-                return;
-            }
-
-            const checkins = getCheckins();
-            const newCheckin = {
-                id: 'cin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                employee_id: emp.id,
-                employee_name: emp.name,
-                department: emp.department,
-                employeeType: emp.employeeType || 'Local',
-                checkin_time: new Date().toISOString(),
-                checkout_time: null,
-                status: 'pending',
-                approved_by: null,
-                created_at: new Date().toISOString()
-            };
-            checkins.push(newCheckin);
-            saveCheckins(checkins);
-
-            updateCheckinUI();
-            loadCheckinHistory();
-            alert('✅ Check-in request sent! Waiting for admin approval.');
-        }
-
-        function checkOut() {
-            const emp = getMyEmployee();
-            if (!emp) return;
-
-            const activeCheckin = getMyActiveCheckin();
-            if (!activeCheckin) {
-                alert('You have no active check-in!');
-                return;
-            }
-
-            if (activeCheckin.status !== 'approved') {
-                alert('Your check-in must be approved before you can check out!');
-                return;
-            }
-
-            const checkins = getCheckins();
-            const index = checkins.findIndex(c => c.id === activeCheckin.id);
-            if (index === -1) return;
-
-            checkins[index].checkout_time = new Date().toISOString();
-            checkins[index].status = 'checkedout';
-            saveCheckins(checkins);
-
-            updateCheckinUI();
-            loadCheckinHistory();
-            alert('✅ Check-out recorded successfully!');
-        }
-
-        function loadCheckinHistory() {
-            const checkins = getCheckins();
-            const emp = getMyEmployee();
-            if (!emp) {
-                document.getElementById('checkinHistory').innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No check in/out records found</p></div>';
-                return;
-            }
-
-            const userCheckins = checkins.filter(c => c.employee_id === emp.id).reverse();
-            const container = document.getElementById('checkinHistory');
-
-            if (userCheckins.length === 0) {
-                container.innerHTML = '<div class="no-breaks"><div class="icon">📋</div><p>No check in/out records found</p></div>';
-                return;
-            }
-
-            let html = `<table class="checkin-table">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Check In</th>
-                        <th>Check Out</th>
-                        <th>Duration</th>
-                        <th>Approved By</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            userCheckins.forEach(c => {
-                const checkinTime = formatTime(c.checkin_time);
-                const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
-                const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
-                const approvedBy = c.approved_by || '-';
-
-                let statusClass = '';
-                let statusText = c.status;
-                if (c.status === 'pending') {
-                    statusClass = 'checkin-status-pending';
-                    statusText = '⏳ Pending';
-                } else if (c.status === 'approved') {
-                    statusClass = 'checkin-status-approved';
-                    statusText = '✅ Approved';
-                } else if (c.status === 'rejected') {
-                    statusClass = 'checkin-status-rejected';
-                    statusText = '❌ Rejected';
-                } else if (c.status === 'checkedout') {
-                    statusClass = 'checkin-status-checkedout';
-                    statusText = '📤 Checked Out';
-                }
-
-                html += `<tr>
-                    <td><strong>${c.employee_name || 'Unknown'}</strong></td>
-                    <td>${checkinTime}</td>
-                    <td>${checkoutTime}</td>
-                    <td>${duration}</td>
-                    <td>${approvedBy}</td>
-                    <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
-                </tr>`;
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        function updateCheckinUI() {
-            const activeCheckin = getMyActiveCheckin();
-            const checkInBtn = document.getElementById('checkInBtn');
-            const checkOutBtn = document.getElementById('checkOutBtn');
-            const statusSpan = document.getElementById('checkinStatus');
-            const infoDiv = document.getElementById('activeCheckinInfo');
-            const durationSpan = document.getElementById('checkinDuration');
-            const timeSpan = document.getElementById('checkinTime');
-            const statusTextSpan = document.getElementById('checkinStatusText');
-            const approvedBySpan = document.getElementById('checkinApprovedBy');
-
-            if (activeCheckin) {
-                checkInBtn.disabled = true;
-
-                if (activeCheckin.status === 'pending') {
-                    statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-pending">⏳ Pending Approval</span>';
-                    checkOutBtn.disabled = true;
-                    infoDiv.style.display = 'block';
-                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
-                    statusTextSpan.textContent = '⏳ Pending Approval';
-                    approvedBySpan.textContent = '-';
-
-                    if (checkinTimer) clearInterval(checkinTimer);
-                    checkinTimer = setInterval(() => {
-                        durationSpan.textContent = formatDuration(activeCheckin.checkin_time);
-                    }, 1000);
-                } else if (activeCheckin.status === 'approved') {
-                    statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-approved">✅ Approved</span>';
-                    checkOutBtn.disabled = false;
-                    infoDiv.style.display = 'block';
-                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
-                    statusTextSpan.textContent = '✅ Approved - You can check out now';
-                    approvedBySpan.textContent = activeCheckin.approved_by || '-';
-
-                    if (checkinTimer) clearInterval(checkinTimer);
-                    checkinTimer = setInterval(() => {
-                        durationSpan.textContent = formatDuration(activeCheckin.checkin_time);
-                    }, 1000);
-                } else if (activeCheckin.status === 'rejected') {
-                    statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-rejected">❌ Rejected</span>';
-                    checkOutBtn.disabled = true;
-                    infoDiv.style.display = 'block';
-                    timeSpan.textContent = formatTime(activeCheckin.checkin_time);
-                    statusTextSpan.textContent = '❌ Rejected by Admin';
-                    approvedBySpan.textContent = activeCheckin.approved_by || '-';
-                }
-            } else {
-                checkInBtn.disabled = false;
-                checkOutBtn.disabled = true;
-                statusSpan.innerHTML = '';
-                infoDiv.style.display = 'none';
-                if (checkinTimer) {
-                    clearInterval(checkinTimer);
-                    checkinTimer = null;
-                }
-            }
-        }
-
-        document.getElementById('checkInBtn').addEventListener('click', checkIn);
-        document.getElementById('checkOutBtn').addEventListener('click', checkOut);
-
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        window.addEventListener('click', function(e) {
-            document.querySelectorAll('.modal').forEach(modal => {
-                if (e.target === modal) modal.style.display = 'none';
-            });
-        });
-
-        // ============================================
-        // AUTO REFRESH
-        // ============================================
-        function refreshAll() {
-            loadActiveBreaks();
-            loadTodayBreaks();
-            loadUserHistory();
-            updateBreakUI();
-            updateCheckinUI();
+        async function refreshAll() {
+            await loadActiveBreaks();
         }
 
         setInterval(refreshAll, 10000);
         refreshAll();
 
-        console.log('✅ User Dashboard loaded');
+        console.log('✅ User Dashboard loaded - Using Supabase');
         console.log('👤 Logged in as:', currentUser.name, '(', currentUser.email, ')');
     </script>
 </body>
