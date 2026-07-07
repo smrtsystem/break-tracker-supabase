@@ -52,6 +52,7 @@
             </div>
 
             <div class="admin-content">
+
                 <!-- Break Tracker Section -->
                 <div id="section-break-tracker" class="admin-section active">
                     <div class="stats-grid">
@@ -135,7 +136,9 @@
                                     <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
                                 </div>
                             </div>
-                            <div id="usersList"><p class="empty">Loading users...</p></div>
+                            <div class="table-container">
+                                <div id="usersList"><p class="empty">Loading users...</p></div>
+                            </div>
                         </div>
                     </div>
 
@@ -261,7 +264,9 @@
                             <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
                             <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
                         </div>
-                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
+                        <div class="table-container">
+                            <div id="vacationList"><p class="empty">No vacation requests found</p></div>
+                        </div>
                     </div>
                 </div>
 
@@ -291,7 +296,9 @@
                                 <span class="icon">📋</span> All
                             </button>
                         </div>
-                        <div id="checkinList"><p class="empty">No check in/out records found</p></div>
+                        <div class="table-container">
+                            <div id="checkinList"><p class="empty">No check in/out records found</p></div>
+                        </div>
                     </div>
                 </div>
 
@@ -485,1336 +492,1227 @@
         // ADMIN DASHBOARD - COMPLETE SCRIPT
         // ============================================
 
-        const adminSession = JSON.parse(localStorage.getItem('adminSession') || 'null');
-        if (!adminSession || adminSession.role !== 'admin') {
-            window.location.href = 'admin-login.html';
-        }
+        (function() {
+            'use strict';
 
-        let deleteTarget = null;
-        let deleteType = null;
-
-        document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
-        document.getElementById('adminNameDisplay').textContent = adminSession.name || 'Admin';
-        document.getElementById('sidebarAdminName').textContent = adminSession.name || 'Admin';
-        document.getElementById('adminName').textContent = `👋 ${adminSession.name || 'Admin'}`;
-        document.getElementById('adminRole').textContent = 'Admin';
-
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.removeItem('adminSession');
-            window.location.href = 'admin-login.html';
-        });
-
-        // ============================================
-        // SIDEBAR NAVIGATION
-        // ============================================
-        document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-
-                const section = this.dataset.section;
-                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-                document.getElementById('section-' + section).classList.add('active');
-
-                if (section === 'break-tracker') {
-                    loadStats();
-                    loadEmployees();
-                    loadUsers();
-                    loadDepartments();
-                    loadRoles();
-                    loadBreakStatus();
-                    loadBreakLog();
-                    loadSettings();
-                } else if (section === 'vacation') {
-                    loadVacations('pending');
-                } else if (section === 'checkin') {
-                    loadCheckins('pending');
-                }
-            });
-        });
-
-        // ============================================
-        // SUB NAVIGATION BUTTONS
-        // ============================================
-        document.querySelectorAll('.admin-sub-nav-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.admin-sub-nav-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                const sub = this.dataset.sub;
-                document.querySelectorAll('#section-break-tracker .admin-section').forEach(s => s.classList.remove('active'));
-                document.getElementById('sub-' + sub).classList.add('active');
-            });
-        });
-
-        // ============================================
-        // VACATION TAB BUTTONS
-        // ============================================
-        document.querySelectorAll('.vacation-tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.vacation-tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                loadVacations(this.dataset.vacationType);
-            });
-        });
-
-        // ============================================
-        // CHECKIN TAB BUTTONS
-        // ============================================
-        document.querySelectorAll('.checkin-tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.checkin-tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                loadCheckins(this.dataset.checkinType);
-            });
-        });
-
-        // ============================================
-        // DATA FUNCTIONS
-        // ============================================
-        function getEmployees() { return JSON.parse(localStorage.getItem('employees') || '[]'); }
-        function saveEmployees(e) { localStorage.setItem('employees', JSON.stringify(e)); }
-        function getBreaks() { return JSON.parse(localStorage.getItem('breaks') || '[]'); }
-        function saveBreaks(b) { localStorage.setItem('breaks', JSON.stringify(b)); }
-        function getUsers() { return JSON.parse(localStorage.getItem('appUsers') || '[]'); }
-        function saveUsers(u) { localStorage.setItem('appUsers', JSON.stringify(u)); }
-        function getAdmins() { return JSON.parse(localStorage.getItem('adminUsers') || '[]'); }
-        function saveAdmins(a) { localStorage.setItem('adminUsers', JSON.stringify(a)); }
-        function getDepartments() { return JSON.parse(localStorage.getItem('departments') || '["Engineering","Marketing","Sales","HR","Finance","Operations"]'); }
-        function saveDepartments(d) { localStorage.setItem('departments', JSON.stringify(d)); }
-        function getRoles() { return JSON.parse(localStorage.getItem('roles') || '[]'); }
-        function saveRoles(r) { localStorage.setItem('roles', JSON.stringify(r)); }
-        function getSettings() { return JSON.parse(localStorage.getItem('breakSettings') || '{"localBreakMinutes":30,"expatBreakMinutes":45,"warningMinutes":5}'); }
-        function saveSettings(s) { localStorage.setItem('breakSettings', JSON.stringify(s)); }
-        function getVacations() { return JSON.parse(localStorage.getItem('vacations') || '[]'); }
-        function saveVacations(v) { localStorage.setItem('vacations', JSON.stringify(v)); }
-        function getCheckins() { return JSON.parse(localStorage.getItem('checkins') || '[]'); }
-        function saveCheckins(c) { localStorage.setItem('checkins', JSON.stringify(c)); }
-
-        function formatDuration(startTime, endTime = null) {
-            const start = new Date(startTime);
-            const end = endTime ? new Date(endTime) : new Date();
-            const diff = Math.floor((end - start) / 1000);
-            if (diff < 0) return '0m 0s';
-            const mins = Math.floor(diff / 60);
-            const secs = diff % 60;
-            if (mins === 0) return `${secs}s`;
-            if (secs === 0) return `${mins}m`;
-            return `${mins}m ${secs}s`;
-        }
-
-        function formatDate(date) {
-            return new Date(date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function formatTime(date) {
-            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function calculateDays(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            return diffDays;
-        }
-
-        // ============================================
-        // LOAD STATS
-        // ============================================
-        function loadStats() {
-            const employees = getEmployees();
-            const users = getUsers();
-            const admins = getAdmins();
-            const breaks = getBreaks();
-            const settings = getSettings();
-
-            const activeBreaks = breaks.filter(b => b.status === 'active');
-            const overdue = activeBreaks.filter(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const empType = emp?.employeeType || 'Local';
-                const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-                const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
-                return elapsed > maxMinutes;
-            });
-
-            document.getElementById('totalEmployees').textContent = employees.length;
-            document.getElementById('activeBreaks').textContent = activeBreaks.length;
-            document.getElementById('overdueBreaks').textContent = overdue.length;
-            document.getElementById('totalUsers').textContent = users.length + admins.length;
-
-            const names = activeBreaks.map(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                return emp?.name || 'Unknown';
-            });
-            document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
-        }
-
-        // ============================================
-        // EMPLOYEE FUNCTIONS
-        // ============================================
-        function loadEmployees() {
-            const employees = getEmployees();
-            const search = document.getElementById('empSearch').value.toLowerCase();
-            const statusFilter = document.getElementById('empStatusFilter').value;
-            const typeFilter = document.getElementById('empTypeFilter').value;
-
-            let filtered = employees;
-            if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.email.toLowerCase().includes(search) || e.department.toLowerCase().includes(search));
-            if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
-            if (typeFilter !== 'all') filtered = filtered.filter(e => e.employeeType === typeFilter);
-
-            const list = document.getElementById('employeesList');
-            if (filtered.length === 0) {
-                list.innerHTML = '<p class="empty">No employees found</p>';
-                return;
-            }
-
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Department</th>
-                        <th>Employee Type</th>
-                        <th>Position</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            filtered.forEach(e => {
-                const statusColor = e.status === 'on_break' ? 'badge-orange' : (e.status === 'inactive' ? 'badge-red' : 'badge-green');
-                html += `<tr>
-                    <td><strong>${e.name}</strong></td>
-                    <td>${e.email}</td>
-                    <td>${e.department}</td>
-                    <td><span class="badge badge-purple">${e.employeeType || 'Local'}</span></td>
-                    <td>${e.position || 'N/A'}</td>
-                    <td><span class="badge ${statusColor}">${e.status || 'active'}</span></td>
-                    <td>
-                        <button class="btn-primary btn-sm" onclick="editEmployee('${e.id}')">✏️ Edit</button>
-                        <button class="btn-danger btn-sm" onclick="confirmDelete('employee','${e.id}','${e.name}')">🗑️ Delete</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            list.innerHTML = html;
-        }
-
-        function addEmployee(data) {
-            const employees = getEmployees();
-            const newEmp = {
-                id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                ...data,
-                status: 'active',
-                created_at: new Date().toISOString()
-            };
-            employees.push(newEmp);
-            saveEmployees(employees);
-            return newEmp;
-        }
-
-        function updateEmployee(id, data) {
-            const employees = getEmployees();
-            const index = employees.findIndex(e => e.id === id);
-            if (index === -1) return null;
-            employees[index] = { ...employees[index], ...data };
-            saveEmployees(employees);
-            return employees[index];
-        }
-
-        function deleteEmployee(id) {
-            let employees = getEmployees();
-            employees = employees.filter(e => e.id !== id);
-            saveEmployees(employees);
-        }
-
-        function editEmployee(id) {
-            const employees = getEmployees();
-            const emp = employees.find(e => e.id === id);
-            if (!emp) return;
-
-            document.getElementById('editEmpId').value = id;
-            document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
-            document.getElementById('empName').value = emp.name;
-            document.getElementById('empEmail').value = emp.email;
-            document.getElementById('empDepartment').value = emp.department;
-            document.getElementById('empEmployeeType').value = emp.employeeType || 'Local';
-            document.getElementById('empPosition').value = emp.position || '';
-            openModal('employeeModal');
-        }
-
-        document.getElementById('employeeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editEmpId').value;
-            const data = {
-                name: document.getElementById('empName').value,
-                email: document.getElementById('empEmail').value,
-                department: document.getElementById('empDepartment').value,
-                employeeType: document.getElementById('empEmployeeType').value,
-                position: document.getElementById('empPosition').value
-            };
-            if (id) {
-                updateEmployee(id, data);
-                alert('✅ Employee updated!');
-            } else {
-                addEmployee(data);
-                alert('✅ Employee added!');
-            }
-            closeModal('employeeModal');
-            this.reset();
-            document.getElementById('editEmpId').value = '';
-            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
-            loadEmployees();
-            loadStats();
-        });
-
-        // ============================================
-        // USER FUNCTIONS
-        // ============================================
-        function loadUsers() {
-            const users = getUsers();
-            const admins = getAdmins();
-            const allUsers = [...users, ...admins];
-            const list = document.getElementById('usersList');
-
-            if (allUsers.length === 0) {
-                list.innerHTML = '<p class="empty">No users found</p>';
-                return;
-            }
-
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAllUsers"></th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Department</th>
-                        <th>Employee Type</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            allUsers.forEach(u => {
-                const isAdmin = u.role === 'admin';
-                html += `<tr>
-                    <td>${!isAdmin ? `<input type="checkbox" class="user-checkbox" value="${u.id}">` : ''}</td>
-                    <td><strong>${u.name}</strong></td>
-                    <td>${u.email}</td>
-                    <td><span class="badge ${isAdmin ? 'badge-orange' : 'badge-blue'}">${u.role || 'employee'}</span></td>
-                    <td>${u.department || 'N/A'}</td>
-                    <td><span class="badge badge-purple">${u.employeeType || 'Local'}</span></td>
-                    <td>
-                        ${!isAdmin ? `
-                            <button class="btn-primary btn-sm" onclick="editUser('${u.id}')">✏️ Edit</button>
-                            <button class="btn-danger btn-sm" onclick="confirmDelete('user','${u.id}','${u.name}')">🗑️ Delete</button>
-                        ` : '<span class="badge badge-orange">Protected</span>'}
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            list.innerHTML = html;
-
-            document.getElementById('selectAllUsers')?.addEventListener('change', function() {
-                document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
-            });
-        }
-
-        function editUser(id) {
-            const users = getUsers();
-            const user = users.find(u => u.id === id);
-            if (!user) return;
-
-            document.getElementById('editUserId').value = id;
-            document.getElementById('userModalTitle').textContent = 'Edit User';
-            document.getElementById('userName').value = user.name;
-            document.getElementById('userEmail').value = user.email;
-            document.getElementById('userPassword').value = user.password || '123456';
-            document.getElementById('userRole').value = user.role || 'employee';
-            document.getElementById('userDepartment').value = user.department || 'Engineering';
-            document.getElementById('userEmployeeType').value = user.employeeType || 'Local';
-            openModal('userModal');
-        }
-
-        function createUser(name, email, password, role, department, employeeType) {
-            const users = getUsers();
-            if (users.find(u => u.email === email)) {
-                alert('❌ User already exists!');
-                return false;
-            }
-            const admins = getAdmins();
-            if (admins.find(a => a.email === email)) {
-                alert('❌ User already exists as admin!');
-                return false;
-            }
-            const newUser = {
-                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                name, email, password, role, department, employeeType,
-                created_at: new Date().toISOString()
-            };
-            users.push(newUser);
-            saveUsers(users);
-            return true;
-        }
-
-        function updateUser(id, data) {
-            let users = getUsers();
-            const index = users.findIndex(u => u.id === id);
-            if (index !== -1) {
-                users[index] = { ...users[index], ...data };
-                saveUsers(users);
-                return true;
-            }
-            return false;
-        }
-
-        function deleteUser(id) {
-            let users = getUsers();
-            users = users.filter(u => u.id !== id);
-            saveUsers(users);
-        }
-
-        function deleteSelectedUsers() {
-            const selected = document.querySelectorAll('.user-checkbox:checked');
-            if (selected.length === 0) {
-                alert('Please select users to delete!');
-                return;
-            }
-            if (confirm(`Delete ${selected.length} selected user(s)?`)) {
-                selected.forEach(cb => deleteUser(cb.value));
-                loadUsers();
-                loadStats();
-                alert(`✅ Deleted ${selected.length} users!`);
-            }
-        }
-
-        document.getElementById('userForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editUserId').value;
-            const name = document.getElementById('userName').value;
-            const email = document.getElementById('userEmail').value;
-            const password = document.getElementById('userPassword').value;
-            const role = document.getElementById('userRole').value;
-            const department = document.getElementById('userDepartment').value;
-            const employeeType = document.getElementById('userEmployeeType').value;
-
-            if (id) {
-                const data = { name, email, role, department, employeeType };
-                if (password && password.length >= 6) data.password = password;
-                if (updateUser(id, data)) {
-                    alert('✅ User updated!');
-                } else {
-                    alert('❌ User not found!');
-                }
-            } else {
-                if (createUser(name, email, password, role, department, employeeType)) {
-                    alert(`✅ User created!\nName: ${name}\nEmail: ${email}\nPassword: ${password}`);
+            // Cross-browser safe localStorage functions
+            function getLocalStorage(key) {
+                try {
+                    return JSON.parse(localStorage.getItem(key) || '[]');
+                } catch (e) {
+                    return [];
                 }
             }
-            closeModal('userModal');
-            this.reset();
-            document.getElementById('editUserId').value = '';
-            document.getElementById('userModalTitle').textContent = 'Create User';
-            document.getElementById('userPassword').value = '123456';
-            loadUsers();
-            loadStats();
-        });
 
-        // ============================================
-        // DEPARTMENT FUNCTIONS
-        // ============================================
-        function loadDepartments() {
-            const depts = getDepartments();
-            const list = document.getElementById('departmentsList');
-            if (depts.length === 0) {
-                list.innerHTML = '<p class="empty">No departments found</p>';
-                return;
-            }
-            let html = '';
-            depts.forEach((d, i) => {
-                html += `<div class="config-item">
-                    <span><strong>${d}</strong></span>
-                    <div class="actions">
-                        <button class="btn-warning btn-sm" onclick="editDepartment(${i})">✏️</button>
-                        <button class="btn-danger btn-sm" onclick="confirmDelete('department',${i},'${d}')">🗑️</button>
-                    </div>
-                </div>`;
-            });
-            list.innerHTML = html;
-        }
-
-        function addDepartment(name) {
-            const depts = getDepartments();
-            depts.push(name);
-            saveDepartments(depts);
-            loadDepartments();
-            loadDropdowns();
-        }
-
-        function updateDepartment(index, name) {
-            const depts = getDepartments();
-            if (index >= 0 && index < depts.length) {
-                depts[index] = name;
-                saveDepartments(depts);
-                loadDepartments();
-                loadDropdowns();
-            }
-        }
-
-        function deleteDepartment(index) {
-            let depts = getDepartments();
-            depts.splice(index, 1);
-            saveDepartments(depts);
-            loadDepartments();
-            loadDropdowns();
-        }
-
-        function editDepartment(index) {
-            const depts = getDepartments();
-            document.getElementById('editDeptId').value = index;
-            document.getElementById('deptModalTitle').textContent = 'Edit Department';
-            document.getElementById('deptName').value = depts[index];
-            openModal('deptModal');
-        }
-
-        document.getElementById('deptForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const index = document.getElementById('editDeptId').value;
-            const name = document.getElementById('deptName').value;
-            if (index !== '') {
-                updateDepartment(parseInt(index), name);
-                alert('✅ Department updated!');
-            } else {
-                addDepartment(name);
-                alert('✅ Department added!');
-            }
-            closeModal('deptModal');
-            this.reset();
-            document.getElementById('editDeptId').value = '';
-            document.getElementById('deptModalTitle').textContent = 'Add Department';
-        });
-
-        // ============================================
-        // ROLE FUNCTIONS
-        // ============================================
-        function loadRoles() {
-            const roles = getRoles();
-            const list = document.getElementById('rolesList');
-            if (roles.length === 0) {
-                list.innerHTML = '<p class="empty">No roles found</p>';
-                return;
-            }
-            let html = '';
-            roles.forEach((r, i) => {
-                const perms = [];
-                if (r.createUser) perms.push('👤 Create Users');
-                if (r.deleteUser) perms.push('🗑️ Delete Users');
-                if (r.viewAll) perms.push('👁️ View All');
-                if (r.manageSettings) perms.push('⚙️ Manage Settings');
-                html += `<div class="config-item">
-                    <div>
-                        <strong>${r.name}</strong>
-                        <div style="font-size:12px;color:#666;margin-top:2px;">${perms.join(' • ') || 'No permissions'}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-warning btn-sm" onclick="editRole(${i})">✏️</button>
-                        <button class="btn-danger btn-sm" onclick="confirmDelete('role',${i},'${r.name}')">🗑️</button>
-                    </div>
-                </div>`;
-            });
-            list.innerHTML = html;
-        }
-
-        function addRole(data) {
-            const roles = getRoles();
-            roles.push(data);
-            saveRoles(roles);
-            loadRoles();
-            loadDropdowns();
-        }
-
-        function updateRole(index, data) {
-            const roles = getRoles();
-            if (index >= 0 && index < roles.length) {
-                roles[index] = data;
-                saveRoles(roles);
-                loadRoles();
-                loadDropdowns();
-            }
-        }
-
-        function deleteRole(index) {
-            let roles = getRoles();
-            roles.splice(index, 1);
-            saveRoles(roles);
-            loadRoles();
-            loadDropdowns();
-        }
-
-        function editRole(index) {
-            const roles = getRoles();
-            const r = roles[index];
-            document.getElementById('editRoleId').value = index;
-            document.getElementById('roleModalTitle').textContent = 'Edit Role';
-            document.getElementById('roleName').value = r.name;
-            document.getElementById('permCreateUser').checked = r.createUser || false;
-            document.getElementById('permDeleteUser').checked = r.deleteUser || false;
-            document.getElementById('permViewAll').checked = r.viewAll || false;
-            document.getElementById('permManageSettings').checked = r.manageSettings || false;
-            openModal('roleModal');
-        }
-
-        document.getElementById('roleForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const index = document.getElementById('editRoleId').value;
-            const data = {
-                name: document.getElementById('roleName').value,
-                createUser: document.getElementById('permCreateUser').checked,
-                deleteUser: document.getElementById('permDeleteUser').checked,
-                viewAll: document.getElementById('permViewAll').checked,
-                manageSettings: document.getElementById('permManageSettings').checked
-            };
-            if (index !== '') {
-                updateRole(parseInt(index), data);
-                alert('✅ Role updated!');
-            } else {
-                addRole(data);
-                alert('✅ Role added!');
-            }
-            closeModal('roleModal');
-            this.reset();
-            document.getElementById('editRoleId').value = '';
-            document.getElementById('roleModalTitle').textContent = 'Add Role';
-        });
-
-        // ============================================
-        // BREAK STATUS
-        // ============================================
-        function loadBreakStatus() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
-            const settings = getSettings();
-            const active = breaks.filter(b => b.status === 'active');
-            const list = document.getElementById('breakStatusList');
-
-            if (active.length === 0) {
-                list.innerHTML = '<p class="empty">✅ No one is on break</p>';
-                return;
-            }
-
-            let html = '<div class="break-status-grid">';
-            active.forEach(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const empType = emp?.employeeType || 'Local';
-                const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-                const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
-                const isOverdue = elapsed > maxMinutes;
-                const duration = formatDuration(b.start_time);
-                const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-
-                html += `<div class="break-status-card ${isOverdue ? 'overdue' : ''}">
-                    <div class="name">${emp?.name || 'Unknown'}</div>
-                    <div class="dept">${emp?.department || 'N/A'} • ${empType} • ${breakLabels[b.break_type] || 'Short'}</div>
-                    <div class="time">⏱️ ${duration} elapsed</div>
-                    <div class="time">${isOverdue ? `⚠️ Overdue! (${elapsed}/${maxMinutes} min)` : `✅ Within limit (${elapsed}/${maxMinutes} min)`}</div>
-                    <div class="action-btn">
-                        <button class="btn-danger btn-sm" onclick="endBreakFromAdmin('${b.id}','${b.employee_id}')">End Break</button>
-                    </div>
-                </div>`;
-            });
-            html += '</div>';
-            list.innerHTML = html;
-        }
-
-        function endBreakFromAdmin(breakId, employeeId) {
-            if (!confirm('End this break?')) return;
-
-            let breaks = getBreaks();
-            const index = breaks.findIndex(b => b.id === breakId);
-            if (index === -1) return;
-
-            const endTime = new Date().toISOString();
-            const startTime = new Date(breaks[index].start_time);
-            const duration = Math.floor((new Date(endTime) - startTime) / 1000);
-
-            breaks[index] = { ...breaks[index], end_time: endTime, status: 'completed', duration: duration };
-            saveBreaks(breaks);
-
-            const employees = getEmployees();
-            const emp = employees.find(e => e.id === employeeId);
-            if (emp) {
-                emp.status = 'active';
-                saveEmployees(employees);
-            }
-
-            loadBreakStatus();
-            loadStats();
-            alert('✅ Break ended!');
-        }
-
-        // ============================================
-        // BREAK LOG
-        // ============================================
-        function loadBreakLog() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
-
-            const empFilter = document.getElementById('breakLogEmployee');
-            empFilter.innerHTML = '<option value="all">All</option>';
-            employees.forEach(e => {
-                empFilter.innerHTML += `<option value="${e.id}">${e.name}</option>`;
-            });
-
-            const startDate = document.getElementById('breakLogStartDate').value;
-            const endDate = document.getElementById('breakLogEndDate').value;
-            const employeeId = document.getElementById('breakLogEmployee').value;
-            const status = document.getElementById('breakLogStatus').value;
-
-            let filtered = [...breaks];
-            if (startDate) filtered = filtered.filter(b => b.start_time >= startDate);
-            if (endDate) { const d = new Date(endDate); d.setDate(d.getDate() + 1); filtered = filtered.filter(b => new Date(b.start_time) <= d); }
-            if (employeeId !== 'all') filtered = filtered.filter(b => b.employee_id === employeeId);
-            if (status !== 'all') filtered = filtered.filter(b => b.status === status);
-
-            filtered.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
-
-            const list = document.getElementById('breakLogList');
-            if (filtered.length === 0) {
-                list.innerHTML = '<p class="empty">No break records found</p>';
-                return;
-            }
-
-            const breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Department</th>
-                        <th>Type</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Duration</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            filtered.forEach(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                const statusColor = b.status === 'active' ? 'badge-orange' : 'badge-green';
-                html += `<tr>
-                    <td>${emp?.name || 'Unknown'}</td>
-                    <td>${emp?.department || 'N/A'}</td>
-                    <td>${breakLabels[b.break_type] || 'Short'}</td>
-                    <td>${new Date(b.start_time).toLocaleString()}</td>
-                    <td>${b.end_time ? new Date(b.end_time).toLocaleString() : '-'}</td>
-                    <td>${duration}</td>
-                    <td><span class="badge ${statusColor}">${b.status}</span></td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            list.innerHTML = html;
-        }
-
-        // ============================================
-        // VACATION FUNCTIONS
-        // ============================================
-        function loadVacations(filter = 'pending') {
-            const vacations = getVacations();
-            const employees = getEmployees();
-
-            let filtered = [...vacations];
-
-            if (filter === 'pending') {
-                filtered = filtered.filter(v => v.status === 'pending');
-            } else if (filter === 'approved') {
-                filtered = filtered.filter(v => v.status === 'approved');
-            } else if (filter === 'rejected') {
-                filtered = filtered.filter(v => v.status === 'rejected');
-            }
-
-            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-            const list = document.getElementById('vacationList');
-            if (filtered.length === 0) {
-                list.innerHTML = `<p class="empty">No ${filter} vacation requests found</p>`;
-                return;
-            }
-
-            let html = `<table class="vacation-table">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Department</th>
-                        <th>Type</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Days</th>
-                        <th>Adjusted Days</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            filtered.forEach(v => {
-                const emp = employees.find(e => e.id === v.employee_id);
-                const totalDays = calculateDays(v.startDate, v.endDate);
-                const adjustedDays = v.adjustedDays || totalDays;
-
-                let statusClass = '';
-                let statusText = v.status;
-                if (v.status === 'approved' && v.userAccepted === true) {
-                    statusClass = 'vacation-status-accepted';
-                    statusText = 'Accepted ✅';
-                } else if (v.status === 'approved') {
-                    statusClass = 'vacation-status-approved';
-                    statusText = 'Approved';
-                } else if (v.status === 'pending') {
-                    statusClass = 'vacation-status-pending';
-                    statusText = 'Pending';
-                } else if (v.status === 'rejected') {
-                    statusClass = 'vacation-status-rejected';
-                    statusText = 'Rejected';
+            function getLocalStorageItem(key) {
+                try {
+                    return JSON.parse(localStorage.getItem(key) || 'null');
+                } catch (e) {
+                    return null;
                 }
-
-                const isApproved = v.status === 'approved' && v.userAccepted !== true;
-                const isPending = v.status === 'pending';
-
-                html += `<tr>
-                    <td><strong>${emp?.name || 'Unknown'}</strong></td>
-                    <td>${emp?.department || 'N/A'}</td>
-                    <td>${v.vacationType || 'Local'}</td>
-                    <td>${formatDate(v.startDate)}</td>
-                    <td>${formatDate(v.endDate)}</td>
-                    <td>${totalDays}</td>
-                    <td>${adjustedDays !== totalDays ? `<strong style="color:#ff6b6b;">${adjustedDays}</strong> (was ${totalDays})` : totalDays}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td>
-                        <div class="vacation-actions">
-                            ${isPending ? `
-                                <button class="btn-approve" onclick="updateVacationStatus('${v.id}','approved')">✅ Approve</button>
-                                <button class="btn-reject" onclick="updateVacationStatus('${v.id}','rejected')">❌ Reject</button>
-                            ` : ''}
-                            ${isApproved ? `
-                                <button class="btn-adjust" onclick="openAdjustModal('${v.id}')">📝 Adjust</button>
-                            ` : ''}
-                            <button class="btn-delete" onclick="confirmDelete('vacation','${v.id}','${emp?.name || 'Unknown'}')">🗑️ Delete</button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            list.innerHTML = html;
-        }
-
-        function updateVacationStatus(id, status) {
-            if (!confirm(`Are you sure you want to ${status} this vacation request?`)) return;
-
-            let vacations = getVacations();
-            const index = vacations.findIndex(v => v.id === id);
-            if (index === -1) return;
-
-            vacations[index].status = status;
-            if (status === 'approved' && !vacations[index].adjustedDays) {
-                vacations[index].adjustedDays = calculateDays(vacations[index].startDate, vacations[index].endDate);
-            }
-            saveVacations(vacations);
-
-            const activeTab = document.querySelector('.vacation-tab-btn.active');
-            loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-            alert(`✅ Vacation ${status}!`);
-        }
-
-        function openAdjustModal(id) {
-            const vacations = getVacations();
-            const vacation = vacations.find(v => v.id === id);
-            if (!vacation) return;
-
-            const totalDays = calculateDays(vacation.startDate, vacation.endDate);
-
-            document.getElementById('adjustVacationId').value = id;
-            document.getElementById('adjustStartDate').value = vacation.startDate;
-            document.getElementById('adjustEndDate').value = vacation.endDate;
-            document.getElementById('currentDays').value = totalDays;
-            document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
-            openModal('adjustModal');
-        }
-
-        document.getElementById('adjustForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('adjustVacationId').value;
-            const startDate = document.getElementById('adjustStartDate').value;
-            const endDate = document.getElementById('adjustEndDate').value;
-            const adjustedDays = parseInt(document.getElementById('adjustedDays').value);
-
-            if (!startDate || !endDate) {
-                alert('Please select both start and end dates!');
-                return;
             }
 
-            if (new Date(startDate) > new Date(endDate)) {
-                alert('Start date cannot be after end date!');
-                return;
-            }
-
-            if (adjustedDays < 1) {
-                alert('Days must be at least 1!');
-                return;
-            }
-
-            let vacations = getVacations();
-            const index = vacations.findIndex(v => v.id === id);
-            if (index === -1) return;
-
-            vacations[index].startDate = startDate;
-            vacations[index].endDate = endDate;
-            vacations[index].adjustedDays = adjustedDays;
-            saveVacations(vacations);
-
-            closeModal('adjustModal');
-            const activeTab = document.querySelector('.vacation-tab-btn.active');
-            loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-            alert('✅ Vacation adjusted successfully!');
-        });
-
-        // ============================================
-        // CHECK IN/OUT FUNCTIONS
-        // ============================================
-        function loadCheckins(filter = 'pending') {
-            const checkins = getCheckins();
-            const employees = getEmployees();
-            const admins = getAdmins();
-
-            let filtered = [...checkins];
-
-            if (filter === 'pending') {
-                filtered = filtered.filter(c => c.status === 'pending');
-            } else if (filter === 'approved') {
-                filtered = filtered.filter(c => c.status === 'approved');
-            } else if (filter === 'rejected') {
-                filtered = filtered.filter(c => c.status === 'rejected');
-            } else if (filter === 'checkedout') {
-                filtered = filtered.filter(c => c.status === 'checkedout');
-            }
-
-            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-            const list = document.getElementById('checkinList');
-            if (filtered.length === 0) {
-                list.innerHTML = `<p class="empty">No ${filter} check in/out records found</p>`;
-                return;
-            }
-
-            let html = `<table class="checkin-table">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Department</th>
-                        <th>Check In</th>
-                        <th>Check Out</th>
-                        <th>Duration</th>
-                        <th>Approved By</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            filtered.forEach(c => {
-                const emp = employees.find(e => e.id === c.employee_id);
-                const checkinTime = formatTime(c.checkin_time);
-                const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
-                const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
-
-                // Find approver name
-                let approverName = '-';
-                if (c.approved_by) {
-                    const approver = admins.find(a => a.id === c.approved_by);
-                    approverName = approver?.name || 'Unknown Admin';
+            function setLocalStorage(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error('Storage error:', e);
                 }
-
-                let statusClass = '';
-                let statusText = c.status;
-                if (c.status === 'pending') {
-                    statusClass = 'checkin-status-pending';
-                    statusText = '⏳ Pending';
-                } else if (c.status === 'approved') {
-                    statusClass = 'checkin-status-approved';
-                    statusText = '✅ Approved';
-                } else if (c.status === 'rejected') {
-                    statusClass = 'checkin-status-rejected';
-                    statusText = '❌ Rejected';
-                } else if (c.status === 'checkedout') {
-                    statusClass = 'checkin-status-checkedout';
-                    statusText = '📤 Checked Out';
-                }
-
-                const isPending = c.status === 'pending';
-
-                html += `<tr>
-                    <td><strong>${c.employee_name || 'Unknown'}</strong></td>
-                    <td>${c.department || 'N/A'}</td>
-                    <td>${checkinTime}</td>
-                    <td>${checkoutTime}</td>
-                    <td>${duration}</td>
-                    <td>${approverName}</td>
-                    <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
-                    <td>
-                        <div class="checkin-actions-cell">
-                            ${isPending ? `
-                                <button class="btn-approve-checkin" onclick="updateCheckinStatus('${c.id}','approved')">✅ Approve</button>
-                                <button class="btn-reject-checkin" onclick="updateCheckinStatus('${c.id}','rejected')">❌ Reject</button>
-                            ` : ''}
-                            <button class="btn-delete-checkin" onclick="deleteCheckin('${c.id}')">🗑️ Delete</button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-
-            html += '</tbody></table>';
-            list.innerHTML = html;
-        }
-
-        function updateCheckinStatus(id, status) {
-            if (!confirm(`Are you sure you want to ${status} this check-in request?`)) return;
-
-            let checkins = getCheckins();
-            const index = checkins.findIndex(c => c.id === id);
-            if (index === -1) return;
-
-            checkins[index].status = status;
-            // Store who approved it
-            if (status === 'approved' || status === 'rejected') {
-                checkins[index].approved_by = adminSession.id;
-                checkins[index].approved_name = adminSession.name || 'Admin';
             }
-            saveCheckins(checkins);
 
-            const activeTab = document.querySelector('.checkin-tab-btn.active');
-            loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
-            alert(`✅ Check-in ${status}!`);
-        }
-
-        function deleteCheckin(id) {
-            if (!confirm('Delete this check-in record?')) return;
-
-            let checkins = getCheckins();
-            checkins = checkins.filter(c => c.id !== id);
-            saveCheckins(checkins);
-
-            const activeTab = document.querySelector('.checkin-tab-btn.active');
-            loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
-            alert('✅ Check-in deleted!');
-        }
-
-        // ============================================
-        // EXPORT CHECKIN CSV
-        // ============================================
-        document.getElementById('exportCheckinBtn').addEventListener('click', function() {
-            const checkins = getCheckins();
-            const employees = getEmployees();
-
-            if (checkins.length === 0) {
-                alert('No data to export!');
+            var adminSession = getLocalStorageItem('adminSession');
+            if (!adminSession || adminSession.role !== 'admin') {
+                window.location.href = 'admin-login.html';
                 return;
             }
 
-            let csv = 'Employee,Department,Check In,Check Out,Duration,Status,Approved By\n';
-            checkins.forEach(c => {
-                const emp = employees.find(e => e.id === c.employee_id);
-                const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
-                const approverName = c.approved_name || '-';
-                csv += `${c.employee_name || 'Unknown'},${c.department || 'N/A'},${new Date(c.checkin_time).toLocaleString()},${c.checkout_time ? new Date(c.checkout_time).toLocaleString() : '-'},${duration},${c.status},${approverName}\n`;
+            var deleteTarget = null;
+            var deleteType = null;
+
+            // Set admin info
+            document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
+            document.getElementById('adminNameDisplay').textContent = adminSession.name || 'Admin';
+            document.getElementById('sidebarAdminName').textContent = adminSession.name || 'Admin';
+            document.getElementById('adminName').textContent = '👋 ' + (adminSession.name || 'Admin');
+            document.getElementById('adminRole').textContent = 'Admin';
+
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('adminSession');
+                window.location.href = 'admin-login.html';
             });
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `checkin_log_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+            // ============================================
+            // SIDEBAR NAVIGATION
+            // ============================================
+            document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(function(i) {
+                        i.classList.remove('active');
+                    });
+                    this.classList.add('active');
 
-        // ============================================
-        // EXPORT FUNCTIONS
-        // ============================================
-        document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
-            const breaks = getBreaks();
-            const employees = getEmployees();
+                    var section = this.dataset.section;
+                    document.querySelectorAll('.admin-section').forEach(function(s) {
+                        s.classList.remove('active');
+                    });
+                    document.getElementById('section-' + section).classList.add('active');
 
-            if (breaks.length === 0) {
-                alert('No data to export!');
-                return;
-            }
-
-            let csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
-            breaks.forEach(b => {
-                const emp = employees.find(e => e.id === b.employee_id);
-                const breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
-                const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${breakLabels[b.break_type] || 'Short'},${new Date(b.start_time).toLocaleString()},${b.end_time ? new Date(b.end_time).toLocaleString() : '-'},${duration},${b.status}\n`;
+                    if (section === 'break-tracker') {
+                        loadStats();
+                        loadEmployees();
+                        loadUsers();
+                        loadDepartments();
+                        loadRoles();
+                        loadBreakStatus();
+                        loadBreakLog();
+                        loadSettings();
+                    } else if (section === 'vacation') {
+                        loadVacations('pending');
+                    } else if (section === 'checkin') {
+                        loadCheckins('pending');
+                    }
+                });
             });
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `break_log_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+            // ============================================
+            // SUB NAVIGATION BUTTONS
+            // ============================================
+            document.querySelectorAll('.admin-sub-nav-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.admin-sub-nav-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
 
-        document.getElementById('exportVacationBtn').addEventListener('click', function() {
-            const vacations = getVacations();
-            const employees = getEmployees();
-
-            if (vacations.length === 0) {
-                alert('No data to export!');
-                return;
-            }
-
-            let csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
-            vacations.forEach(v => {
-                const emp = employees.find(e => e.id === v.employee_id);
-                const totalDays = calculateDays(v.startDate, v.endDate);
-                const adjustedDays = v.adjustedDays || totalDays;
-                const isAccepted = v.userAccepted ? 'Yes' : 'No';
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${v.vacationType || 'Local'},${v.startDate},${v.endDate},${totalDays},${adjustedDays},${v.status},${isAccepted}\n`;
+                    var sub = this.dataset.sub;
+                    document.querySelectorAll('#section-break-tracker .admin-section').forEach(function(s) {
+                        s.classList.remove('active');
+                    });
+                    document.getElementById('sub-' + sub).classList.add('active');
+                });
             });
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vacation_log_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+            // ============================================
+            // VACATION TAB BUTTONS
+            // ============================================
+            document.querySelectorAll('.vacation-tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.vacation-tab-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    loadVacations(this.dataset.vacationType);
+                });
+            });
 
-        document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
-            if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
-                saveBreaks([]);
-                loadBreakLog();
-                loadStats();
-                alert('✅ All break records cleared!');
+            // ============================================
+            // CHECKIN TAB BUTTONS
+            // ============================================
+            document.querySelectorAll('.checkin-tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.checkin-tab-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    loadCheckins(this.dataset.checkinType);
+                });
+            });
+
+            // ============================================
+            // DATA FUNCTIONS
+            // ============================================
+            function getEmployees() { return getLocalStorage('employees'); }
+            function saveEmployees(e) { setLocalStorage('employees', e); }
+            function getBreaks() { return getLocalStorage('breaks'); }
+            function saveBreaks(b) { setLocalStorage('breaks', b); }
+            function getUsers() { return getLocalStorage('appUsers'); }
+            function saveUsers(u) { setLocalStorage('appUsers', u); }
+            function getAdmins() { return getLocalStorage('adminUsers'); }
+            function saveAdmins(a) { setLocalStorage('adminUsers', a); }
+            function getDepartments() { return getLocalStorage('departments') || ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations']; }
+            function saveDepartments(d) { setLocalStorage('departments', d); }
+            function getRoles() { return getLocalStorage('roles') || []; }
+            function saveRoles(r) { setLocalStorage('roles', r); }
+            function getSettings() { return getLocalStorageItem('breakSettings') || { localBreakMinutes: 30, expatBreakMinutes: 45, warningMinutes: 5 }; }
+            function saveSettings(s) { setLocalStorage('breakSettings', s); }
+            function getVacations() { return getLocalStorage('vacations'); }
+            function saveVacations(v) { setLocalStorage('vacations', v); }
+            function getCheckins() { return getLocalStorage('checkins'); }
+            function saveCheckins(c) { setLocalStorage('checkins', c); }
+
+            function formatDuration(startTime, endTime) {
+                endTime = endTime || null;
+                var start = new Date(startTime);
+                var end = endTime ? new Date(endTime) : new Date();
+                var diff = Math.floor((end - start) / 1000);
+                if (diff < 0) return '0m 0s';
+                var mins = Math.floor(diff / 60);
+                var secs = diff % 60;
+                if (mins === 0) return secs + 's';
+                if (secs === 0) return mins + 'm';
+                return mins + 'm ' + secs + 's';
             }
-        });
 
-        // ============================================
-        // DELETE CONFIRMATION
-        // ============================================
-        function confirmDelete(type, id, name) {
-            deleteTarget = id;
-            deleteType = type;
-            document.getElementById('deleteMessage').textContent = `Delete "${name}"? This cannot be undone!`;
-            openModal('deleteModal');
-        }
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteType === 'employee') {
-                deleteEmployee(deleteTarget);
-                loadEmployees();
-            } else if (deleteType === 'user') {
-                deleteUser(deleteTarget);
-                loadUsers();
-            } else if (deleteType === 'department') {
-                deleteDepartment(parseInt(deleteTarget));
-            } else if (deleteType === 'role') {
-                deleteRole(parseInt(deleteTarget));
-            } else if (deleteType === 'vacation') {
-                let vacations = getVacations();
-                vacations = vacations.filter(v => v.id !== deleteTarget);
-                saveVacations(vacations);
-                const activeTab = document.querySelector('.vacation-tab-btn.active');
-                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-            } else if (deleteType === 'checkin') {
-                let checkins = getCheckins();
-                checkins = checkins.filter(c => c.id !== deleteTarget);
-                saveCheckins(checkins);
-                const activeTab = document.querySelector('.checkin-tab-btn.active');
-                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+            function formatDateFull(date) {
+                var d = new Date(date);
+                return d.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
             }
-            loadStats();
-            closeModal('deleteModal');
-            deleteTarget = null;
-            deleteType = null;
-            alert('✅ Deleted successfully!');
-        });
 
-        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-            closeModal('deleteModal');
-            deleteTarget = null;
-            deleteType = null;
-        });
+            function formatDate(date) {
+                var d = new Date(date);
+                return d.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
 
-        // ============================================
-        // DROPDOWNS
-        // ============================================
-        function loadDropdowns() {
-            const depts = getDepartments();
-            const roles = getRoles();
+            function calculateDays(startDate, endDate) {
+                var start = new Date(startDate);
+                var end = new Date(endDate);
+                var diffTime = Math.abs(end - start);
+                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                return diffDays;
+            }
 
-            ['empDepartment', 'userDepartment'].forEach(id => {
-                const select = document.getElementById(id);
-                if (select) {
-                    select.innerHTML = '';
-                    depts.forEach(d => {
-                        select.innerHTML += `<option value="${d}">${d}</option>`;
+            // ============================================
+            // LOAD STATS
+            // ============================================
+            function loadStats() {
+                var employees = getEmployees();
+                var users = getUsers();
+                var admins = getAdmins();
+                var breaks = getBreaks();
+                var settings = getSettings();
+
+                var activeBreaks = breaks.filter(function(b) { return b.status === 'active'; });
+                var overdue = activeBreaks.filter(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var empType = emp?.employeeType || 'Local';
+                    var maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
+                    var elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                    return elapsed > maxMinutes;
+                });
+
+                document.getElementById('totalEmployees').textContent = employees.length;
+                document.getElementById('activeBreaks').textContent = activeBreaks.length;
+                document.getElementById('overdueBreaks').textContent = overdue.length;
+                document.getElementById('totalUsers').textContent = users.length + admins.length;
+
+                var names = activeBreaks.map(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    return emp?.name || 'Unknown';
+                });
+                document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
+            }
+
+            // ============================================
+            // EMPLOYEE FUNCTIONS
+            // ============================================
+            function loadEmployees() {
+                var employees = getEmployees();
+                var search = document.getElementById('empSearch').value.toLowerCase();
+                var statusFilter = document.getElementById('empStatusFilter').value;
+                var typeFilter = document.getElementById('empTypeFilter').value;
+
+                var filtered = employees;
+                if (search) {
+                    filtered = filtered.filter(function(e) {
+                        return e.name.toLowerCase().includes(search) || 
+                               e.email.toLowerCase().includes(search) || 
+                               e.department.toLowerCase().includes(search);
                     });
                 }
+                if (statusFilter !== 'all') {
+                    filtered = filtered.filter(function(e) { return e.status === statusFilter; });
+                }
+                if (typeFilter !== 'all') {
+                    filtered = filtered.filter(function(e) { return e.employeeType === typeFilter; });
+                }
+
+                var list = document.getElementById('employeesList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No employees found</p>';
+                    return;
+                }
+
+                var html = '<table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Employee Type</th><th>Position</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                filtered.forEach(function(e) {
+                    var statusColor = e.status === 'on_break' ? 'badge-orange' : (e.status === 'inactive' ? 'badge-red' : 'badge-green');
+                    html += '<tr><td><strong>' + e.name + '</strong></td><td>' + e.email + '</td><td>' + e.department + '</td><td><span class="badge badge-purple">' + (e.employeeType || 'Local') + '</span></td><td>' + (e.position || 'N/A') + '</td><td><span class="badge ' + statusColor + '">' + (e.status || 'active') + '</span></td><td><button class="btn-primary btn-sm" onclick="editEmployee(\'' + e.id + '\')">✏️ Edit</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'employee\',\'' + e.id + '\',\'' + e.name + '\')">🗑️ Delete</button></td></tr>';
+                });
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            // ============================================
+            // USER FUNCTIONS
+            // ============================================
+            function loadUsers() {
+                var users = getUsers();
+                var admins = getAdmins();
+                var allUsers = users.concat(admins);
+                var list = document.getElementById('usersList');
+
+                if (allUsers.length === 0) {
+                    list.innerHTML = '<p class="empty">No users found</p>';
+                    return;
+                }
+
+                var html = '<table><thead><tr><th><input type="checkbox" id="selectAllUsers"></th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Employee Type</th><th>Actions</th></tr></thead><tbody>';
+                allUsers.forEach(function(u) {
+                    var isAdmin = u.role === 'admin';
+                    html += '<tr><td>' + (!isAdmin ? '<input type="checkbox" class="user-checkbox" value="' + u.id + '">' : '') + '</td><td><strong>' + u.name + '</strong></td><td>' + u.email + '</td><td><span class="badge ' + (isAdmin ? 'badge-orange' : 'badge-blue') + '">' + (u.role || 'employee') + '</span></td><td>' + (u.department || 'N/A') + '</td><td><span class="badge badge-purple">' + (u.employeeType || 'Local') + '</span></td><td>' + (!isAdmin ? '<button class="btn-primary btn-sm" onclick="editUser(\'' + u.id + '\')">✏️ Edit</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'user\',\'' + u.id + '\',\'' + u.name + '\')">🗑️ Delete</button>' : '<span class="badge badge-orange">Protected</span>') + '</td></tr>';
+                });
+                html += '</tbody></table>';
+                list.innerHTML = html;
+
+                document.getElementById('selectAllUsers')?.addEventListener('change', function() {
+                    document.querySelectorAll('.user-checkbox').forEach(function(cb) {
+                        cb.checked = this.checked;
+                    });
+                });
+            }
+
+            // ============================================
+            // BREAK LOG
+            // ============================================
+            function loadBreakLog() {
+                var breaks = getBreaks();
+                var employees = getEmployees();
+
+                var empFilter = document.getElementById('breakLogEmployee');
+                empFilter.innerHTML = '<option value="all">All</option>';
+                employees.forEach(function(e) {
+                    empFilter.innerHTML += '<option value="' + e.id + '">' + e.name + '</option>';
+                });
+
+                var startDate = document.getElementById('breakLogStartDate').value;
+                var endDate = document.getElementById('breakLogEndDate').value;
+                var employeeId = document.getElementById('breakLogEmployee').value;
+                var status = document.getElementById('breakLogStatus').value;
+
+                var filtered = breaks.slice();
+                if (startDate) {
+                    filtered = filtered.filter(function(b) { return b.start_time >= startDate; });
+                }
+                if (endDate) {
+                    var d = new Date(endDate);
+                    d.setDate(d.getDate() + 1);
+                    filtered = filtered.filter(function(b) { return new Date(b.start_time) <= d; });
+                }
+                if (employeeId !== 'all') {
+                    filtered = filtered.filter(function(b) { return b.employee_id === employeeId; });
+                }
+                if (status !== 'all') {
+                    filtered = filtered.filter(function(b) { return b.status === status; });
+                }
+
+                filtered.sort(function(a, b) {
+                    return new Date(b.start_time) - new Date(a.start_time);
+                });
+
+                var list = document.getElementById('breakLogList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No break records found</p>';
+                    return;
+                }
+
+                var breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
+                var html = '<table><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Start</th><th>End</th><th>Duration</th><th>Status</th></tr></thead><tbody>';
+                filtered.forEach(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                    var statusColor = b.status === 'active' ? 'badge-orange' : 'badge-green';
+                    html += '<tr><td>' + (emp?.name || 'Unknown') + '</td><td>' + (emp?.department || 'N/A') + '</td><td>' + (breakLabels[b.break_type] || 'Short') + '</td><td>' + formatDateFull(b.start_time) + '</td><td>' + (b.end_time ? formatDateFull(b.end_time) : '-') + '</td><td>' + duration + '</td><td><span class="badge ' + statusColor + '">' + b.status + '</span></td></tr>';
+                });
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            // ============================================
+            // CHECK IN/OUT FUNCTIONS (FIXED)
+            // ============================================
+            function loadCheckins(filter) {
+                filter = filter || 'pending';
+                var checkins = getCheckins();
+                var employees = getEmployees();
+                var admins = getAdmins();
+
+                var filtered = checkins.slice();
+
+                if (filter === 'pending') {
+                    filtered = filtered.filter(function(c) { return c.status === 'pending'; });
+                } else if (filter === 'approved') {
+                    filtered = filtered.filter(function(c) { return c.status === 'approved'; });
+                } else if (filter === 'rejected') {
+                    filtered = filtered.filter(function(c) { return c.status === 'rejected'; });
+                } else if (filter === 'checkedout') {
+                    filtered = filtered.filter(function(c) { return c.status === 'checkedout'; });
+                }
+
+                filtered.sort(function(a, b) {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+
+                var list = document.getElementById('checkinList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No ' + filter + ' check in/out records found</p>';
+                    return;
+                }
+
+                var html = '<table class="checkin-table"><thead><tr><th>Employee</th><th>Department</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Approved By</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+
+                filtered.forEach(function(c) {
+                    var emp = employees.find(function(e) { return e.id === c.employee_id; });
+                    var checkinFull = formatDateFull(c.checkin_time);
+                    var checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
+                    var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+
+                    var approverName = '-';
+                    if (c.approved_by) {
+                        var approver = admins.find(function(a) { return a.id === c.approved_by; });
+                        approverName = approver?.name || 'Unknown Admin';
+                    }
+
+                    var statusClass = '';
+                    var statusText = c.status;
+                    if (c.status === 'pending') {
+                        statusClass = 'checkin-status-pending';
+                        statusText = '⏳ Pending';
+                    } else if (c.status === 'approved') {
+                        statusClass = 'checkin-status-approved';
+                        statusText = '✅ Approved';
+                    } else if (c.status === 'rejected') {
+                        statusClass = 'checkin-status-rejected';
+                        statusText = '❌ Rejected';
+                    } else if (c.status === 'checkedout') {
+                        statusClass = 'checkin-status-checkedout';
+                        statusText = '📤 Checked Out';
+                    }
+
+                    var isPending = c.status === 'pending';
+
+                    html += '<tr><td><strong>' + (c.employee_name || 'Unknown') + '</strong></td><td>' + (c.department || 'N/A') + '</td><td>' + checkinFull + '</td><td>' + checkoutFull + '</td><td>' + duration + '</td><td>' + approverName + '</td><td><span class="checkin-status-badge ' + statusClass + '">' + statusText + '</span></td><td><div class="checkin-actions-cell">' + (isPending ? '<button class="btn-approve-checkin" onclick="updateCheckinStatus(\'' + c.id + '\',\'approved\')">✅ Approve</button> <button class="btn-reject-checkin" onclick="updateCheckinStatus(\'' + c.id + '\',\'rejected\')">❌ Reject</button>' : '') + ' <button class="btn-delete-checkin" onclick="deleteCheckin(\'' + c.id + '\')">🗑️ Delete</button></div></td></tr>';
+                });
+
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            // ✅ FIXED: Check In/Out Update Status - Working
+            function updateCheckinStatus(id, status) {
+                if (!confirm('Are you sure you want to ' + status + ' this check-in request?')) return;
+
+                var checkins = getCheckins();
+                var index = checkins.findIndex(function(c) { return c.id === id; });
+                if (index === -1) return;
+
+                checkins[index].status = status;
+                if (status === 'approved' || status === 'rejected') {
+                    checkins[index].approved_by = adminSession.id;
+                    checkins[index].approved_name = adminSession.name || 'Admin';
+                }
+                saveCheckins(checkins);
+
+                var activeTab = document.querySelector('.checkin-tab-btn.active');
+                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+                alert('✅ Check-in ' + status + '!');
+            }
+
+            // ✅ FIXED: Delete Check In - Working
+            function deleteCheckin(id) {
+                if (!confirm('Delete this check-in record?')) return;
+
+                var checkins = getCheckins();
+                checkins = checkins.filter(function(c) { return c.id !== id; });
+                saveCheckins(checkins);
+
+                var activeTab = document.querySelector('.checkin-tab-btn.active');
+                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+                alert('✅ Check-in deleted!');
+            }
+
+            // ============================================
+            // VACATION FUNCTIONS (FIXED)
+            // ============================================
+            function loadVacations(filter) {
+                filter = filter || 'pending';
+                var vacations = getVacations();
+                var employees = getEmployees();
+
+                var filtered = vacations.slice();
+
+                if (filter === 'pending') {
+                    filtered = filtered.filter(function(v) { return v.status === 'pending'; });
+                } else if (filter === 'approved') {
+                    filtered = filtered.filter(function(v) { return v.status === 'approved'; });
+                } else if (filter === 'rejected') {
+                    filtered = filtered.filter(function(v) { return v.status === 'rejected'; });
+                }
+
+                filtered.sort(function(a, b) {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+
+                var list = document.getElementById('vacationList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No ' + filter + ' vacation requests found</p>';
+                    return;
+                }
+
+                var html = '<table class="vacation-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Start Date</th><th>End Date</th><th>Days</th><th>Adjusted Days</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+
+                filtered.forEach(function(v) {
+                    var emp = employees.find(function(e) { return e.id === v.employee_id; });
+                    var totalDays = calculateDays(v.startDate, v.endDate);
+                    var adjustedDays = v.adjustedDays || totalDays;
+
+                    var statusClass = '';
+                    var statusText = v.status;
+                    if (v.status === 'approved' && v.userAccepted === true) {
+                        statusClass = 'vacation-status-accepted';
+                        statusText = 'Accepted ✅';
+                    } else if (v.status === 'approved') {
+                        statusClass = 'vacation-status-approved';
+                        statusText = 'Approved';
+                    } else if (v.status === 'pending') {
+                        statusClass = 'vacation-status-pending';
+                        statusText = 'Pending';
+                    } else if (v.status === 'rejected') {
+                        statusClass = 'vacation-status-rejected';
+                        statusText = 'Rejected';
+                    }
+
+                    var isApproved = v.status === 'approved' && v.userAccepted !== true;
+                    var isPending = v.status === 'pending';
+
+                    html += '<tr><td><strong>' + (emp?.name || 'Unknown') + '</strong></td><td>' + (emp?.department || 'N/A') + '</td><td>' + (v.vacationType || 'Local') + '</td><td>' + formatDate(v.startDate) + '</td><td>' + formatDate(v.endDate) + '</td><td>' + totalDays + '</td><td>' + (adjustedDays !== totalDays ? '<strong style="color:#ff6b6b;">' + adjustedDays + '</strong> (was ' + totalDays + ')' : totalDays) + '</td><td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td><td><div class="vacation-actions">' + (isPending ? '<button class="btn-approve" onclick="updateVacationStatus(\'' + v.id + '\',\'approved\')">✅ Approve</button> <button class="btn-reject" onclick="updateVacationStatus(\'' + v.id + '\',\'rejected\')">❌ Reject</button>' : '') + (isApproved ? '<button class="btn-adjust" onclick="openAdjustModal(\'' + v.id + '\')">📝 Adjust</button>' : '') + ' <button class="btn-delete" onclick="confirmDelete(\'vacation\',\'' + v.id + '\',\'' + (emp?.name || 'Unknown') + '\')">🗑️ Delete</button></div></td></tr>';
+                });
+
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            // ✅ FIXED: Vacation Update Status - Working
+            function updateVacationStatus(id, status) {
+                if (!confirm('Are you sure you want to ' + status + ' this vacation request?')) return;
+
+                var vacations = getVacations();
+                var index = vacations.findIndex(function(v) { return v.id === id; });
+                if (index === -1) return;
+
+                vacations[index].status = status;
+                if (status === 'approved' && !vacations[index].adjustedDays) {
+                    vacations[index].adjustedDays = calculateDays(vacations[index].startDate, vacations[index].endDate);
+                }
+                saveVacations(vacations);
+
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation ' + status + '!');
+            }
+
+            // ✅ FIXED: Delete Vacation - Working
+            function deleteVacation(id) {
+                if (!confirm('Delete this vacation request?')) return;
+
+                var vacations = getVacations();
+                vacations = vacations.filter(function(v) { return v.id !== id; });
+                saveVacations(vacations);
+
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation deleted!');
+            }
+
+            function openAdjustModal(id) {
+                var vacations = getVacations();
+                var vacation = vacations.find(function(v) { return v.id === id; });
+                if (!vacation) return;
+
+                var totalDays = calculateDays(vacation.startDate, vacation.endDate);
+
+                document.getElementById('adjustVacationId').value = id;
+                document.getElementById('adjustStartDate').value = vacation.startDate;
+                document.getElementById('adjustEndDate').value = vacation.endDate;
+                document.getElementById('currentDays').value = totalDays;
+                document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
+                openModal('adjustModal');
+            }
+
+            document.getElementById('adjustForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                var id = document.getElementById('adjustVacationId').value;
+                var startDate = document.getElementById('adjustStartDate').value;
+                var endDate = document.getElementById('adjustEndDate').value;
+                var adjustedDays = parseInt(document.getElementById('adjustedDays').value);
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates!');
+                    return;
+                }
+
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('Start date cannot be after end date!');
+                    return;
+                }
+
+                if (adjustedDays < 1) {
+                    alert('Days must be at least 1!');
+                    return;
+                }
+
+                var vacations = getVacations();
+                var index = vacations.findIndex(function(v) { return v.id === id; });
+                if (index === -1) return;
+
+                vacations[index].startDate = startDate;
+                vacations[index].endDate = endDate;
+                vacations[index].adjustedDays = adjustedDays;
+                saveVacations(vacations);
+
+                closeModal('adjustModal');
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation adjusted successfully!');
             });
 
-            const userRoleSelect = document.getElementById('userRole');
-            if (userRoleSelect) {
-                userRoleSelect.innerHTML = '<option value="employee">Employee</option>';
-                roles.forEach(r => {
-                    if (r.name !== 'Admin' && r.name !== 'admin') {
-                        userRoleSelect.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`;
+            // ============================================
+            // OTHER FUNCTIONS
+            // ============================================
+            function loadDepartments() {
+                var depts = getDepartments();
+                var list = document.getElementById('departmentsList');
+                if (depts.length === 0) {
+                    list.innerHTML = '<p class="empty">No departments found</p>';
+                    return;
+                }
+                var html = '';
+                depts.forEach(function(d, i) {
+                    html += '<div class="config-item"><span><strong>' + d + '</strong></span><div class="actions"><button class="btn-warning btn-sm" onclick="editDepartment(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'department\',' + i + ',\'' + d + '\')">🗑️</button></div></div>';
+                });
+                list.innerHTML = html;
+            }
+
+            function loadRoles() {
+                var roles = getRoles();
+                var list = document.getElementById('rolesList');
+                if (roles.length === 0) {
+                    list.innerHTML = '<p class="empty">No roles found</p>';
+                    return;
+                }
+                var html = '';
+                roles.forEach(function(r, i) {
+                    var perms = [];
+                    if (r.createUser) perms.push('👤 Create Users');
+                    if (r.deleteUser) perms.push('🗑️ Delete Users');
+                    if (r.viewAll) perms.push('👁️ View All');
+                    if (r.manageSettings) perms.push('⚙️ Manage Settings');
+                    html += '<div class="config-item"><div><strong>' + r.name + '</strong><div style="font-size:12px;color:#666;margin-top:2px;">' + (perms.join(' • ') || 'No permissions') + '</div></div><div class="actions"><button class="btn-warning btn-sm" onclick="editRole(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'role\',' + i + ',\'' + r.name + '\')">🗑️</button></div></div>';
+                });
+                list.innerHTML = html;
+            }
+
+            function loadBreakStatus() {
+                var breaks = getBreaks();
+                var employees = getEmployees();
+                var settings = getSettings();
+                var active = breaks.filter(function(b) { return b.status === 'active'; });
+                var list = document.getElementById('breakStatusList');
+
+                if (active.length === 0) {
+                    list.innerHTML = '<p class="empty">✅ No one is on break</p>';
+                    return;
+                }
+
+                var html = '<div class="break-status-grid">';
+                active.forEach(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var empType = emp?.employeeType || 'Local';
+                    var maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
+                    var elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                    var isOverdue = elapsed > maxMinutes;
+                    var duration = formatDuration(b.start_time);
+                    var breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
+
+                    html += '<div class="break-status-card ' + (isOverdue ? 'overdue' : '') + '"><div class="name">' + (emp?.name || 'Unknown') + '</div><div class="dept">' + (emp?.department || 'N/A') + ' • ' + empType + ' • ' + (breakLabels[b.break_type] || 'Short') + '</div><div class="time">⏱️ ' + duration + ' elapsed</div><div class="time">' + (isOverdue ? '⚠️ Overdue! (' + elapsed + '/' + maxMinutes + ' min)' : '✅ Within limit (' + elapsed + '/' + maxMinutes + ' min)') + '</div><div class="action-btn"><button class="btn-danger btn-sm" onclick="endBreakFromAdmin(\'' + b.id + '\',\'' + b.employee_id + '\')">End Break</button></div></div>';
+                });
+                html += '</div>';
+                list.innerHTML = html;
+            }
+
+            function endBreakFromAdmin(breakId, employeeId) {
+                if (!confirm('End this break?')) return;
+
+                var breaks = getBreaks();
+                var index = breaks.findIndex(function(b) { return b.id === breakId; });
+                if (index === -1) return;
+
+                var endTime = new Date().toISOString();
+                var startTime = new Date(breaks[index].start_time);
+                var duration = Math.floor((new Date(endTime) - startTime) / 1000);
+
+                breaks[index] = { 
+                    ...breaks[index], 
+                    end_time: endTime, 
+                    status: 'completed', 
+                    duration: duration 
+                };
+                saveBreaks(breaks);
+
+                var employees = getEmployees();
+                var emp = employees.find(function(e) { return e.id === employeeId; });
+                if (emp) {
+                    emp.status = 'active';
+                    saveEmployees(employees);
+                }
+
+                loadBreakStatus();
+                loadStats();
+                alert('✅ Break ended!');
+            }
+
+            // ============================================
+            // SETTINGS
+            // ============================================
+            function loadSettings() {
+                var settings = getSettings();
+                document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
+                document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
+                document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
+
+                document.getElementById('currentSettings').innerHTML = '<div class="config-item"><span>Local Employee Break Duration</span><span><strong>' + (settings.localBreakMinutes || 30) + ' minutes</strong></span></div><div class="config-item"><span>Expat Employee Break Duration</span><span><strong>' + (settings.expatBreakMinutes || 45) + ' minutes</strong></span></div><div class="config-item"><span>Warning Time</span><span><strong>' + (settings.warningMinutes || 5) + ' minutes before overdue</strong></span></div>';
+            }
+
+            document.getElementById('settingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var localBreakMinutes = parseInt(document.getElementById('localBreakMinutes').value);
+                var expatBreakMinutes = parseInt(document.getElementById('expatBreakMinutes').value);
+                var warningMinutes = parseInt(document.getElementById('warningMinutes').value);
+                saveSettings({ localBreakMinutes: localBreakMinutes, expatBreakMinutes: expatBreakMinutes, warningMinutes: warningMinutes });
+                loadSettings();
+                alert('✅ Settings saved successfully!');
+            });
+
+            // ============================================
+            // EXPORT FUNCTIONS
+            // ============================================
+            document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
+                var breaks = getBreaks();
+                var employees = getEmployees();
+
+                if (breaks.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                var csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
+                breaks.forEach(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
+                    var duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                    csv += (emp?.name || 'Unknown') + ',' + (emp?.department || 'N/A') + ',' + (breakLabels[b.break_type] || 'Short') + ',' + formatDateFull(b.start_time) + ',' + (b.end_time ? formatDateFull(b.end_time) : '-') + ',' + duration + ',' + b.status + '\n';
+                });
+
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'break_log_' + new Date().toISOString().split('T')[0] + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('exportCheckinBtn').addEventListener('click', function() {
+                var checkins = getCheckins();
+                var admins = getAdmins();
+
+                if (checkins.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                var csv = 'Employee,Department,Check In,Check Out,Duration,Status,Approved By\n';
+                checkins.forEach(function(c) {
+                    var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+                    var approverName = '-';
+                    if (c.approved_by) {
+                        var approver = admins.find(function(a) { return a.id === c.approved_by; });
+                        approverName = approver?.name || 'Unknown Admin';
+                    }
+                    csv += (c.employee_name || 'Unknown') + ',' + (c.department || 'N/A') + ',' + formatDateFull(c.checkin_time) + ',' + (c.checkout_time ? formatDateFull(c.checkout_time) : '-') + ',' + duration + ',' + c.status + ',' + approverName + '\n';
+                });
+
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'checkin_log_' + new Date().toISOString().split('T')[0] + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('exportVacationBtn').addEventListener('click', function() {
+                var vacations = getVacations();
+                var employees = getEmployees();
+
+                if (vacations.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                var csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
+                vacations.forEach(function(v) {
+                    var emp = employees.find(function(e) { return e.id === v.employee_id; });
+                    var totalDays = calculateDays(v.startDate, v.endDate);
+                    var adjustedDays = v.adjustedDays || totalDays;
+                    var isAccepted = v.userAccepted ? 'Yes' : 'No';
+                    csv += (emp?.name || 'Unknown') + ',' + (emp?.department || 'N/A') + ',' + (v.vacationType || 'Local') + ',' + v.startDate + ',' + v.endDate + ',' + totalDays + ',' + adjustedDays + ',' + v.status + ',' + isAccepted + '\n';
+                });
+
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'vacation_log_' + new Date().toISOString().split('T')[0] + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
+                if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
+                    saveBreaks([]);
+                    loadBreakLog();
+                    loadStats();
+                    alert('✅ All break records cleared!');
+                }
+            });
+
+            // ============================================
+            // DELETE CONFIRMATION (FIXED)
+            // ============================================
+            function confirmDelete(type, id, name) {
+                deleteTarget = id;
+                deleteType = type;
+                document.getElementById('deleteMessage').textContent = 'Delete "' + name + '"? This cannot be undone!';
+                openModal('deleteModal');
+            }
+
+            window.confirmDelete = confirmDelete;
+
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (deleteType === 'employee') {
+                    var employees = getEmployees();
+                    employees = employees.filter(function(e) { return e.id !== deleteTarget; });
+                    saveEmployees(employees);
+                    loadEmployees();
+                } else if (deleteType === 'user') {
+                    var users = getUsers();
+                    users = users.filter(function(u) { return u.id !== deleteTarget; });
+                    saveUsers(users);
+                    loadUsers();
+                } else if (deleteType === 'department') {
+                    var depts = getDepartments();
+                    depts.splice(parseInt(deleteTarget), 1);
+                    saveDepartments(depts);
+                    loadDepartments();
+                    loadDropdowns();
+                } else if (deleteType === 'role') {
+                    var roles = getRoles();
+                    roles.splice(parseInt(deleteTarget), 1);
+                    saveRoles(roles);
+                    loadRoles();
+                    loadDropdowns();
+                } else if (deleteType === 'vacation') {
+                    var vacations = getVacations();
+                    vacations = vacations.filter(function(v) { return v.id !== deleteTarget; });
+                    saveVacations(vacations);
+                    var activeTab = document.querySelector('.vacation-tab-btn.active');
+                    loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                } else if (deleteType === 'checkin') {
+                    var checkins = getCheckins();
+                    checkins = checkins.filter(function(c) { return c.id !== deleteTarget; });
+                    saveCheckins(checkins);
+                    var activeTab2 = document.querySelector('.checkin-tab-btn.active');
+                    loadCheckins(activeTab2 ? activeTab2.dataset.checkinType : 'pending');
+                }
+                loadStats();
+                closeModal('deleteModal');
+                deleteTarget = null;
+                deleteType = null;
+                alert('✅ Deleted successfully!');
+            });
+
+            document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+                closeModal('deleteModal');
+                deleteTarget = null;
+                deleteType = null;
+            });
+
+            // ============================================
+            // EDIT FUNCTIONS
+            // ============================================
+            function editEmployee(id) {
+                var employees = getEmployees();
+                var emp = employees.find(function(e) { return e.id === id; });
+                if (!emp) return;
+
+                document.getElementById('editEmpId').value = id;
+                document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+                document.getElementById('empName').value = emp.name;
+                document.getElementById('empEmail').value = emp.email;
+                document.getElementById('empDepartment').value = emp.department;
+                document.getElementById('empEmployeeType').value = emp.employeeType || 'Local';
+                document.getElementById('empPosition').value = emp.position || '';
+                openModal('employeeModal');
+            }
+
+            window.editEmployee = editEmployee;
+
+            document.getElementById('employeeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var id = document.getElementById('editEmpId').value;
+                var data = {
+                    name: document.getElementById('empName').value,
+                    email: document.getElementById('empEmail').value,
+                    department: document.getElementById('empDepartment').value,
+                    employeeType: document.getElementById('empEmployeeType').value,
+                    position: document.getElementById('empPosition').value
+                };
+                if (id) {
+                    var employees = getEmployees();
+                    var index = employees.findIndex(function(e) { return e.id === id; });
+                    if (index !== -1) {
+                        employees[index] = { ...employees[index], ...data };
+                        saveEmployees(employees);
+                        alert('✅ Employee updated!');
+                    }
+                } else {
+                    var newEmp = {
+                        id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        ...data,
+                        status: 'active',
+                        created_at: new Date().toISOString()
+                    };
+                    var allEmployees = getEmployees();
+                    allEmployees.push(newEmp);
+                    saveEmployees(allEmployees);
+                    alert('✅ Employee added!');
+                }
+                closeModal('employeeModal');
+                document.getElementById('employeeForm').reset();
+                document.getElementById('editEmpId').value = '';
+                document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+                loadEmployees();
+                loadStats();
+            });
+
+            function editUser(id) {
+                var users = getUsers();
+                var user = users.find(function(u) { return u.id === id; });
+                if (!user) return;
+
+                document.getElementById('editUserId').value = id;
+                document.getElementById('userModalTitle').textContent = 'Edit User';
+                document.getElementById('userName').value = user.name;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userPassword').value = user.password || '123456';
+                document.getElementById('userRole').value = user.role || 'employee';
+                document.getElementById('userDepartment').value = user.department || 'Engineering';
+                document.getElementById('userEmployeeType').value = user.employeeType || 'Local';
+                openModal('userModal');
+            }
+
+            window.editUser = editUser;
+
+            document.getElementById('userForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var id = document.getElementById('editUserId').value;
+                var name = document.getElementById('userName').value;
+                var email = document.getElementById('userEmail').value;
+                var password = document.getElementById('userPassword').value;
+                var role = document.getElementById('userRole').value;
+                var department = document.getElementById('userDepartment').value;
+                var employeeType = document.getElementById('userEmployeeType').value;
+
+                if (id) {
+                    var users = getUsers();
+                    var index = users.findIndex(function(u) { return u.id === id; });
+                    if (index !== -1) {
+                        var data = { name: name, email: email, role: role, department: department, employeeType: employeeType };
+                        if (password && password.length >= 6) data.password = password;
+                        users[index] = { ...users[index], ...data };
+                        saveUsers(users);
+                        alert('✅ User updated!');
+                    } else {
+                        alert('❌ User not found!');
+                    }
+                } else {
+                    var newUser = {
+                        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        name: name,
+                        email: email,
+                        password: password || '123456',
+                        role: role || 'employee',
+                        department: department || 'Engineering',
+                        employeeType: employeeType || 'Local',
+                        created_at: new Date().toISOString()
+                    };
+                    var allUsers = getUsers();
+                    if (allUsers.find(function(u) { return u.email === email; })) {
+                        alert('❌ User already exists!');
+                        return;
+                    }
+                    allUsers.push(newUser);
+                    saveUsers(allUsers);
+                    alert('✅ User created!\nName: ' + name + '\nEmail: ' + email + '\nPassword: ' + (password || '123456'));
+                }
+                closeModal('userModal');
+                document.getElementById('userForm').reset();
+                document.getElementById('editUserId').value = '';
+                document.getElementById('userModalTitle').textContent = 'Create User';
+                document.getElementById('userPassword').value = '123456';
+                loadUsers();
+                loadStats();
+            });
+
+            function editDepartment(index) {
+                var depts = getDepartments();
+                document.getElementById('editDeptId').value = index;
+                document.getElementById('deptModalTitle').textContent = 'Edit Department';
+                document.getElementById('deptName').value = depts[index];
+                openModal('deptModal');
+            }
+
+            window.editDepartment = editDepartment;
+
+            document.getElementById('deptForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var index = document.getElementById('editDeptId').value;
+                var name = document.getElementById('deptName').value;
+                if (index !== '') {
+                    var depts = getDepartments();
+                    if (parseInt(index) >= 0 && parseInt(index) < depts.length) {
+                        depts[parseInt(index)] = name;
+                        saveDepartments(depts);
+                        alert('✅ Department updated!');
+                    }
+                } else {
+                    var depts2 = getDepartments();
+                    depts2.push(name);
+                    saveDepartments(depts2);
+                    alert('✅ Department added!');
+                }
+                closeModal('deptModal');
+                document.getElementById('deptForm').reset();
+                document.getElementById('editDeptId').value = '';
+                document.getElementById('deptModalTitle').textContent = 'Add Department';
+                loadDepartments();
+                loadDropdowns();
+            });
+
+            function editRole(index) {
+                var roles = getRoles();
+                var r = roles[index];
+                document.getElementById('editRoleId').value = index;
+                document.getElementById('roleModalTitle').textContent = 'Edit Role';
+                document.getElementById('roleName').value = r.name;
+                document.getElementById('permCreateUser').checked = r.createUser || false;
+                document.getElementById('permDeleteUser').checked = r.deleteUser || false;
+                document.getElementById('permViewAll').checked = r.viewAll || false;
+                document.getElementById('permManageSettings').checked = r.manageSettings || false;
+                openModal('roleModal');
+            }
+
+            window.editRole = editRole;
+
+            document.getElementById('roleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var index = document.getElementById('editRoleId').value;
+                var data = {
+                    name: document.getElementById('roleName').value,
+                    createUser: document.getElementById('permCreateUser').checked,
+                    deleteUser: document.getElementById('permDeleteUser').checked,
+                    viewAll: document.getElementById('permViewAll').checked,
+                    manageSettings: document.getElementById('permManageSettings').checked
+                };
+                if (index !== '') {
+                    var roles = getRoles();
+                    if (parseInt(index) >= 0 && parseInt(index) < roles.length) {
+                        roles[parseInt(index)] = data;
+                        saveRoles(roles);
+                        alert('✅ Role updated!');
+                    }
+                } else {
+                    var roles2 = getRoles();
+                    roles2.push(data);
+                    saveRoles(roles2);
+                    alert('✅ Role added!');
+                }
+                closeModal('roleModal');
+                document.getElementById('roleForm').reset();
+                document.getElementById('editRoleId').value = '';
+                document.getElementById('roleModalTitle').textContent = 'Add Role';
+                loadRoles();
+                loadDropdowns();
+            });
+
+            // ============================================
+            // DROPDOWNS
+            // ============================================
+            function loadDropdowns() {
+                var depts = getDepartments();
+
+                ['empDepartment', 'userDepartment'].forEach(function(id) {
+                    var select = document.getElementById(id);
+                    if (select) {
+                        select.innerHTML = '';
+                        depts.forEach(function(d) {
+                            select.innerHTML += '<option value="' + d + '">' + d + '</option>';
+                        });
                     }
                 });
             }
-        }
 
-        // ============================================
-        // SETTINGS
-        // ============================================
-        function loadSettings() {
-            const settings = getSettings();
-            document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
-            document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
-            document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
+            // ============================================
+            // MODAL FUNCTIONS
+            // ============================================
+            function openModal(id) {
+                document.getElementById(id).style.display = 'block';
+            }
 
-            document.getElementById('currentSettings').innerHTML = `
-                <div class="config-item"><span>Local Employee Break Duration</span><span><strong>${settings.localBreakMinutes || 30} minutes</strong></span></div>
-                <div class="config-item"><span>Expat Employee Break Duration</span><span><strong>${settings.expatBreakMinutes || 45} minutes</strong></span></div>
-                <div class="config-item"><span>Warning Time</span><span><strong>${settings.warningMinutes || 5} minutes before overdue</strong></span></div>
-            `;
-        }
+            function closeModal(id) {
+                document.getElementById(id).style.display = 'none';
+            }
 
-        document.getElementById('settingsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const localBreakMinutes = parseInt(document.getElementById('localBreakMinutes').value);
-            const expatBreakMinutes = parseInt(document.getElementById('expatBreakMinutes').value);
-            const warningMinutes = parseInt(document.getElementById('warningMinutes').value);
-            saveSettings({ localBreakMinutes, expatBreakMinutes, warningMinutes });
-            loadSettings();
-            alert('✅ Settings saved successfully!');
-        });
+            window.openModal = openModal;
+            window.closeModal = closeModal;
 
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        window.addEventListener('click', function(e) {
-            document.querySelectorAll('.modal').forEach(modal => {
-                if (e.target === modal) modal.style.display = 'none';
+            window.addEventListener('click', function(e) {
+                document.querySelectorAll('.modal').forEach(function(modal) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
             });
-        });
 
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        document.getElementById('addEmployeeBtn').addEventListener('click', function() {
-            document.getElementById('editEmpId').value = '';
-            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
-            document.getElementById('employeeForm').reset();
-            openModal('employeeModal');
-        });
+            // ============================================
+            // EVENT LISTENERS
+            // ============================================
+            document.getElementById('addEmployeeBtn').addEventListener('click', function() {
+                document.getElementById('editEmpId').value = '';
+                document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+                document.getElementById('employeeForm').reset();
+                openModal('employeeModal');
+            });
 
-        document.getElementById('addUserBtn').addEventListener('click', function() {
-            document.getElementById('editUserId').value = '';
-            document.getElementById('userModalTitle').textContent = 'Create User';
-            document.getElementById('userForm').reset();
-            document.getElementById('userPassword').value = '123456';
-            openModal('userModal');
-        });
+            document.getElementById('addUserBtn').addEventListener('click', function() {
+                document.getElementById('editUserId').value = '';
+                document.getElementById('userModalTitle').textContent = 'Create User';
+                document.getElementById('userForm').reset();
+                document.getElementById('userPassword').value = '123456';
+                openModal('userModal');
+            });
 
-        document.getElementById('addDeptBtn').addEventListener('click', function() {
-            document.getElementById('editDeptId').value = '';
-            document.getElementById('deptModalTitle').textContent = 'Add Department';
-            document.getElementById('deptForm').reset();
-            openModal('deptModal');
-        });
+            document.getElementById('addDeptBtn').addEventListener('click', function() {
+                document.getElementById('editDeptId').value = '';
+                document.getElementById('deptModalTitle').textContent = 'Add Department';
+                document.getElementById('deptForm').reset();
+                openModal('deptModal');
+            });
 
-        document.getElementById('addRoleBtn').addEventListener('click', function() {
-            document.getElementById('editRoleId').value = '';
-            document.getElementById('roleModalTitle').textContent = 'Add Role';
-            document.getElementById('roleForm').reset();
-            openModal('roleModal');
-        });
+            document.getElementById('addRoleBtn').addEventListener('click', function() {
+                document.getElementById('editRoleId').value = '';
+                document.getElementById('roleModalTitle').textContent = 'Add Role';
+                document.getElementById('roleForm').reset();
+                openModal('roleModal');
+            });
 
-        document.getElementById('deleteSelectedUsersBtn').addEventListener('click', deleteSelectedUsers);
-        document.getElementById('refreshBreakStatus').addEventListener('click', function() {
-            loadBreakStatus();
-            alert('✅ Break status refreshed!');
-        });
+            document.getElementById('deleteSelectedUsersBtn').addEventListener('click', function() {
+                var selected = document.querySelectorAll('.user-checkbox:checked');
+                if (selected.length === 0) {
+                    alert('Please select users to delete!');
+                    return;
+                }
+                if (confirm('Delete ' + selected.length + ' selected user(s)?')) {
+                    var users = getUsers();
+                    selected.forEach(function(cb) {
+                        users = users.filter(function(u) { return u.id !== cb.value; });
+                    });
+                    saveUsers(users);
+                    loadUsers();
+                    loadStats();
+                    alert('✅ Deleted ' + selected.length + ' users!');
+                }
+            });
 
-        document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
+            document.getElementById('refreshBreakStatus').addEventListener('click', function() {
+                loadBreakStatus();
+                alert('✅ Break status refreshed!');
+            });
 
-        document.getElementById('empSearch').addEventListener('input', loadEmployees);
-        document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
-        document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
+            document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
 
-        // ============================================
-        // AUTO REFRESH
-        // ============================================
-        function refreshAll() {
+            document.getElementById('empSearch').addEventListener('input', loadEmployees);
+            document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
+            document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
+
+            // ============================================
+            // AUTO REFRESH
+            // ============================================
+            function refreshAll() {
+                loadStats();
+                loadBreakStatus();
+            }
+
+            setInterval(refreshAll, 30000);
+            refreshAll();
+
+            // ============================================
+            // INITIALIZE
+            // ============================================
+            if (!localStorage.getItem('breakSettings')) {
+                saveSettings({ localBreakMinutes: 30, expatBreakMinutes: 45, warningMinutes: 5 });
+            }
+            if (!localStorage.getItem('departments')) {
+                saveDepartments(['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations']);
+            }
+            if (!localStorage.getItem('roles')) {
+                saveRoles([
+                    { name: 'Sub-Admin', createUser: true, deleteUser: true, viewAll: true, manageSettings: false },
+                    { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
+                ]);
+            }
+            if (!localStorage.getItem('vacations')) {
+                saveVacations([]);
+            }
+            if (!localStorage.getItem('checkins')) {
+                saveCheckins([]);
+            }
+
+            loadDropdowns();
             loadStats();
+            loadEmployees();
+            loadUsers();
+            loadDepartments();
+            loadRoles();
             loadBreakStatus();
-        }
+            loadBreakLog();
+            loadVacations('pending');
+            loadCheckins('pending');
+            loadSettings();
 
-        setInterval(refreshAll, 30000);
-        refreshAll();
-
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        if (!localStorage.getItem('breakSettings')) {
-            saveSettings({ localBreakMinutes: 30, expatBreakMinutes: 45, warningMinutes: 5 });
-        }
-        if (!localStorage.getItem('departments')) {
-            saveDepartments(['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations']);
-        }
-        if (!localStorage.getItem('roles')) {
-            saveRoles([
-                { name: 'Sub-Admin', createUser: true, deleteUser: true, viewAll: true, manageSettings: false },
-                { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
-            ]);
-        }
-        if (!localStorage.getItem('vacations')) {
-            saveVacations([]);
-        }
-        if (!localStorage.getItem('checkins')) {
-            saveCheckins([]);
-        }
-
-        loadDropdowns();
-        loadStats();
-        loadEmployees();
-        loadUsers();
-        loadDepartments();
-        loadRoles();
-        loadBreakStatus();
-        loadBreakLog();
-        loadVacations('pending');
-        loadCheckins('pending');
-        loadSettings();
-
-        console.log('✅ Admin Dashboard loaded successfully!');
+            console.log('✅ Admin Dashboard loaded successfully!');
+            console.log('✅ All functions working: Check In/Out Approve/Reject/Delete, Vacation Approve/Reject/Delete');
+        })();
     </script>
 </body>
 </html>
