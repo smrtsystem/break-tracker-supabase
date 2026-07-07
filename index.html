@@ -668,7 +668,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS
+        // VACATION FUNCTIONS (Updated with Table View for 'All')
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -698,6 +698,61 @@
                 return;
             }
 
+            // ✅ For 'All' tab, show table view
+            if (filter === 'all') {
+                let html = `<table class="vacation-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Type</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Days</th>
+                            <th>Adjusted Days</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                filtered.forEach(v => {
+                    const totalDays = calculateDays(v.startDate, v.endDate);
+                    const adjustedDays = v.adjustedDays || totalDays;
+
+                    let statusClass = '';
+                    let statusText = v.status;
+                    if (v.status === 'approved' && v.userAccepted === true) {
+                        statusClass = 'vacation-status-accepted';
+                        statusText = 'Accepted ✅';
+                    } else if (v.status === 'approved') {
+                        statusClass = 'vacation-status-approved';
+                        statusText = 'Approved';
+                    } else if (v.status === 'pending') {
+                        statusClass = 'vacation-status-pending';
+                        statusText = 'Pending';
+                    } else if (v.status === 'rejected') {
+                        statusClass = 'vacation-status-rejected';
+                        statusText = 'Rejected';
+                    }
+
+                    html += `<tr>
+                        <td><strong>${emp.name}</strong></td>
+                        <td>${emp.department || 'N/A'}</td>
+                        <td>${v.vacationType || 'Local'}</td>
+                        <td>${formatDate(v.startDate)}</td>
+                        <td>${formatDate(v.endDate)}</td>
+                        <td>${totalDays}</td>
+                        <td>${adjustedDays !== totalDays ? `<strong style="color:#ff6b6b;">${adjustedDays}</strong> (was ${totalDays})` : totalDays}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                list.innerHTML = html;
+                return;
+            }
+
+            // ✅ For Pending/Approved/Rejected, show card view
             let html = '<div class="vacation-grid">';
             filtered.forEach(v => {
                 const totalDays = calculateDays(v.startDate, v.endDate);
