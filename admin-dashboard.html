@@ -52,6 +52,7 @@
             </div>
 
             <div class="admin-content">
+
                 <!-- Break Tracker Section -->
                 <div id="section-break-tracker" class="admin-section active">
                     <div class="stats-grid">
@@ -603,16 +604,22 @@
             return `${mins}m ${secs}s`;
         }
 
+        function formatDateFull(date) {
+            return new Date(date).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function formatDate(date) {
             return new Date(date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
             });
-        }
-
-        function formatTime(date) {
-            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
 
         function calculateDays(startDate, endDate) {
@@ -1215,8 +1222,8 @@
                     <td>${emp?.name || 'Unknown'}</td>
                     <td>${emp?.department || 'N/A'}</td>
                     <td>${breakLabels[b.break_type] || 'Short'}</td>
-                    <td>${new Date(b.start_time).toLocaleString()}</td>
-                    <td>${b.end_time ? new Date(b.end_time).toLocaleString() : '-'}</td>
+                    <td>${formatDateFull(b.start_time)}</td>
+                    <td>${b.end_time ? formatDateFull(b.end_time) : '-'}</td>
                     <td>${duration}</td>
                     <td><span class="badge ${statusColor}">${b.status}</span></td>
                 </tr>`;
@@ -1433,8 +1440,8 @@
 
             filtered.forEach(c => {
                 const emp = employees.find(e => e.id === c.employee_id);
-                const checkinTime = formatTime(c.checkin_time);
-                const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
+                const checkinFull = formatDateFull(c.checkin_time);
+                const checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
                 const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
 
                 // Find approver name
@@ -1465,8 +1472,8 @@
                 html += `<tr>
                     <td><strong>${c.employee_name || 'Unknown'}</strong></td>
                     <td>${c.department || 'N/A'}</td>
-                    <td>${checkinTime}</td>
-                    <td>${checkoutTime}</td>
+                    <td>${checkinFull}</td>
+                    <td>${checkoutFull}</td>
                     <td>${duration}</td>
                     <td>${approverName}</td>
                     <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
@@ -1535,7 +1542,7 @@
                 const emp = employees.find(e => e.id === c.employee_id);
                 const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
                 const approverName = c.approved_name || '-';
-                csv += `${c.employee_name || 'Unknown'},${c.department || 'N/A'},${new Date(c.checkin_time).toLocaleString()},${c.checkout_time ? new Date(c.checkout_time).toLocaleString() : '-'},${duration},${c.status},${approverName}\n`;
+                csv += `${c.employee_name || 'Unknown'},${c.department || 'N/A'},${formatDateFull(c.checkin_time)},${c.checkout_time ? formatDateFull(c.checkout_time) : '-'},${duration},${c.status},${approverName}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1564,7 +1571,7 @@
                 const emp = employees.find(e => e.id === b.employee_id);
                 const breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
                 const duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${breakLabels[b.break_type] || 'Short'},${new Date(b.start_time).toLocaleString()},${b.end_time ? new Date(b.end_time).toLocaleString() : '-'},${duration},${b.status}\n`;
+                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${breakLabels[b.break_type] || 'Short'},${formatDateFull(b.start_time)},${b.end_time ? formatDateFull(b.end_time) : '-'},${duration},${b.status}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
