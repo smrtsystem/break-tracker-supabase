@@ -168,6 +168,68 @@
 }
 
 /* ============================================
+   VACATION STATUS COLORS
+   ============================================ */
+.vacation-status-approved { background: #4ecdc4; color: white; }
+.vacation-status-pending { background: #ffd93d; color: #1a1a2e; }
+.vacation-status-rejected { background: #ff6b6b; color: white; }
+
+/* ============================================
+   VACATION ACTION BUTTONS
+   ============================================ */
+.vacation-action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-approve {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-approve:hover {
+    background: #45b7b0;
+}
+
+.btn-reject {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-reject:hover {
+    background: #e55a5a;
+}
+
+.btn-delete {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-delete:hover {
+    background: #e55a5a;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
