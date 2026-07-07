@@ -99,7 +99,7 @@
                         </button>
                     </div>
 
-                    <!-- Employee Management (Table View) -->
+                    <!-- Employee Management -->
                     <div id="sub-employee-management" class="admin-section active">
                         <div class="card">
                             <div class="card-header">
@@ -126,7 +126,7 @@
                         </div>
                     </div>
 
-                    <!-- User Management (Table View) -->
+                    <!-- User Management -->
                     <div id="sub-user-management" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -173,7 +173,7 @@
                         </div>
                     </div>
 
-                    <!-- Break Log (Table View) -->
+                    <!-- Break Log -->
                     <div id="sub-break-log" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -514,14 +514,14 @@
                 }
             }
 
-            const adminSession = getLocalStorageItem('adminSession');
+            var adminSession = getLocalStorageItem('adminSession');
             if (!adminSession || adminSession.role !== 'admin') {
                 window.location.href = 'admin-login.html';
                 return;
             }
 
-            let deleteTarget = null;
-            let deleteType = null;
+            var deleteTarget = null;
+            var deleteType = null;
 
             // Set admin info
             document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
@@ -831,7 +831,7 @@
             }
 
             // ============================================
-            // CHECK IN/OUT FUNCTIONS (with Approved By fix)
+            // CHECK IN/OUT FUNCTIONS
             // ============================================
             function loadCheckins(filter) {
                 filter = filter || 'pending';
@@ -869,7 +869,7 @@
                     var checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
                     var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
 
-                    // ✅ FIXED: Find approver name from admins
+                    // Find approver name
                     var approverName = '-';
                     if (c.approved_by) {
                         var approver = admins.find(function(a) { return a.id === c.approved_by; });
@@ -909,7 +909,6 @@
                 if (index === -1) return;
 
                 checkins[index].status = status;
-                // ✅ FIXED: Store who approved it with admin name
                 if (status === 'approved' || status === 'rejected') {
                     checkins[index].approved_by = adminSession.id;
                     checkins[index].approved_name = adminSession.name || 'Admin';
@@ -934,7 +933,7 @@
             }
 
             // ============================================
-            // OTHER FUNCTIONS (Department, Role, Break Status)
+            // OTHER FUNCTIONS
             // ============================================
             function loadDepartments() {
                 var depts = getDepartments();
@@ -1286,7 +1285,6 @@
                 openModal('deleteModal');
             }
 
-            // Make confirmDelete globally accessible
             window.confirmDelete = confirmDelete;
 
             document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
