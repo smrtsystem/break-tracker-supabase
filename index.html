@@ -53,9 +53,7 @@
             </div>
 
             <div class="main-content">
-                <!-- ========================================== -->
-                <!-- VIEW 1: BREAK TRACKER -->
-                <!-- ========================================== -->
+                <!-- Break Tracker View -->
                 <div id="view-break-tracker" class="view-section active">
                     <div class="my-break-section">
                         <h2>☕ My Break</h2>
@@ -103,9 +101,7 @@
                     </div>
                 </div>
 
-                <!-- ========================================== -->
-                <!-- VIEW 2: VACATION -->
-                <!-- ========================================== -->
+                <!-- Vacation View -->
                 <div id="view-vacation" class="view-section">
                     <div class="card">
                         <div class="card-header">
@@ -124,9 +120,7 @@
                     </div>
                 </div>
 
-                <!-- ========================================== -->
-                <!-- VIEW 3: CHECK IN/OUT -->
-                <!-- ========================================== -->
+                <!-- Check In/Out View -->
                 <div id="view-checkin" class="view-section">
                     <div class="checkin-card">
                         <h2>📋 Check In / Out</h2>
@@ -136,9 +130,10 @@
                             <span id="checkinStatus" style="display:flex;align-items:center;margin-left:12px;"></span>
                         </div>
                         <div id="activeCheckinInfo" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;display:none;">
-                            <p><strong>⏱️ Checked In:</strong> <span id="checkinDuration">0m 0s</span></p>
+                            <p><strong>⏱️ Duration:</strong> <span id="checkinDuration">0m 0s</span></p>
                             <p><strong>⏰ Checked In At:</strong> <span id="checkinTime">-</span></p>
                             <p><strong>📋 Status:</strong> <span id="checkinStatusText">-</span></p>
+                            <p><strong>👤 Approved By:</strong> <span id="checkinApprovedBy">-</span></p>
                         </div>
                     </div>
 
@@ -814,7 +809,7 @@
             const emp = getMyEmployee();
             if (!emp) return null;
             const checkins = getCheckins();
-            return checkins.find(c => c.employee_id === emp.id && c.status === 'pending');
+            return checkins.find(c => c.employee_id === emp.id && (c.status === 'pending' || c.status === 'approved'));
         }
 
         function checkIn() {
@@ -826,7 +821,7 @@
 
             const activeCheckin = getMyActiveCheckin();
             if (activeCheckin) {
-                alert('You already have a pending check-in request!');
+                alert('You already have a pending or approved check-in request!');
                 return;
             }
 
@@ -840,6 +835,7 @@
                 checkin_time: new Date().toISOString(),
                 checkout_time: null,
                 status: 'pending',
+                approved_by: null,
                 created_at: new Date().toISOString()
             };
             checkins.push(newCheckin);
@@ -901,6 +897,7 @@
                         <th>Check In</th>
                         <th>Check Out</th>
                         <th>Duration</th>
+                        <th>Approved By</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -910,20 +907,21 @@
                 const checkinTime = formatTime(c.checkin_time);
                 const checkoutTime = c.checkout_time ? formatTime(c.checkout_time) : '-';
                 const duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+                const approvedBy = c.approved_by || '-';
+
                 let statusClass = '';
                 let statusText = c.status;
-
                 if (c.status === 'pending') {
-                    statusClass = 'status-pending';
+                    statusClass = 'checkin-status-pending';
                     statusText = '⏳ Pending';
                 } else if (c.status === 'approved') {
-                    statusClass = 'status-approved';
+                    statusClass = 'checkin-status-approved';
                     statusText = '✅ Approved';
                 } else if (c.status === 'rejected') {
-                    statusClass = 'status-rejected';
+                    statusClass = 'checkin-status-rejected';
                     statusText = '❌ Rejected';
                 } else if (c.status === 'checkedout') {
-                    statusClass = 'status-checkedout';
+                    statusClass = 'checkin-status-checkedout';
                     statusText = '📤 Checked Out';
                 }
 
@@ -932,7 +930,8 @@
                     <td>${checkinTime}</td>
                     <td>${checkoutTime}</td>
                     <td>${duration}</td>
-                    <td><span class="checkin-status ${statusClass}">${statusText}</span></td>
+                    <td>${approvedBy}</td>
+                    <td><span class="checkin-status-badge ${statusClass}">${statusText}</span></td>
                 </tr>`;
             });
 
@@ -949,39 +948,42 @@
             const durationSpan = document.getElementById('checkinDuration');
             const timeSpan = document.getElementById('checkinTime');
             const statusTextSpan = document.getElementById('checkinStatusText');
+            const approvedBySpan = document.getElementById('checkinApprovedBy');
 
             if (activeCheckin) {
                 checkInBtn.disabled = true;
-                checkOutBtn.disabled = true;
 
                 if (activeCheckin.status === 'pending') {
-                    statusSpan.innerHTML = '<span class="checkin-status status-pending">⏳ Pending Approval</span>';
+                    statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-pending">⏳ Pending Approval</span>';
                     checkOutBtn.disabled = true;
                     infoDiv.style.display = 'block';
                     timeSpan.textContent = formatTime(activeCheckin.checkin_time);
                     statusTextSpan.textContent = '⏳ Pending Approval';
+                    approvedBySpan.textContent = '-';
 
                     if (checkinTimer) clearInterval(checkinTimer);
                     checkinTimer = setInterval(() => {
                         durationSpan.textContent = formatDuration(activeCheckin.checkin_time);
                     }, 1000);
                 } else if (activeCheckin.status === 'approved') {
-                    statusSpan.innerHTML = '<span class="checkin-status status-approved">✅ Approved</span>';
+                    statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-approved">✅ Approved</span>';
                     checkOutBtn.disabled = false;
                     infoDiv.style.display = 'block';
                     timeSpan.textContent = formatTime(activeCheckin.checkin_time);
                     statusTextSpan.textContent = '✅ Approved - You can check out now';
+                    approvedBySpan.textContent = activeCheckin.approved_by || '-';
 
                     if (checkinTimer) clearInterval(checkinTimer);
                     checkinTimer = setInterval(() => {
                         durationSpan.textContent = formatDuration(activeCheckin.checkin_time);
                     }, 1000);
                 } else if (activeCheckin.status === 'rejected') {
-                    statusSpan.innerHTML = '<span class="checkin-status status-rejected">❌ Rejected</span>';
+                    statusSpan.innerHTML = '<span class="checkin-status-badge checkin-status-rejected">❌ Rejected</span>';
                     checkOutBtn.disabled = true;
                     infoDiv.style.display = 'block';
                     timeSpan.textContent = formatTime(activeCheckin.checkin_time);
                     statusTextSpan.textContent = '❌ Rejected by Admin';
+                    approvedBySpan.textContent = activeCheckin.approved_by || '-';
                 }
             } else {
                 checkInBtn.disabled = false;
