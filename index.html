@@ -668,7 +668,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS (Updated with Table View for 'All')
+        // VACATION FUNCTIONS
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -698,7 +698,7 @@
                 return;
             }
 
-            // ✅ For 'All' tab, show table view
+            // For 'All' tab, show table view
             if (filter === 'all') {
                 let html = `<table class="vacation-table">
                     <thead>
@@ -752,7 +752,7 @@
                 return;
             }
 
-            // ✅ For Pending/Approved/Rejected, show card view
+            // For Pending/Approved/Rejected, show card view
             let html = '<div class="vacation-grid">';
             filtered.forEach(v => {
                 const totalDays = calculateDays(v.startDate, v.endDate);
