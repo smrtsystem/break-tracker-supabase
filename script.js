@@ -1,5 +1,5 @@
 // ============================================
-// IMPORTS - FIXED PATH (no src/)
+// IMPORTS
 // ============================================
 import { 
     supabase,
@@ -16,7 +16,7 @@ import {
     getStats,
     subscribeToBreaks,
     formatDuration
-} from './supabase.js'  // ← ✅ FIXED: removed 'src/'
+} from './supabase.js'
 
 // ============================================
 // DOM ELEMENTS
