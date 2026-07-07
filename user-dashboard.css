@@ -84,6 +84,164 @@
 }
 
 /* ============================================
+   CHECK IN/OUT STYLES
+   ============================================ */
+.checkin-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+}
+
+.checkin-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-checkin {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-checkin:hover {
+    background: #45b7b0;
+}
+
+.btn-checkin:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-checkout {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-checkout:hover {
+    background: #e55a5a;
+}
+
+.btn-checkout:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   CHECK IN/OUT STATUS
+   ============================================ */
+.checkin-status {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #ffd93d;
+    color: #1a1a2e;
+}
+
+.status-approved {
+    background: #4ecdc4;
+    color: white;
+}
+
+.status-rejected {
+    background: #ff6b6b;
+    color: white;
+}
+
+.status-checkedout {
+    background: #667eea;
+    color: white;
+}
+
+/* ============================================
+   CHECK IN/OUT TABLE
+   ============================================ */
+.checkin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.checkin-table th {
+    text-align: left;
+    padding: 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.checkin-table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.checkin-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
+   CHECK IN/OUT ACTION BUTTONS
+   ============================================ */
+.btn-approve-checkin {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-approve-checkin:hover {
+    background: #45b7b0;
+}
+
+.btn-reject-checkin {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-reject-checkin:hover {
+    background: #e55a5a;
+}
+
+.btn-delete-checkin {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-delete-checkin:hover {
+    background: #c82333;
+}
+
+/* ============================================
    VACATION STYLES
    ============================================ */
 .vacation-grid {
@@ -151,9 +309,6 @@
     flex-wrap: wrap;
 }
 
-/* ============================================
-   VACATION STATUS COLORS
-   ============================================ */
 .vacation-status-approved {
     background: #4ecdc4;
     color: white;
@@ -174,9 +329,6 @@
     color: white;
 }
 
-/* ============================================
-   VACATION TAB BUTTONS
-   ============================================ */
 .vacation-tab-btn {
     padding: 8px 16px;
     border: 2px solid #e0e0e0;
@@ -197,9 +349,6 @@
     border-color: #667eea;
 }
 
-/* ============================================
-   VACATION ACTION BUTTONS
-   ============================================ */
 .accept-btn {
     background: #4ecdc4;
     color: white;
@@ -218,6 +367,126 @@
 .accept-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* ============================================
+   BREAK WALL
+   ============================================ */
+.break-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.break-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #4ecdc4;
+    transition: transform 0.2s;
+}
+
+.break-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.break-card.overdue {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.break-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.break-card .card-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.break-card .card-body p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.break-card .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.break-card .overdue-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+.break-card .on-time-text {
+    color: #4ecdc4;
+    font-weight: 600;
+}
+
+/* ============================================
+   HISTORY TABLE
+   ============================================ */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.history-table th {
+    text-align: left;
+    padding: 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.history-table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.history-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
+   NO BREAKS / EMPTY STATE
+   ============================================ */
+.no-breaks {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.no-breaks .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.empty {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-size: 14px;
+}
+
+.empty .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
 }
 
 /* ============================================
@@ -258,14 +527,39 @@
     .vacation-grid {
         grid-template-columns: 1fr;
     }
+
+    .break-wall {
+        grid-template-columns: 1fr;
+    }
+
+    .checkin-actions {
+        flex-direction: column;
+    }
+
+    .checkin-actions button {
+        width: 100%;
+    }
+
+    .checkin-table {
+        font-size: 12px;
+    }
+
+    .checkin-table th,
+    .checkin-table td {
+        padding: 6px 8px;
+    }
 }
 
 @media (max-width: 480px) {
     .vacation-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .vacation-card {
+        padding: 12px;
+    }
+
+    .break-card {
         padding: 12px;
     }
 }
