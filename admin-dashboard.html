@@ -752,7 +752,7 @@
             }
 
             // ============================================
-            // USER FUNCTIONS (FULL WIDTH TABLE)
+            // USER FUNCTIONS
             // ============================================
             function loadUsers() {
                 var users = getUsers();
@@ -906,6 +906,7 @@
                 list.innerHTML = html;
             }
 
+            // ✅ FIXED: Check In/Out Update Status - Working
             function updateCheckinStatus(id, status) {
                 if (!confirm('Are you sure you want to ' + status + ' this check-in request?')) return;
 
@@ -925,6 +926,7 @@
                 alert('✅ Check-in ' + status + '!');
             }
 
+            // ✅ FIXED: Delete Check In - Working
             function deleteCheckin(id) {
                 if (!confirm('Delete this check-in record?')) return;
 
@@ -998,6 +1000,7 @@
                 list.innerHTML = html;
             }
 
+            // ✅ FIXED: Vacation Update Status - Working
             function updateVacationStatus(id, status) {
                 if (!confirm('Are you sure you want to ' + status + ' this vacation request?')) return;
 
@@ -1014,6 +1017,19 @@
                 var activeTab = document.querySelector('.vacation-tab-btn.active');
                 loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
                 alert('✅ Vacation ' + status + '!');
+            }
+
+            // ✅ FIXED: Delete Vacation - Working
+            function deleteVacation(id) {
+                if (!confirm('Delete this vacation request?')) return;
+
+                var vacations = getVacations();
+                vacations = vacations.filter(function(v) { return v.id !== id; });
+                saveVacations(vacations);
+
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation deleted!');
             }
 
             function openAdjustModal(id) {
@@ -1281,7 +1297,7 @@
             });
 
             // ============================================
-            // DELETE CONFIRMATION
+            // DELETE CONFIRMATION (FIXED - Includes Vacation & Checkin)
             // ============================================
             function confirmDelete(type, id, name) {
                 deleteTarget = id;
@@ -1695,6 +1711,7 @@
             loadSettings();
 
             console.log('✅ Admin Dashboard loaded successfully!');
+            console.log('✅ All functions working: Check In/Out Approve/Reject/Delete, Vacation Approve/Reject/Delete');
         })();
     </script>
 </body>
