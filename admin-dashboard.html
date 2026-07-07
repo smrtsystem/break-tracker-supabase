@@ -126,7 +126,7 @@
                         </div>
                     </div>
 
-                    <!-- User Management -->
+                    <!-- User Management - FIXED: 100% width table -->
                     <div id="sub-user-management" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -136,7 +136,9 @@
                                     <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
                                 </div>
                             </div>
-                            <div id="usersList"><p class="empty">Loading users...</p></div>
+                            <div class="table-container">
+                                <div id="usersList"><p class="empty">Loading users...</p></div>
+                            </div>
                         </div>
                     </div>
 
@@ -151,7 +153,7 @@
                         </div>
                     </div>
 
-                    <!-- Role -->
+                    <!-- Role - FIXED: Add and Edit Role -->
                     <div id="sub-role" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -348,7 +350,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit User Modal -->
+    <!-- Add/Edit User Modal - FIXED: Role dropdown populated -->
     <div id="userModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -396,6 +398,7 @@
         </div>
     </div>
 
+    <!-- Department Modal -->
     <div id="deptModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
@@ -414,6 +417,7 @@
         </div>
     </div>
 
+    <!-- Role Modal - FIXED: Permissions included -->
     <div id="roleModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('roleModal')">&times;</button>
@@ -441,6 +445,7 @@
         </div>
     </div>
 
+    <!-- Adjust Modal -->
     <div id="adjustModal" class="modal">
         <div class="modal-content" style="max-width:450px;">
             <button class="modal-close" onclick="closeModal('adjustModal')">&times;</button>
@@ -472,6 +477,7 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content" style="max-width:400px;">
             <h2>⚠️ Confirm Delete</h2>
@@ -605,6 +611,42 @@
                 var diffTime = Math.abs(end - start);
                 var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                 return diffDays;
+            }
+
+            // ============================================
+            // LOAD DROPDOWNS
+            // ============================================
+            function loadDropdowns() {
+                var depts = getDepartments();
+                var roles = getRoles();
+
+                // Department dropdowns
+                ['empDepartment', 'userDepartment'].forEach(function(id) {
+                    var select = document.getElementById(id);
+                    if (select) {
+                        select.innerHTML = '';
+                        depts.forEach(function(d) {
+                            select.innerHTML += '<option value="' + d + '">' + d + '</option>';
+                        });
+                    }
+                });
+
+                // Role dropdown for User Management - FIXED
+                var userRoleSelect = document.getElementById('userRole');
+                if (userRoleSelect) {
+                    userRoleSelect.innerHTML = '';
+                    // Add default roles
+                    var defaultRoles = ['employee', 'manager', 'admin'];
+                    defaultRoles.forEach(function(r) {
+                        userRoleSelect.innerHTML += '<option value="' + r + '">' + r.charAt(0).toUpperCase() + r.slice(1) + '</option>';
+                    });
+                    // Add custom roles from storage
+                    roles.forEach(function(r) {
+                        if (!defaultRoles.includes(r.name.toLowerCase())) {
+                            userRoleSelect.innerHTML += '<option value="' + r.name.toLowerCase() + '">' + r.name + '</option>';
+                        }
+                    });
+                }
             }
 
             // ============================================
@@ -810,7 +852,7 @@
             });
 
             // ============================================
-            // USER FUNCTIONS
+            // USER FUNCTIONS - FIXED: Role in edit
             // ============================================
             function loadUsers() {
                 var users = getUsers();
@@ -823,7 +865,7 @@
                     return;
                 }
 
-                var html = '<table><thead><tr><th><input type="checkbox" id="selectAllUsers"></th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Employee Type</th><th>Actions</th></tr></thead><tbody>';
+                var html = '<table style="width:100%;"><thead><tr><th><input type="checkbox" id="selectAllUsers"></th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Employee Type</th><th>Actions</th></tr></thead><tbody>';
                 allUsers.forEach(function(u) {
                     var isAdmin = u.role === 'admin';
                     html += '<tr><td>' + (!isAdmin ? '<input type="checkbox" class="user-checkbox" value="' + u.id + '">' : '') + '</td><td><strong>' + u.name + '</strong></td><td>' + u.email + '</td><td><span class="badge ' + (isAdmin ? 'badge-orange' : 'badge-blue') + '">' + (u.role || 'employee') + '</span></td><td>' + (u.department || 'N/A') + '</td><td><span class="badge badge-purple">' + (u.employeeType || 'Local') + '</span></td><td>' + (!isAdmin ? '<button class="btn-primary btn-sm" onclick="editUser(\'' + u.id + '\')">✏️ Edit</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'user\',\'' + u.id + '\',\'' + u.name + '\')">🗑️ Delete</button>' : '<span class="badge badge-orange">Protected</span>') + '</td></tr>';
@@ -848,7 +890,17 @@
                 document.getElementById('userName').value = user.name;
                 document.getElementById('userEmail').value = user.email;
                 document.getElementById('userPassword').value = user.password || '123456';
-                document.getElementById('userRole').value = user.role || 'employee';
+                
+                // FIXED: Set role in dropdown
+                var roleSelect = document.getElementById('userRole');
+                var roleValue = user.role || 'employee';
+                for (var i = 0; i < roleSelect.options.length; i++) {
+                    if (roleSelect.options[i].value === roleValue) {
+                        roleSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                
                 document.getElementById('userDepartment').value = user.department || 'Engineering';
                 document.getElementById('userEmployeeType').value = user.employeeType || 'Local';
                 openModal('userModal');
@@ -908,6 +960,137 @@
             });
 
             // ============================================
+            // DEPARTMENT FUNCTIONS
+            // ============================================
+            function loadDepartments() {
+                var depts = getDepartments();
+                var list = document.getElementById('departmentsList');
+                if (depts.length === 0) {
+                    list.innerHTML = '<p class="empty">No departments found</p>';
+                    return;
+                }
+                var html = '';
+                depts.forEach(function(d, i) {
+                    html += '<div class="config-item"><span><strong>' + d + '</strong></span><div class="actions"><button class="btn-warning btn-sm" onclick="editDepartment(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'department\',' + i + ',\'' + d + '\')">🗑️</button></div></div>';
+                });
+                list.innerHTML = html;
+            }
+
+            function editDepartment(index) {
+                var depts = getDepartments();
+                var dept = depts[index];
+                if (!dept) return;
+                document.getElementById('editDeptId').value = index;
+                document.getElementById('deptModalTitle').textContent = 'Edit Department';
+                document.getElementById('deptName').value = dept;
+                openModal('deptModal');
+            }
+
+            window.editDepartment = editDepartment;
+
+            document.getElementById('deptForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var id = document.getElementById('editDeptId').value;
+                var name = document.getElementById('deptName').value.trim();
+                if (!name) { alert('Please enter a department name!'); return; }
+
+                var depts = getDepartments();
+                if (id !== '') {
+                    depts[parseInt(id)] = name;
+                    saveDepartments(depts);
+                    alert('✅ Department updated!');
+                } else {
+                    if (depts.includes(name)) {
+                        alert('❌ Department already exists!');
+                        return;
+                    }
+                    depts.push(name);
+                    saveDepartments(depts);
+                    alert('✅ Department added!');
+                }
+                closeModal('deptModal');
+                document.getElementById('deptForm').reset();
+                document.getElementById('editDeptId').value = '';
+                document.getElementById('deptModalTitle').textContent = 'Add Department';
+                loadDepartments();
+                loadDropdowns();
+            });
+
+            // ============================================
+            // ROLE FUNCTIONS - FIXED: Add and Edit Role
+            // ============================================
+            function loadRoles() {
+                var roles = getRoles();
+                var list = document.getElementById('rolesList');
+                if (roles.length === 0) {
+                    list.innerHTML = '<p class="empty">No roles found</p>';
+                    return;
+                }
+                var html = '';
+                roles.forEach(function(r, i) {
+                    var perms = [];
+                    if (r.createUser) perms.push('👤 Create Users');
+                    if (r.deleteUser) perms.push('🗑️ Delete Users');
+                    if (r.viewAll) perms.push('👁️ View All');
+                    if (r.manageSettings) perms.push('⚙️ Manage Settings');
+                    html += '<div class="config-item"><div><strong>' + r.name + '</strong><div style="font-size:12px;color:#666;margin-top:2px;">' + (perms.join(' • ') || 'No permissions') + '</div></div><div class="actions"><button class="btn-warning btn-sm" onclick="editRole(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'role\',' + i + ',\'' + r.name + '\')">🗑️</button></div></div>';
+                });
+                list.innerHTML = html;
+            }
+
+            function editRole(index) {
+                var roles = getRoles();
+                var role = roles[index];
+                if (!role) return;
+                document.getElementById('editRoleId').value = index;
+                document.getElementById('roleModalTitle').textContent = 'Edit Role';
+                document.getElementById('roleName').value = role.name;
+                document.getElementById('permCreateUser').checked = role.createUser || false;
+                document.getElementById('permDeleteUser').checked = role.deleteUser || false;
+                document.getElementById('permViewAll').checked = role.viewAll || false;
+                document.getElementById('permManageSettings').checked = role.manageSettings || false;
+                openModal('roleModal');
+            }
+
+            window.editRole = editRole;
+
+            document.getElementById('roleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var id = document.getElementById('editRoleId').value;
+                var name = document.getElementById('roleName').value.trim();
+                if (!name) { alert('Please enter a role name!'); return; }
+
+                var roleData = {
+                    name: name,
+                    createUser: document.getElementById('permCreateUser').checked,
+                    deleteUser: document.getElementById('permDeleteUser').checked,
+                    viewAll: document.getElementById('permViewAll').checked,
+                    manageSettings: document.getElementById('permManageSettings').checked
+                };
+
+                var roles = getRoles();
+                if (id !== '') {
+                    roles[parseInt(id)] = roleData;
+                    saveRoles(roles);
+                    alert('✅ Role updated!');
+                } else {
+                    if (roles.find(function(r) { return r.name.toLowerCase() === name.toLowerCase(); })) {
+                        alert('❌ Role already exists!');
+                        return;
+                    }
+                    roles.push(roleData);
+                    saveRoles(roles);
+                    alert('✅ Role added!');
+                }
+                closeModal('roleModal');
+                document.getElementById('roleForm').reset();
+                document.getElementById('editRoleId').value = '';
+                document.getElementById('roleModalTitle').textContent = 'Add Role';
+                loadRoles();
+                loadDropdowns();
+            });
+
+            // ============================================
             // BREAK LOG
             // ============================================
             function loadBreakLog() {
@@ -964,7 +1147,69 @@
             }
 
             // ============================================
-            // VACATION FUNCTIONS (FIXED - GLOBAL ACCESS)
+            // BREAK STATUS
+            // ============================================
+            function loadBreakStatus() {
+                var breaks = getBreaks();
+                var employees = getEmployees();
+                var settings = getSettings();
+                var active = breaks.filter(function(b) { return b.status === 'active'; });
+                var list = document.getElementById('breakStatusList');
+
+                if (active.length === 0) {
+                    list.innerHTML = '<p class="empty">✅ No one is on break</p>';
+                    return;
+                }
+
+                var html = '<div class="break-status-grid">';
+                active.forEach(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var empType = emp?.employeeType || 'Local';
+                    var maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
+                    var elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
+                    var isOverdue = elapsed > maxMinutes;
+                    var duration = formatDuration(b.start_time);
+                    var breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
+
+                    html += '<div class="break-status-card ' + (isOverdue ? 'overdue' : '') + '"><div class="name">' + (emp?.name || 'Unknown') + '</div><div class="dept">' + (emp?.department || 'N/A') + ' • ' + empType + ' • ' + (breakLabels[b.break_type] || 'Short') + '</div><div class="time">⏱️ ' + duration + ' elapsed</div><div class="time">' + (isOverdue ? '⚠️ Overdue! (' + elapsed + '/' + maxMinutes + ' min)' : '✅ Within limit (' + elapsed + '/' + maxMinutes + ' min)') + '</div><div class="action-btn"><button class="btn-danger btn-sm" onclick="endBreakFromAdmin(\'' + b.id + '\',\'' + b.employee_id + '\')">End Break</button></div></div>';
+                });
+                html += '</div>';
+                list.innerHTML = html;
+            }
+
+            function endBreakFromAdmin(breakId, employeeId) {
+                if (!confirm('End this break?')) return;
+
+                var breaks = getBreaks();
+                var index = breaks.findIndex(function(b) { return b.id === breakId; });
+                if (index === -1) return;
+
+                var endTime = new Date().toISOString();
+                var startTime = new Date(breaks[index].start_time);
+                var duration = Math.floor((new Date(endTime) - startTime) / 1000);
+
+                breaks[index] = { 
+                    ...breaks[index], 
+                    end_time: endTime, 
+                    status: 'completed', 
+                    duration: duration 
+                };
+                saveBreaks(breaks);
+
+                var employees = getEmployees();
+                var emp = employees.find(function(e) { return e.id === employeeId; });
+                if (emp) {
+                    emp.status = 'active';
+                    saveEmployees(employees);
+                }
+
+                loadBreakStatus();
+                loadStats();
+                alert('✅ Break ended!');
+            }
+
+            // ============================================
+            // VACATION FUNCTIONS
             // ============================================
             function loadVacations(filter) {
                 filter = filter || 'pending';
@@ -1024,7 +1269,6 @@
                 list.innerHTML = html;
             }
 
-            // ✅ GLOBAL FUNCTION for Vacation Approve/Reject
             window.updateVacationStatus = function(id, status) {
                 if (!confirm('Are you sure you want to ' + status + ' this vacation request?')) return;
 
@@ -1043,7 +1287,6 @@
                 alert('✅ Vacation ' + status + '!');
             };
 
-            // ✅ GLOBAL FUNCTION for Delete Vacation
             window.deleteVacation = function(id) {
                 if (!confirm('Delete this vacation request?')) return;
 
@@ -1112,7 +1355,7 @@
             });
 
             // ============================================
-            // CHECK IN/OUT FUNCTIONS (FIXED - GLOBAL ACCESS)
+            // CHECK IN/OUT FUNCTIONS
             // ============================================
             function loadCheckins(filter) {
                 filter = filter || 'pending';
@@ -1181,7 +1424,6 @@
                 list.innerHTML = html;
             }
 
-            // ✅ GLOBAL FUNCTION for Check In/Out Approve/Reject
             window.updateCheckinStatus = function(id, status) {
                 if (!confirm('Are you sure you want to ' + status + ' this check-in request?')) return;
 
@@ -1201,7 +1443,6 @@
                 alert('✅ Check-in ' + status + '!');
             };
 
-            // ✅ GLOBAL FUNCTION for Delete Check In
             window.deleteCheckin = function(id) {
                 if (!confirm('Delete this check-in record?')) return;
 
@@ -1213,101 +1454,6 @@
                 loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
                 alert('✅ Check-in deleted!');
             };
-
-            // ============================================
-            // OTHER FUNCTIONS
-            // ============================================
-            function loadDepartments() {
-                var depts = getDepartments();
-                var list = document.getElementById('departmentsList');
-                if (depts.length === 0) {
-                    list.innerHTML = '<p class="empty">No departments found</p>';
-                    return;
-                }
-                var html = '';
-                depts.forEach(function(d, i) {
-                    html += '<div class="config-item"><span><strong>' + d + '</strong></span><div class="actions"><button class="btn-warning btn-sm" onclick="editDepartment(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'department\',' + i + ',\'' + d + '\')">🗑️</button></div></div>';
-                });
-                list.innerHTML = html;
-            }
-
-            function loadRoles() {
-                var roles = getRoles();
-                var list = document.getElementById('rolesList');
-                if (roles.length === 0) {
-                    list.innerHTML = '<p class="empty">No roles found</p>';
-                    return;
-                }
-                var html = '';
-                roles.forEach(function(r, i) {
-                    var perms = [];
-                    if (r.createUser) perms.push('👤 Create Users');
-                    if (r.deleteUser) perms.push('🗑️ Delete Users');
-                    if (r.viewAll) perms.push('👁️ View All');
-                    if (r.manageSettings) perms.push('⚙️ Manage Settings');
-                    html += '<div class="config-item"><div><strong>' + r.name + '</strong><div style="font-size:12px;color:#666;margin-top:2px;">' + (perms.join(' • ') || 'No permissions') + '</div></div><div class="actions"><button class="btn-warning btn-sm" onclick="editRole(' + i + ')">✏️</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'role\',' + i + ',\'' + r.name + '\')">🗑️</button></div></div>';
-                });
-                list.innerHTML = html;
-            }
-
-            function loadBreakStatus() {
-                var breaks = getBreaks();
-                var employees = getEmployees();
-                var settings = getSettings();
-                var active = breaks.filter(function(b) { return b.status === 'active'; });
-                var list = document.getElementById('breakStatusList');
-
-                if (active.length === 0) {
-                    list.innerHTML = '<p class="empty">✅ No one is on break</p>';
-                    return;
-                }
-
-                var html = '<div class="break-status-grid">';
-                active.forEach(function(b) {
-                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
-                    var empType = emp?.employeeType || 'Local';
-                    var maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
-                    var elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
-                    var isOverdue = elapsed > maxMinutes;
-                    var duration = formatDuration(b.start_time);
-                    var breakLabels = { short: '☕ Short', lunch: '🍱 Lunch', personal: '👤 Personal', meeting: '📋 Meeting' };
-
-                    html += '<div class="break-status-card ' + (isOverdue ? 'overdue' : '') + '"><div class="name">' + (emp?.name || 'Unknown') + '</div><div class="dept">' + (emp?.department || 'N/A') + ' • ' + empType + ' • ' + (breakLabels[b.break_type] || 'Short') + '</div><div class="time">⏱️ ' + duration + ' elapsed</div><div class="time">' + (isOverdue ? '⚠️ Overdue! (' + elapsed + '/' + maxMinutes + ' min)' : '✅ Within limit (' + elapsed + '/' + maxMinutes + ' min)') + '</div><div class="action-btn"><button class="btn-danger btn-sm" onclick="endBreakFromAdmin(\'' + b.id + '\',\'' + b.employee_id + '\')">End Break</button></div></div>';
-                });
-                html += '</div>';
-                list.innerHTML = html;
-            }
-
-            function endBreakFromAdmin(breakId, employeeId) {
-                if (!confirm('End this break?')) return;
-
-                var breaks = getBreaks();
-                var index = breaks.findIndex(function(b) { return b.id === breakId; });
-                if (index === -1) return;
-
-                var endTime = new Date().toISOString();
-                var startTime = new Date(breaks[index].start_time);
-                var duration = Math.floor((new Date(endTime) - startTime) / 1000);
-
-                breaks[index] = { 
-                    ...breaks[index], 
-                    end_time: endTime, 
-                    status: 'completed', 
-                    duration: duration 
-                };
-                saveBreaks(breaks);
-
-                var employees = getEmployees();
-                var emp = employees.find(function(e) { return e.id === employeeId; });
-                if (emp) {
-                    emp.status = 'active';
-                    saveEmployees(employees);
-                }
-
-                loadBreakStatus();
-                loadStats();
-                alert('✅ Break ended!');
-            }
 
             // ============================================
             // SETTINGS
@@ -1426,7 +1572,7 @@
             });
 
             // ============================================
-            // DELETE CONFIRMATION (GLOBAL)
+            // DELETE CONFIRMATION
             // ============================================
             window.confirmDelete = function(type, id, name) {
                 deleteTarget = id;
@@ -1459,10 +1605,8 @@
                     loadRoles();
                     loadDropdowns();
                 } else if (deleteType === 'vacation') {
-                    // ✅ FIXED: Delete Vacation using global function
                     window.deleteVacation(deleteTarget);
                 } else if (deleteType === 'checkin') {
-                    // ✅ FIXED: Delete Checkin using global function
                     window.deleteCheckin(deleteTarget);
                 }
                 loadStats();
@@ -1479,24 +1623,7 @@
             });
 
             // ============================================
-            // DROPDOWNS
-            // ============================================
-            function loadDropdowns() {
-                var depts = getDepartments();
-
-                ['empDepartment', 'userDepartment'].forEach(function(id) {
-                    var select = document.getElementById(id);
-                    if (select) {
-                        select.innerHTML = '';
-                        depts.forEach(function(d) {
-                            select.innerHTML += '<option value="' + d + '">' + d + '</option>';
-                        });
-                    }
-                });
-            }
-
-            // ============================================
-            // MODAL FUNCTIONS (GLOBAL)
+            // MODAL FUNCTIONS
             // ============================================
             window.openModal = function(id) {
                 document.getElementById(id).style.display = 'block';
@@ -1622,6 +1749,9 @@
 
             console.log('✅ Admin Dashboard loaded successfully!');
             console.log('✅ All functions working: Check In/Out Approve/Reject/Delete, Vacation Approve/Reject/Delete');
+            console.log('✅ User Management table is 100% width');
+            console.log('✅ Role dropdown in User Edit is populated');
+            console.log('✅ Role tab Add/Edit works with permissions');
         })();
     </script>
 </body>
