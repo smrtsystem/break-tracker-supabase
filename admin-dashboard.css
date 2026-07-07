@@ -193,144 +193,120 @@
 }
 
 /* ============================================
-   CHECK IN/OUT TABLE
+   FILTERS
    ============================================ */
-.checkin-table {
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filters input:focus,
+.filters select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* ============================================
+   BREAK LOG FILTERS
+   ============================================ */
+.break-log-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.break-log-filters .form-group {
+    margin-bottom: 0;
+}
+
+.break-log-filters .form-group label {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.break-log-filters input,
+.break-log-filters select {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* ============================================
+   TABLES - FULL WIDTH
+   ============================================ */
+.table-container {
+    overflow-x: auto;
     width: 100%;
+}
+
+.table-container table {
+    width: 100%;
+    min-width: 600px;
     border-collapse: collapse;
     font-size: 14px;
 }
 
-.checkin-table th {
+.table-container table th {
     text-align: left;
     padding: 10px 12px;
     background: #f8f9fa;
     font-weight: 600;
     border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
 }
 
-.checkin-table td {
+.table-container table td {
     padding: 10px 12px;
     border-bottom: 1px solid #f0f0f0;
 }
 
-.checkin-table tr:hover {
+.table-container table tr:hover {
     background: #f8f9fa;
 }
 
 /* ============================================
-   CHECK IN/OUT STATUS BADGES
+   BADGES
    ============================================ */
-.checkin-status-badge {
-    padding: 4px 14px;
-    border-radius: 20px;
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
-    display: inline-block;
+    color: white;
 }
 
-.checkin-status-pending {
+.badge-green {
+    background: #4ecdc4;
+}
+
+.badge-orange {
     background: #ffd93d;
     color: #1a1a2e;
 }
 
-.checkin-status-approved {
-    background: #4ecdc4;
-    color: white;
-}
-
-.checkin-status-rejected {
+.badge-red {
     background: #ff6b6b;
-    color: white;
 }
 
-.checkin-status-checkedout {
+.badge-blue {
     background: #667eea;
-    color: white;
 }
 
-/* ============================================
-   CHECK IN/OUT TAB BUTTONS
-   ============================================ */
-.checkin-tab-btn {
-    padding: 8px 16px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.3s;
-    color: #555;
-}
-
-.checkin-tab-btn:hover {
-    background: #f0f2f5;
-    border-color: #667eea;
-}
-
-.checkin-tab-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-.checkin-tab-btn .icon {
-    margin-right: 4px;
-}
-
-/* ============================================
-   CHECK IN/OUT ACTION BUTTONS
-   ============================================ */
-.btn-approve-checkin {
-    background: #4ecdc4;
-    color: white;
-    border: none;
-    padding: 4px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.btn-approve-checkin:hover {
-    background: #45b7b0;
-}
-
-.btn-reject-checkin {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 4px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.btn-reject-checkin:hover {
-    background: #e55a5a;
-}
-
-.btn-delete-checkin {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 4px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.btn-delete-checkin:hover {
-    background: #c82333;
-}
-
-.checkin-actions-cell {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+.badge-purple {
+    background: #a29bfe;
 }
 
 /* ============================================
@@ -344,14 +320,15 @@
 
 .vacation-table th {
     text-align: left;
-    padding: 10px;
+    padding: 10px 12px;
     background: #f8f9fa;
     font-weight: 600;
     border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
 }
 
 .vacation-table td {
-    padding: 10px;
+    padding: 10px 12px;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -359,6 +336,9 @@
     background: #f8f9fa;
 }
 
+/* ============================================
+   VACATION STATUS
+   ============================================ */
 .vacation-status-approved {
     background: #4ecdc4;
     color: white;
@@ -379,15 +359,15 @@
     color: white;
 }
 
+/* ============================================
+   VACATION ACTIONS
+   ============================================ */
 .vacation-actions {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
 }
 
-/* ============================================
-   VACATION TAB BUTTONS
-   ============================================ */
 .vacation-tab-btn {
     padding: 8px 16px;
     border: 2px solid #e0e0e0;
@@ -474,6 +454,148 @@
 }
 
 /* ============================================
+   CHECK IN/OUT STATUS BADGES
+   ============================================ */
+.checkin-status-badge {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.checkin-status-pending {
+    background: #ffd93d;
+    color: #1a1a2e;
+}
+
+.checkin-status-approved {
+    background: #4ecdc4;
+    color: white;
+}
+
+.checkin-status-rejected {
+    background: #ff6b6b;
+    color: white;
+}
+
+.checkin-status-checkedout {
+    background: #667eea;
+    color: white;
+}
+
+/* ============================================
+   CHECK IN/OUT TAB BUTTONS
+   ============================================ */
+.checkin-tab-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s;
+    color: #555;
+}
+
+.checkin-tab-btn:hover {
+    background: #f0f2f5;
+    border-color: #667eea;
+}
+
+.checkin-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.checkin-tab-btn .icon {
+    margin-right: 4px;
+}
+
+/* ============================================
+   CHECK IN/OUT ACTION BUTTONS
+   ============================================ */
+.checkin-actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-approve-checkin {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-approve-checkin:hover {
+    background: #45b7b0;
+}
+
+.btn-reject-checkin {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-reject-checkin:hover {
+    background: #e55a5a;
+}
+
+.btn-delete-checkin {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-delete-checkin:hover {
+    background: #c82333;
+}
+
+/* ============================================
+   CHECK IN/OUT TABLE
+   ============================================ */
+.checkin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.checkin-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+.checkin-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.checkin-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ============================================
    CONFIG ITEMS
    ============================================ */
 .config-item {
@@ -530,90 +652,6 @@
 
 .break-status-card .action-btn {
     margin-top: 8px;
-}
-
-/* ============================================
-   BREAK LOG FILTERS
-   ============================================ */
-.break-log-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.break-log-filters .form-group {
-    margin-bottom: 0;
-}
-
-.break-log-filters .form-group label {
-    font-size: 12px;
-    margin-bottom: 2px;
-}
-
-.break-log-filters input,
-.break-log-filters select {
-    padding: 6px 10px;
-    font-size: 13px;
-}
-
-/* ============================================
-   FILTERS
-   ============================================ */
-.filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.filters input,
-.filters select {
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    flex: 1;
-    min-width: 150px;
-}
-
-.filters input:focus,
-.filters select:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-/* ============================================
-   BADGES
-   ============================================ */
-.badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-}
-
-.badge-green {
-    background: #4ecdc4;
-}
-
-.badge-orange {
-    background: #ffd93d;
-    color: #1a1a2e;
-}
-
-.badge-red {
-    background: #ff6b6b;
-}
-
-.badge-blue {
-    background: #667eea;
-}
-
-.badge-purple {
-    background: #a29bfe;
 }
 
 /* ============================================
@@ -896,12 +934,12 @@
         grid-template-columns: 1fr 1fr;
     }
 
-    .checkin-table {
+    .table-container table {
         font-size: 12px;
     }
 
-    .checkin-table th,
-    .checkin-table td {
+    .table-container table th,
+    .table-container table td {
         padding: 6px 8px;
     }
 
@@ -913,6 +951,14 @@
         width: 100%;
     }
 
+    .vacation-actions {
+        flex-direction: column;
+    }
+
+    .vacation-actions button {
+        width: 100%;
+    }
+
     .vacation-table {
         font-size: 12px;
     }
@@ -920,14 +966,6 @@
     .vacation-table th,
     .vacation-table td {
         padding: 6px 8px;
-    }
-
-    .vacation-actions {
-        flex-direction: column;
-    }
-
-    .vacation-actions button {
-        width: 100%;
     }
 
     .break-log-filters {
@@ -955,6 +993,12 @@
 
     .break-status-grid {
         grid-template-columns: 1fr;
+    }
+
+    .config-item {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
     }
 }
 
