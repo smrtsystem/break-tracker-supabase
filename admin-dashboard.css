@@ -244,7 +244,7 @@
 }
 
 /* ============================================
-   TABLES - FULL WIDTH (FIXED)
+   TABLES - FULL WIDTH
    ============================================ */
 .table-container {
     overflow-x: auto;
@@ -277,39 +277,6 @@
 }
 
 /* ============================================
-   BADGES
-   ============================================ */
-.badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-}
-
-.badge-green {
-    background: #4ecdc4;
-}
-
-.badge-orange {
-    background: #ffd93d;
-    color: #1a1a2e;
-}
-
-.badge-red {
-    background: #ff6b6b;
-}
-
-.badge-blue {
-    background: #667eea;
-}
-
-.badge-purple {
-    background: #a29bfe;
-}
-
-/* ============================================
    VACATION TABLE
    ============================================ */
 .vacation-table {
@@ -337,26 +304,42 @@
 }
 
 /* ============================================
-   VACATION STATUS
+   VACATION STATUS BADGES
    ============================================ */
 .vacation-status-approved {
     background: #4ecdc4;
     color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .vacation-status-pending {
     background: #ffd93d;
     color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .vacation-status-rejected {
     background: #ff6b6b;
     color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .vacation-status-accepted {
     background: #667eea;
     color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 /* ============================================
@@ -593,6 +576,39 @@
 
 .checkin-table tr:hover {
     background: #f8f9fa;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+.badge-green {
+    background: #4ecdc4;
+}
+
+.badge-orange {
+    background: #ffd93d;
+    color: #1a1a2e;
+}
+
+.badge-red {
+    background: #ff6b6b;
+}
+
+.badge-blue {
+    background: #667eea;
+}
+
+.badge-purple {
+    background: #a29bfe;
 }
 
 /* ============================================
