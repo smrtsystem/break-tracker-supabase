@@ -54,10 +54,9 @@
             <div class="admin-content">
 
                 <!-- ========================================== -->
-                <!-- SECTION 1: BREAK TRACKER (All Admin Functions) -->
+                <!-- SECTION 1: BREAK TRACKER -->
                 <!-- ========================================== -->
                 <div id="section-break-tracker" class="admin-section active">
-                    
                     <!-- Stats -->
                     <div class="stats-grid">
                         <div class="stat-card" style="border-left-color:#667eea;">
@@ -101,7 +100,7 @@
                         </button>
                     </div>
 
-                    <!-- SUB SECTION: User Management -->
+                    <!-- SUB: User Management -->
                     <div id="sub-user-management" class="admin-section active">
                         <div class="card">
                             <div class="card-header">
@@ -115,7 +114,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB SECTION: Department -->
+                    <!-- SUB: Department -->
                     <div id="sub-department" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -126,7 +125,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB SECTION: Role -->
+                    <!-- SUB: Role -->
                     <div id="sub-role" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -137,7 +136,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB SECTION: Break Status -->
+                    <!-- SUB: Break Status -->
                     <div id="sub-break-status" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -148,7 +147,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB SECTION: Break Log -->
+                    <!-- SUB: Break Log -->
                     <div id="sub-break-log" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -190,7 +189,7 @@
                         </div>
                     </div>
 
-                    <!-- SUB SECTION: Settings -->
+                    <!-- SUB: Settings -->
                     <div id="sub-settings" class="admin-section">
                         <div class="card">
                             <h2>⚙️ Break Settings</h2>
@@ -215,17 +214,15 @@
                                 <button type="submit" class="btn-primary">Save Settings</button>
                             </form>
                         </div>
-
                         <div class="card">
                             <h2>📊 Current Settings</h2>
                             <div id="currentSettings"><p class="empty">Loading settings...</p></div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- ========================================== -->
-                <!-- SECTION 2: VACATION -->
+                <!-- SECTION 2: VACATION MANAGEMENT -->
                 <!-- ========================================== -->
                 <div id="section-vacation" class="admin-section">
                     <div class="card">
@@ -348,6 +345,30 @@
         </div>
     </div>
 
+    <!-- Adjust Days Modal -->
+    <div id="adjustModal" class="modal">
+        <div class="modal-content" style="max-width:400px;">
+            <button class="modal-close" onclick="closeModal('adjustModal')">&times;</button>
+            <h2>📝 Adjust Vacation Days</h2>
+            <form id="adjustForm">
+                <input type="hidden" id="adjustVacationId">
+                <div class="form-group">
+                    <label>Current Days</label>
+                    <input type="number" id="currentDays" disabled style="background:#f0f0f0;">
+                </div>
+                <div class="form-group">
+                    <label>Adjusted Days</label>
+                    <input type="number" id="adjustedDays" required min="1" placeholder="Enter new days">
+                    <small>Enter the new number of vacation days</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('adjustModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content" style="max-width:400px;">
@@ -398,7 +419,6 @@
                 document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
                 document.getElementById('section-' + section).classList.add('active');
 
-                // Load data based on section
                 if (section === 'break-tracker') {
                     loadStats();
                     loadUsers();
@@ -476,6 +496,14 @@
                 month: 'short', 
                 day: 'numeric' 
             });
+        }
+
+        function calculateDays(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            return diffDays;
         }
 
         // ============================================
@@ -984,40 +1012,84 @@
                 return;
             }
             
-            let html = '<div class="vacation-grid">';
+            let html = `<table class="vacation-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Days</th>
+                        <th>Adjusted Days</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+                
             filtered.forEach(v => {
                 const emp = employees.find(e => e.id === v.employee_id);
-                const statusClass = v.status === 'approved' ? 'vacation-status-approved' : (v.status === 'rejected' ? 'vacation-status-rejected' : 'vacation-status-pending');
+                const totalDays = calculateDays(v.startDate, v.endDate);
+                const adjustedDays = v.adjustedDays || totalDays;
                 
-                html += `<div class="vacation-card">
-                    <div class="emp-name">${emp?.name || 'Unknown'}</div>
-                    <div class="emp-dept">${emp?.department || 'N/A'} • ${emp?.employeeType || 'Local'}</div>
-                    <div class="vacation-dates">
-                        <strong>From:</strong> ${formatDate(v.startDate)}<br>
-                        <strong>To:</strong> ${formatDate(v.endDate)}
-                    </div>
-                    <div style="margin-top:8px;">
-                        <span class="status-badge ${statusClass}">${v.status || 'Pending'}</span>
-                        ${v.notes ? `<div style="font-size:12px;color:#666;margin-top:4px;">📝 ${v.notes}</div>` : ''}
-                    </div>
-                    <div class="action-buttons">
-                        ${v.status === 'pending' ? `
-                            <button class="btn-approve" onclick="updateVacationStatus('${v.id}','approved')">✅ Approve</button>
-                            <button class="btn-reject" onclick="updateVacationStatus('${v.id}','rejected')">❌ Reject</button>
-                        ` : ''}
-                        <button class="btn-delete" onclick="deleteVacation('${v.id}')">🗑️ Delete</button>
-                    </div>
-                </div>`;
+                let statusClass = '';
+                let statusText = v.status;
+                if (v.status === 'approved' && v.userAccepted === true) {
+                    statusClass = 'vacation-status-accepted';
+                    statusText = 'Accepted ✅';
+                } else if (v.status === 'approved') {
+                    statusClass = 'vacation-status-approved';
+                    statusText = 'Approved';
+                } else if (v.status === 'pending') {
+                    statusClass = 'vacation-status-pending';
+                    statusText = 'Pending';
+                } else if (v.status === 'rejected') {
+                    statusClass = 'vacation-status-rejected';
+                    statusText = 'Rejected';
+                }
+                
+                const isApproved = v.status === 'approved' && v.userAccepted !== true;
+                const isPending = v.status === 'pending';
+                
+                html += `<tr>
+                    <td><strong>${emp?.name || 'Unknown'}</strong></td>
+                    <td>${emp?.department || 'N/A'}</td>
+                    <td>${v.vacationType || 'Local'}</td>
+                    <td>${formatDate(v.startDate)}</td>
+                    <td>${formatDate(v.endDate)}</td>
+                    <td>${totalDays}</td>
+                    <td>${adjustedDays !== totalDays ? `<strong style="color:#ff6b6b;">${adjustedDays}</strong> (was ${totalDays})` : totalDays}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="vacation-actions">
+                            ${isPending ? `
+                                <button class="btn-approve" onclick="updateVacationStatus('${v.id}','approved')">✅ Approve</button>
+                                <button class="btn-reject" onclick="updateVacationStatus('${v.id}','rejected')">❌ Reject</button>
+                            ` : ''}
+                            ${isApproved ? `
+                                <button class="btn-adjust" onclick="openAdjustModal('${v.id}', ${totalDays}, ${adjustedDays})">📝 Adjust Days</button>
+                            ` : ''}
+                            <button class="btn-delete" onclick="confirmDelete('vacation','${v.id}','${emp?.name || 'Unknown'}')">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>`;
             });
-            html += '</div>';
+            html += '</tbody></table>';
             list.innerHTML = html;
         }
 
         function updateVacationStatus(id, status) {
+            if (!confirm(`Are you sure you want to ${status} this vacation request?`)) return;
+            
             let vacations = getVacations();
             const index = vacations.findIndex(v => v.id === id);
             if (index === -1) return;
+            
             vacations[index].status = status;
+            if (status === 'approved' && !vacations[index].adjustedDays) {
+                vacations[index].adjustedDays = calculateDays(vacations[index].startDate, vacations[index].endDate);
+            }
             saveVacations(vacations);
             
             const activeTab = document.querySelector('.vacation-tab-btn.active');
@@ -1025,15 +1097,98 @@
             alert(`✅ Vacation ${status}!`);
         }
 
-        function deleteVacation(id) {
-            if (!confirm('Delete this vacation request?')) return;
+        function openAdjustModal(id, currentDays, adjustedDays) {
+            document.getElementById('adjustVacationId').value = id;
+            document.getElementById('currentDays').value = currentDays;
+            document.getElementById('adjustedDays').value = adjustedDays || currentDays;
+            openModal('adjustModal');
+        }
+
+        document.getElementById('adjustForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('adjustVacationId').value;
+            const adjustedDays = parseInt(document.getElementById('adjustedDays').value);
+            
+            if (adjustedDays < 1) {
+                alert('Days must be at least 1!');
+                return;
+            }
+            
             let vacations = getVacations();
-            vacations = vacations.filter(v => v.id !== id);
+            const index = vacations.findIndex(v => v.id === id);
+            if (index === -1) return;
+            
+            vacations[index].adjustedDays = adjustedDays;
             saveVacations(vacations);
             
+            closeModal('adjustModal');
             const activeTab = document.querySelector('.vacation-tab-btn.active');
             loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-            alert('✅ Vacation deleted!');
+            alert('✅ Days adjusted successfully!');
+        });
+
+        function confirmDelete(type, id, name) {
+            deleteTarget = id;
+            deleteType = type;
+            document.getElementById('deleteMessage').textContent = `Delete "${name}"? This cannot be undone!`;
+            openModal('deleteModal');
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (deleteType === 'user') { 
+                deleteUser(deleteTarget); 
+                loadUsers(); 
+            } else if (deleteType === 'department') { 
+                deleteDepartment(parseInt(deleteTarget)); 
+            } else if (deleteType === 'role') { 
+                deleteRole(parseInt(deleteTarget)); 
+            } else if (deleteType === 'vacation') {
+                let vacations = getVacations();
+                vacations = vacations.filter(v => v.id !== deleteTarget);
+                saveVacations(vacations);
+                const activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+            }
+            loadStats();
+            closeModal('deleteModal');
+            deleteTarget = null;
+            deleteType = null;
+            alert('✅ Deleted successfully!');
+        });
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            closeModal('deleteModal');
+            deleteTarget = null;
+            deleteType = null;
+        });
+
+        // ============================================
+        // DROPDOWNS
+        // ============================================
+        function loadDropdowns() {
+            const depts = getDepartments();
+            const roles = getRoles();
+            
+            ['userDepartment'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) { 
+                    select.innerHTML = ''; 
+                    depts.forEach(d => { 
+                        select.innerHTML += `<option value="${d}">${d}</option>`; 
+                    }); 
+                }
+            });
+            
+            const userRoleSelect = document.getElementById('userRole');
+            if (userRoleSelect) {
+                userRoleSelect.innerHTML = '<option value="employee">Employee</option>';
+                roles.forEach(r => { 
+                    if (r.name !== 'Admin' && r.name !== 'admin') { 
+                        userRoleSelect.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`; 
+                    } 
+                });
+            }
         }
 
         // ============================================
@@ -1100,10 +1255,13 @@
                 return;
             }
             
-            let csv = 'Employee,Department,Type,Start,End,Status,Notes\n';
+            let csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
             vacations.forEach(v => {
                 const emp = employees.find(e => e.id === v.employee_id);
-                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${v.vacationType || 'Local'},${v.startDate},${v.endDate},${v.status || 'Pending'},${v.notes || ''}\n`;
+                const totalDays = calculateDays(v.startDate, v.endDate);
+                const adjustedDays = v.adjustedDays || totalDays;
+                const isAccepted = v.userAccepted ? 'Yes' : 'No';
+                csv += `${emp?.name || 'Unknown'},${emp?.department || 'N/A'},${v.vacationType || 'Local'},${v.startDate},${v.endDate},${totalDays},${adjustedDays},${v.status},${isAccepted}\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1123,66 +1281,6 @@
                 alert('✅ All break records cleared!');
             }
         });
-
-        // ============================================
-        // DELETE CONFIRMATION
-        // ============================================
-        function confirmDelete(type, id, name) {
-            deleteTarget = id;
-            deleteType = type;
-            document.getElementById('deleteMessage').textContent = `Delete "${name}"? This cannot be undone!`;
-            openModal('deleteModal');
-        }
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteType === 'user') { 
-                deleteUser(deleteTarget); 
-                loadUsers(); 
-            } else if (deleteType === 'department') { 
-                deleteDepartment(parseInt(deleteTarget)); 
-            } else if (deleteType === 'role') { 
-                deleteRole(parseInt(deleteTarget)); 
-            }
-            loadStats();
-            closeModal('deleteModal');
-            deleteTarget = null;
-            deleteType = null;
-            alert('✅ Deleted successfully!');
-        });
-
-        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-            closeModal('deleteModal');
-            deleteTarget = null;
-            deleteType = null;
-        });
-
-        // ============================================
-        // DROPDOWNS
-        // ============================================
-        function loadDropdowns() {
-            const depts = getDepartments();
-            const roles = getRoles();
-            
-            ['userDepartment'].forEach(id => {
-                const select = document.getElementById(id);
-                if (select) { 
-                    select.innerHTML = ''; 
-                    depts.forEach(d => { 
-                        select.innerHTML += `<option value="${d}">${d}</option>`; 
-                    }); 
-                }
-            });
-            
-            const userRoleSelect = document.getElementById('userRole');
-            if (userRoleSelect) {
-                userRoleSelect.innerHTML = '<option value="employee">Employee</option>';
-                roles.forEach(r => { 
-                    if (r.name !== 'Admin' && r.name !== 'admin') { 
-                        userRoleSelect.innerHTML += `<option value="${r.name.toLowerCase()}">${r.name}</option>`; 
-                    } 
-                });
-            }
-        }
 
         // ============================================
         // MODAL FUNCTIONS
