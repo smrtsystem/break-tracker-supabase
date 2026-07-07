@@ -3,7 +3,7 @@
 // ============================================
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm'
 
-// YOUR SUPABASE CREDENTIALS (from your dashboard)
+// YOUR SUPABASE CREDENTIALS
 const SUPABASE_URL = 'https://bdufvingtwdpzzwllrc.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ2dW5ndHdkcHp6d2lpbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTEyMjQsImV4cCI6MjA5ODc4NzIyNH0.Wr9KqZFk2SD6d2yA89qp-grJX4lNvJQg8estmVrfrdI'
 
@@ -125,7 +125,6 @@ export async function deleteEmployee(id) {
 // ============================================
 export async function startBreak(employeeId, breakType = 'short') {
   try {
-    // Check if employee already has active break
     const { data: existingBreak } = await supabase
       .from('breaks')
       .select('id')
@@ -167,7 +166,6 @@ export async function endBreak(breakId, employeeId) {
   try {
     const endTime = new Date().toISOString()
     
-    // Get start time to calculate duration
     const { data: breakData } = await supabase
       .from('breaks')
       .select('start_time')
@@ -304,13 +302,10 @@ export function formatDuration(startTime, endTime = null) {
   const secs = diff % 60
   return `${mins}m ${secs}s`
 }
-// ============================================
-// ADMIN FUNCTIONS (Add to supabase.js)
-// ============================================
 
-/**
- * Check if current user is admin
- */
+// ============================================
+// ADMIN FUNCTIONS
+// ============================================
 export async function isAdmin() {
     try {
         const user = await getCurrentUser()
@@ -328,9 +323,6 @@ export async function isAdmin() {
     }
 }
 
-/**
- * Get admin password from settings
- */
 export async function getAdminPassword() {
     try {
         const { data } = await supabase
@@ -345,12 +337,8 @@ export async function getAdminPassword() {
     }
 }
 
-/**
- * Check admin credentials
- */
 export async function verifyAdmin(email, password) {
     try {
-        // Check if user is admin
         const { data: user } = await supabase
             .from('users')
             .select('id, role')
@@ -360,7 +348,6 @@ export async function verifyAdmin(email, password) {
         
         if (!user) return { success: false, error: 'Not an admin account' }
         
-        // Check password
         const adminPassword = await getAdminPassword()
         if (password !== adminPassword) {
             return { success: false, error: 'Invalid password' }
