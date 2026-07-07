@@ -31,215 +31,222 @@
             </div>
         </div>
 
-        <!-- Admin Navigation Buttons -->
-        <div class="admin-nav-buttons">
-            <button class="admin-nav-btn active" data-section="break-tracker">
-                <span class="icon">⏱️</span> Break Tracker
-            </button>
-            <button class="admin-nav-btn" data-section="vacation">
-                <span class="icon">🏖️</span> Vacation
-            </button>
-            <button class="admin-nav-btn" data-section="user-management">
-                <span class="icon">👤</span> User Management
-            </button>
-            <button class="admin-nav-btn" data-section="department">
-                <span class="icon">🏢</span> Department
-            </button>
-            <button class="admin-nav-btn" data-section="role">
-                <span class="icon">👔</span> Role
-            </button>
-            <button class="admin-nav-btn" data-section="break-status">
-                <span class="icon">⏱️</span> Break Status
-            </button>
-            <button class="admin-nav-btn" data-section="break-log">
-                <span class="icon">📋</span> Break Log
-            </button>
-            <button class="admin-nav-btn" data-section="settings">
-                <span class="icon">⚙️</span> Settings
-            </button>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION 1: BREAK TRACKER -->
-        <!-- ========================================== -->
-        <div id="section-break-tracker" class="admin-section active">
-            <div class="card">
-                <h2>📊 Break Tracker Overview</h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
-                    <div style="background:#f8f9fa;padding:16px;border-radius:8px;text-align:center;border-left:4px solid #667eea;">
-                        <h3 style="font-size:13px;color:#666;">👥 Total Employees</h3>
-                        <p id="totalEmployees" style="font-size:28px;font-weight:700;margin:4px 0;">0</p>
-                    </div>
-                    <div style="background:#f8f9fa;padding:16px;border-radius:8px;text-align:center;border-left:4px solid #ff6b6b;">
-                        <h3 style="font-size:13px;color:#666;">🔴 Active Breaks</h3>
-                        <p id="activeBreaks" style="font-size:28px;font-weight:700;margin:4px 0;">0</p>
-                    </div>
-                    <div style="background:#f8f9fa;padding:16px;border-radius:8px;text-align:center;border-left:4px solid #ffd93d;">
-                        <h3 style="font-size:13px;color:#666;">⚠️ Overdue Breaks</h3>
-                        <p id="overdueBreaks" style="font-size:28px;font-weight:700;margin:4px 0;">0</p>
-                    </div>
-                    <div style="background:#f8f9fa;padding:16px;border-radius:8px;text-align:center;border-left:4px solid #4ecdc4;">
-                        <h3 style="font-size:13px;color:#666;">👤 Total Users</h3>
-                        <p id="totalUsers" style="font-size:28px;font-weight:700;margin:4px 0;">0</p>
-                    </div>
+        <!-- Admin Dashboard with Sidebar -->
+        <div class="admin-wrapper">
+            <!-- Sidebar Navigation -->
+            <div class="admin-sidebar">
+                <div class="nav-item active" data-section="break-tracker">
+                    <span class="icon">⏱️</span>
+                    <span>Break Tracker</span>
+                </div>
+                <div class="nav-item" data-section="vacation">
+                    <span class="icon">🏖️</span>
+                    <span>Vacation</span>
+                </div>
+                <div class="admin-sidebar-divider"></div>
+                <div class="nav-item" style="opacity:0.5;cursor:default;border-left-color:transparent;">
+                    <span class="icon">👤</span>
+                    <span style="font-size:12px;color:#999;">Logged in as <span id="sidebarAdminName">Admin</span></span>
                 </div>
             </div>
-        </div>
 
-        <!-- ========================================== -->
-        <!-- SECTION 2: VACATION -->
-        <!-- ========================================== -->
-        <div id="section-vacation" class="admin-section">
-            <div class="card">
-                <div class="card-header">
-                    <h2>🏖️ Vacation Management</h2>
-                    <div>
-                        <button id="exportVacationBtn" class="btn-outline">📥 Export CSV</button>
-                    </div>
-                </div>
-                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-                    <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
-                    <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
-                    <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
-                    <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
-                </div>
-                <div id="vacationList"><p class="empty">No vacation requests found</p></div>
-            </div>
-        </div>
+            <!-- Main Content -->
+            <div class="admin-content">
 
-        <!-- ========================================== -->
-        <!-- SECTION 3: USER MANAGEMENT -->
-        <!-- ========================================== -->
-        <div id="section-user-management" class="admin-section">
-            <div class="card">
-                <div class="card-header">
-                    <h2>👤 User Management</h2>
-                    <div>
-                        <button id="addUserBtn" class="btn-primary">+ Add User</button>
-                        <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
-                    </div>
-                </div>
-                <div id="usersList"><p class="empty">Loading users...</p></div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION 4: DEPARTMENT -->
-        <!-- ========================================== -->
-        <div id="section-department" class="admin-section">
-            <div class="card">
-                <div class="card-header">
-                    <h2>🏢 Departments</h2>
-                    <button id="addDeptBtn" class="btn-primary">+ Add Department</button>
-                </div>
-                <div id="departmentsList"><p class="empty">Loading departments...</p></div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION 5: ROLE -->
-        <!-- ========================================== -->
-        <div id="section-role" class="admin-section">
-            <div class="card">
-                <div class="card-header">
-                    <h2>👔 Roles</h2>
-                    <button id="addRoleBtn" class="btn-primary">+ Add Role</button>
-                </div>
-                <div id="rolesList"><p class="empty">Loading roles...</p></div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION 6: BREAK STATUS -->
-        <!-- ========================================== -->
-        <div id="section-break-status" class="admin-section">
-            <div class="card">
-                <div class="card-header">
-                    <h2>⏱️ Break Status</h2>
-                    <button id="refreshBreakStatus" class="btn-outline">🔄 Refresh</button>
-                </div>
-                <div id="breakStatusList"><p class="empty">Loading break status...</p></div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION 7: BREAK LOG -->
-        <!-- ========================================== -->
-        <div id="section-break-log" class="admin-section">
-            <div class="card">
-                <div class="card-header">
-                    <h2>📋 Break Log</h2>
-                    <div>
-                        <button id="exportBreakLogBtn" class="btn-outline">📥 Export CSV</button>
-                        <button id="clearBreakLogBtn" class="btn-danger" style="margin-left:8px;">🗑️ Clear All</button>
-                    </div>
-                </div>
-                <div class="break-log-filters">
-                    <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date" id="breakLogStartDate">
-                    </div>
-                    <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date" id="breakLogEndDate">
-                    </div>
-                    <div class="form-group">
-                        <label>Employee</label>
-                        <select id="breakLogEmployee"><option value="all">All</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="breakLogStatus">
-                            <option value="all">All</option>
-                            <option value="active">Active</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="display:flex;align-items:flex-end;">
-                        <button id="applyBreakLogFilter" class="btn-primary" style="width:100%;">Apply Filter</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <div id="breakLogList"><p class="empty">Loading break log...</p></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION 8: SETTINGS -->
-        <!-- ========================================== -->
-        <div id="section-settings" class="admin-section">
-            <div class="card">
-                <h2>⚙️ Break Settings</h2>
-                <form id="settingsForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Local Employee Break Duration (Minutes)</label>
-                            <input type="number" id="localBreakMinutes" required min="1" max="120" value="30">
-                            <small>Default break time for Local employees</small>
+                <!-- ========================================== -->
+                <!-- SECTION 1: BREAK TRACKER -->
+                <!-- ========================================== -->
+                <div id="section-break-tracker" class="admin-section active">
+                    
+                    <!-- Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card" style="border-left-color:#667eea;">
+                            <h3>👥 Total Employees</h3>
+                            <p id="totalEmployees">0</p>
                         </div>
-                        <div class="form-group">
-                            <label>Expat Employee Break Duration (Minutes)</label>
-                            <input type="number" id="expatBreakMinutes" required min="1" max="120" value="45">
-                            <small>Default break time for Expat employees</small>
+                        <div class="stat-card" style="border-left-color:#ff6b6b;">
+                            <h3>🔴 Active Breaks</h3>
+                            <p id="activeBreaks">0</p>
+                            <div style="font-size:12px;color:#999;margin-top:4px;" id="activeBreakUsers"></div>
+                        </div>
+                        <div class="stat-card" style="border-left-color:#ffd93d;">
+                            <h3>⚠️ Overdue Breaks</h3>
+                            <p id="overdueBreaks">0</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color:#4ecdc4;">
+                            <h3>👤 Total Users</h3>
+                            <p id="totalUsers">0</p>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Warning Time (Minutes before overdue)</label>
-                        <input type="number" id="warningMinutes" required min="1" max="30" value="5">
-                        <small>Show warning when break is this close to overdue</small>
-                    </div>
-                    <button type="submit" class="btn-primary">Save Settings</button>
-                </form>
-            </div>
 
-            <div class="card">
-                <h2>📊 Current Settings</h2>
-                <div id="currentSettings"><p class="empty">Loading settings...</p></div>
+                    <!-- Sub Navigation Buttons -->
+                    <div class="admin-sub-nav">
+                        <button class="admin-sub-nav-btn active" data-sub="user-management">
+                            <span class="icon">👤</span> User Management
+                        </button>
+                        <button class="admin-sub-nav-btn" data-sub="department">
+                            <span class="icon">🏢</span> Department
+                        </button>
+                        <button class="admin-sub-nav-btn" data-sub="role">
+                            <span class="icon">👔</span> Role
+                        </button>
+                        <button class="admin-sub-nav-btn" data-sub="break-status">
+                            <span class="icon">⏱️</span> Break Status
+                        </button>
+                        <button class="admin-sub-nav-btn" data-sub="break-log">
+                            <span class="icon">📋</span> Break Log
+                        </button>
+                        <button class="admin-sub-nav-btn" data-sub="settings">
+                            <span class="icon">⚙️</span> Settings
+                        </button>
+                    </div>
+
+                    <!-- SUB SECTION: User Management -->
+                    <div id="sub-user-management" class="admin-section active">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>👤 User Management</h2>
+                                <div>
+                                    <button id="addUserBtn" class="btn-primary">+ Add User</button>
+                                    <button id="deleteSelectedUsersBtn" class="btn-danger" style="margin-left:8px;">🗑️ Delete Selected</button>
+                                </div>
+                            </div>
+                            <div id="usersList"><p class="empty">Loading users...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- SUB SECTION: Department -->
+                    <div id="sub-department" class="admin-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>🏢 Departments</h2>
+                                <button id="addDeptBtn" class="btn-primary">+ Add Department</button>
+                            </div>
+                            <div id="departmentsList"><p class="empty">Loading departments...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- SUB SECTION: Role -->
+                    <div id="sub-role" class="admin-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>👔 Roles</h2>
+                                <button id="addRoleBtn" class="btn-primary">+ Add Role</button>
+                            </div>
+                            <div id="rolesList"><p class="empty">Loading roles...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- SUB SECTION: Break Status -->
+                    <div id="sub-break-status" class="admin-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>⏱️ Break Status</h2>
+                                <button id="refreshBreakStatus" class="btn-outline">🔄 Refresh</button>
+                            </div>
+                            <div id="breakStatusList"><p class="empty">Loading break status...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- SUB SECTION: Break Log -->
+                    <div id="sub-break-log" class="admin-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>📋 Break Log</h2>
+                                <div>
+                                    <button id="exportBreakLogBtn" class="btn-outline">📥 Export CSV</button>
+                                    <button id="clearBreakLogBtn" class="btn-danger" style="margin-left:8px;">🗑️ Clear All</button>
+                                </div>
+                            </div>
+                            <div class="break-log-filters">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" id="breakLogStartDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="date" id="breakLogEndDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>Employee</label>
+                                    <select id="breakLogEmployee"><option value="all">All</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="breakLogStatus">
+                                        <option value="all">All</option>
+                                        <option value="active">Active</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="display:flex;align-items:flex-end;">
+                                    <button id="applyBreakLogFilter" class="btn-primary" style="width:100%;">Apply Filter</button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <div id="breakLogList"><p class="empty">Loading break log...</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB SECTION: Settings -->
+                    <div id="sub-settings" class="admin-section">
+                        <div class="card">
+                            <h2>⚙️ Break Settings</h2>
+                            <form id="settingsForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Local Employee Break Duration (Minutes)</label>
+                                        <input type="number" id="localBreakMinutes" required min="1" max="120" value="30">
+                                        <small>Default break time for Local employees</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Expat Employee Break Duration (Minutes)</label>
+                                        <input type="number" id="expatBreakMinutes" required min="1" max="120" value="45">
+                                        <small>Default break time for Expat employees</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Warning Time (Minutes before overdue)</label>
+                                    <input type="number" id="warningMinutes" required min="1" max="30" value="5">
+                                    <small>Show warning when break is this close to overdue</small>
+                                </div>
+                                <button type="submit" class="btn-primary">Save Settings</button>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <h2>📊 Current Settings</h2>
+                            <div id="currentSettings"><p class="empty">Loading settings...</p></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ========================================== -->
+                <!-- SECTION 2: VACATION -->
+                <!-- ========================================== -->
+                <div id="section-vacation" class="admin-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>🏖️ Vacation Management</h2>
+                            <div>
+                                <button id="exportVacationBtn" class="btn-outline">📥 Export CSV</button>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                            <button class="vacation-tab-btn active" data-vacation-type="pending">⏳ Pending</button>
+                            <button class="vacation-tab-btn" data-vacation-type="approved">✅ Approved</button>
+                            <button class="vacation-tab-btn" data-vacation-type="rejected">❌ Rejected</button>
+                            <button class="vacation-tab-btn" data-vacation-type="all">📋 All</button>
+                        </div>
+                        <div id="vacationList"><p class="empty">No vacation requests found</p></div>
+                    </div>
+                </div>
+
             </div>
         </div>
-
     </div>
 
     <!-- ========================================== -->
@@ -369,6 +376,7 @@
         // Set admin info
         document.getElementById('adminAvatar').textContent = (adminSession.name || 'A').charAt(0).toUpperCase();
         document.getElementById('adminNameDisplay').textContent = adminSession.name || 'Admin';
+        document.getElementById('sidebarAdminName').textContent = adminSession.name || 'Admin';
         document.getElementById('adminName').textContent = `👋 ${adminSession.name || 'Admin'}`;
         document.getElementById('adminRole').textContent = 'Admin';
 
@@ -379,11 +387,11 @@
         });
 
         // ============================================
-        // NAVIGATION BUTTONS
+        // SIDEBAR NAVIGATION
         // ============================================
-        document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.admin-sidebar .nav-item[data-section]').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
 
                 const section = this.dataset.section;
@@ -393,21 +401,29 @@
                 // Load data based on section
                 if (section === 'break-tracker') {
                     loadStats();
+                    loadUsers();
+                    loadDepartments();
+                    loadRoles();
+                    loadBreakStatus();
+                    loadBreakLog();
+                    loadSettings();
                 } else if (section === 'vacation') {
                     loadVacations('pending');
-                } else if (section === 'user-management') {
-                    loadUsers();
-                } else if (section === 'department') {
-                    loadDepartments();
-                } else if (section === 'role') {
-                    loadRoles();
-                } else if (section === 'break-status') {
-                    loadBreakStatus();
-                } else if (section === 'break-log') {
-                    loadBreakLog();
-                } else if (section === 'settings') {
-                    loadSettings();
                 }
+            });
+        });
+
+        // ============================================
+        // SUB NAVIGATION BUTTONS
+        // ============================================
+        document.querySelectorAll('.admin-sub-nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.admin-sub-nav-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const sub = this.dataset.sub;
+                document.querySelectorAll('#section-break-tracker .admin-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('sub-' + sub).classList.add('active');
             });
         });
 
@@ -485,6 +501,12 @@
             document.getElementById('activeBreaks').textContent = activeBreaks.length;
             document.getElementById('overdueBreaks').textContent = overdue.length;
             document.getElementById('totalUsers').textContent = users.length + admins.length;
+            
+            const names = activeBreaks.map(b => { 
+                const emp = employees.find(e => e.id === b.employee_id); 
+                return emp?.name || 'Unknown'; 
+            });
+            document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
         }
 
         // ============================================
