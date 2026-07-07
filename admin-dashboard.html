@@ -322,7 +322,6 @@
         </div>
     </div>
 
-    <!-- Updated Adjust Modal - with Date Adjustment -->
     <div id="adjustModal" class="modal">
         <div class="modal-content" style="max-width:450px;">
             <button class="modal-close" onclick="closeModal('adjustModal')">&times;</button>
@@ -747,7 +746,7 @@
         });
 
         // ============================================
-        // ROLE FUNCTIONS
+        // ROLE FUNCTIONS (All Functions Here)
         // ============================================
         function loadRoles() {
             const roles = getRoles();
@@ -971,7 +970,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS (with Date Adjustment)
+        // VACATION FUNCTIONS (with Date & Day Adjustment)
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -1080,7 +1079,6 @@
             alert(`✅ Vacation ${status}!`);
         }
 
-        // ✅ UPDATED: Open Adjust Modal with current data
         function openAdjustModal(id) {
             const vacations = getVacations();
             const vacation = vacations.find(v => v.id === id);
@@ -1096,7 +1094,6 @@
             openModal('adjustModal');
         }
 
-        // ✅ UPDATED: Save Adjustment with Date and Days
         document.getElementById('adjustForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
