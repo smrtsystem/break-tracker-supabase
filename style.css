@@ -791,6 +791,11 @@ body {
     color: white; 
 }
 
+.vacation-status-accepted { 
+    background: #667eea; 
+    color: white; 
+}
+
 /* ============================================
    VACATION TAB BUTTONS
    ============================================ */
@@ -845,6 +850,21 @@ body {
 
 .btn-reject:hover {
     background: #e55a5a;
+}
+
+.accept-btn {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.accept-btn:hover {
+    background: #45b7b0;
 }
 
 /* ============================================
