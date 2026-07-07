@@ -1,8 +1,10 @@
 /* ============================================
-   USER DASHBOARD - SIDEBAR & VACATION STYLES
+   USER DASHBOARD - COMPLETE STYLES
    ============================================ */
 
-/* Dashboard Wrapper */
+/* ============================================
+   DASHBOARD WRAPPER
+   ============================================ */
 .dashboard-wrapper {
     display: flex;
     gap: 24px;
@@ -86,7 +88,7 @@
    ============================================ */
 .vacation-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
 }
 
@@ -123,25 +125,53 @@
 
 .vacation-card .status-badge {
     display: inline-block;
-    padding: 2px 10px;
+    padding: 4px 12px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
 }
 
-.vacation-status-approved { 
-    background: #4ecdc4; 
-    color: white; 
+.vacation-card .days-info {
+    font-size: 14px;
+    margin-top: 4px;
+    color: #667eea;
+    font-weight: 600;
 }
 
-.vacation-status-pending { 
-    background: #ffd93d; 
-    color: #1a1a2e; 
+.vacation-card .day-adjust-info {
+    font-size: 13px;
+    color: #ff6b6b;
+    margin-top: 4px;
 }
 
-.vacation-status-rejected { 
-    background: #ff6b6b; 
-    color: white; 
+.vacation-card .action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   VACATION STATUS COLORS
+   ============================================ */
+.vacation-status-approved {
+    background: #4ecdc4;
+    color: white;
+}
+
+.vacation-status-pending {
+    background: #ffd93d;
+    color: #1a1a2e;
+}
+
+.vacation-status-rejected {
+    background: #ff6b6b;
+    color: white;
+}
+
+.vacation-status-accepted {
+    background: #667eea;
+    color: white;
 }
 
 /* ============================================
@@ -165,6 +195,29 @@
     background: #667eea;
     color: white;
     border-color: #667eea;
+}
+
+/* ============================================
+   VACATION ACTION BUTTONS
+   ============================================ */
+.accept-btn {
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.accept-btn:hover {
+    background: #45b7b0;
+}
+
+.accept-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* ============================================
