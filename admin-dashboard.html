@@ -49,6 +49,7 @@
 
             <div class="admin-content">
                 <div id="section-break-tracker" class="admin-section active">
+                    <!-- Stats -->
                     <div class="stats-grid">
                         <div class="stat-card" style="border-left-color:#667eea;">
                             <h3>👥 Total Employees</h3>
@@ -69,8 +70,12 @@
                         </div>
                     </div>
 
+                    <!-- Sub Navigation Buttons -->
                     <div class="admin-sub-nav">
-                        <button class="admin-sub-nav-btn active" data-sub="user-management">
+                        <button class="admin-sub-nav-btn active" data-sub="employee-management">
+                            <span class="icon">👥</span> Employee Management
+                        </button>
+                        <button class="admin-sub-nav-btn" data-sub="user-management">
                             <span class="icon">👤</span> User Management
                         </button>
                         <button class="admin-sub-nav-btn" data-sub="department">
@@ -90,7 +95,35 @@
                         </button>
                     </div>
 
-                    <div id="sub-user-management" class="admin-section active">
+                    <!-- SUB: Employee Management -->
+                    <div id="sub-employee-management" class="admin-section active">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>👥 Employee Management</h2>
+                                <button id="addEmployeeBtn" class="btn-primary">+ Add Employee</button>
+                            </div>
+                            <div class="filters">
+                                <input type="text" id="empSearch" placeholder="Search employees...">
+                                <select id="empStatusFilter">
+                                    <option value="all">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="on_break">On Break</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                                <select id="empTypeFilter">
+                                    <option value="all">All Types</option>
+                                    <option value="Local">Local</option>
+                                    <option value="Expat">Expat</option>
+                                </select>
+                            </div>
+                            <div class="table-container">
+                                <div id="employeesList"><p class="empty">Loading employees...</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB: User Management -->
+                    <div id="sub-user-management" class="admin-section">
                         <div class="card">
                             <div class="card-header">
                                 <h2>👤 User Management</h2>
@@ -103,6 +136,7 @@
                         </div>
                     </div>
 
+                    <!-- SUB: Department -->
                     <div id="sub-department" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -113,6 +147,7 @@
                         </div>
                     </div>
 
+                    <!-- SUB: Role -->
                     <div id="sub-role" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -123,6 +158,7 @@
                         </div>
                     </div>
 
+                    <!-- SUB: Break Status -->
                     <div id="sub-break-status" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -133,6 +169,7 @@
                         </div>
                     </div>
 
+                    <!-- SUB: Break Log -->
                     <div id="sub-break-log" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -174,6 +211,7 @@
                         </div>
                     </div>
 
+                    <!-- SUB: Settings -->
                     <div id="sub-settings" class="admin-section">
                         <div class="card">
                             <h2>⚙️ Break Settings</h2>
@@ -230,6 +268,49 @@
     <!-- MODALS -->
     <!-- ========================================== -->
 
+    <!-- Add/Edit Employee Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
+            <h2 id="employeeModalTitle">Add Employee</h2>
+            <form id="employeeForm">
+                <input type="hidden" id="editEmpId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="empName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="empEmail" required placeholder="john@company.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="empDepartment" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Employee Type</label>
+                        <select id="empEmployeeType" required>
+                            <option value="Local">Local</option>
+                            <option value="Expat">Expat</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <input type="text" id="empPosition" placeholder="e.g., Developer">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('employeeModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
     <div id="userModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -402,6 +483,7 @@
 
                 if (section === 'break-tracker') {
                     loadStats();
+                    loadEmployees();
                     loadUsers();
                     loadDepartments();
                     loadRoles();
@@ -517,6 +599,127 @@
             });
             document.getElementById('activeBreakUsers').textContent = names.length > 0 ? names.join(', ') : 'No one on break';
         }
+
+        // ============================================
+        // EMPLOYEE FUNCTIONS (Full CRUD)
+        // ============================================
+        function loadEmployees() {
+            const employees = getEmployees();
+            const search = document.getElementById('empSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('empStatusFilter').value;
+            const typeFilter = document.getElementById('empTypeFilter').value;
+            
+            let filtered = employees;
+            if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.email.toLowerCase().includes(search) || e.department.toLowerCase().includes(search));
+            if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
+            if (typeFilter !== 'all') filtered = filtered.filter(e => e.employeeType === typeFilter);
+            
+            const list = document.getElementById('employeesList');
+            if (filtered.length === 0) { 
+                list.innerHTML = '<p class="empty">No employees found</p>'; 
+                return; 
+            }
+            
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Employee Type</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+                
+            filtered.forEach(e => {
+                const statusColor = e.status === 'on_break' ? 'badge-orange' : (e.status === 'inactive' ? 'badge-red' : 'badge-green');
+                html += `<tr>
+                    <td><strong>${e.name}</strong></td>
+                    <td>${e.email}</td>
+                    <td>${e.department}</td>
+                    <td><span class="badge badge-purple">${e.employeeType || 'Local'}</span></td>
+                    <td>${e.position || 'N/A'}</td>
+                    <td><span class="badge ${statusColor}">${e.status || 'active'}</span></td>
+                    <td>
+                        <button class="btn-primary btn-sm" onclick="editEmployee('${e.id}')">✏️ Edit</button>
+                        <button class="btn-danger btn-sm" onclick="confirmDelete('employee','${e.id}','${e.name}')">🗑️ Delete</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        }
+
+        function addEmployee(data) {
+            const employees = getEmployees();
+            const newEmp = { 
+                id: 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), 
+                ...data, 
+                status: 'active', 
+                created_at: new Date().toISOString() 
+            };
+            employees.push(newEmp);
+            saveEmployees(employees);
+            return newEmp;
+        }
+
+        function updateEmployee(id, data) {
+            const employees = getEmployees();
+            const index = employees.findIndex(e => e.id === id);
+            if (index === -1) return null;
+            employees[index] = { ...employees[index], ...data };
+            saveEmployees(employees);
+            return employees[index];
+        }
+
+        function deleteEmployee(id) {
+            let employees = getEmployees();
+            employees = employees.filter(e => e.id !== id);
+            saveEmployees(employees);
+        }
+
+        function editEmployee(id) {
+            const employees = getEmployees();
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+            
+            document.getElementById('editEmpId').value = id;
+            document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+            document.getElementById('empName').value = emp.name;
+            document.getElementById('empEmail').value = emp.email;
+            document.getElementById('empDepartment').value = emp.department;
+            document.getElementById('empEmployeeType').value = emp.employeeType || 'Local';
+            document.getElementById('empPosition').value = emp.position || '';
+            openModal('employeeModal');
+        }
+
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editEmpId').value;
+            const data = {
+                name: document.getElementById('empName').value,
+                email: document.getElementById('empEmail').value,
+                department: document.getElementById('empDepartment').value,
+                employeeType: document.getElementById('empEmployeeType').value,
+                position: document.getElementById('empPosition').value
+            };
+            if (id) { 
+                updateEmployee(id, data); 
+                alert('✅ Employee updated!'); 
+            } else { 
+                addEmployee(data); 
+                alert('✅ Employee added!'); 
+            }
+            closeModal('employeeModal');
+            this.reset();
+            document.getElementById('editEmpId').value = '';
+            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+            loadEmployees();
+            loadStats();
+        });
 
         // ============================================
         // USER FUNCTIONS
@@ -746,7 +949,7 @@
         });
 
         // ============================================
-        // ROLE FUNCTIONS (All Functions Here)
+        // ROLE FUNCTIONS
         // ============================================
         function loadRoles() {
             const roles = getRoles();
@@ -856,7 +1059,6 @@
             let html = '<div class="break-status-grid">';
             active.forEach(b => {
                 const emp = employees.find(e => e.id === b.employee_id);
-                // ✅ FIXED: Use employee type from employee record
                 const empType = emp?.employeeType || 'Local';
                 const maxMinutes = empType === 'Expat' ? (settings.expatBreakMinutes || 45) : (settings.localBreakMinutes || 30);
                 const elapsed = Math.floor((new Date() - new Date(b.start_time)) / 60000);
@@ -970,7 +1172,7 @@
         }
 
         // ============================================
-        // VACATION FUNCTIONS (with Date & Day Adjustment)
+        // VACATION FUNCTIONS
         // ============================================
         function loadVacations(filter = 'pending') {
             const vacations = getVacations();
@@ -1140,7 +1342,10 @@
         }
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteType === 'user') { 
+            if (deleteType === 'employee') { 
+                deleteEmployee(deleteTarget); 
+                loadEmployees(); 
+            } else if (deleteType === 'user') { 
                 deleteUser(deleteTarget); 
                 loadUsers(); 
             } else if (deleteType === 'department') { 
@@ -1174,7 +1379,7 @@
             const depts = getDepartments();
             const roles = getRoles();
             
-            ['userDepartment'].forEach(id => {
+            ['empDepartment', 'userDepartment'].forEach(id => {
                 const select = document.getElementById(id);
                 if (select) { 
                     select.innerHTML = ''; 
@@ -1301,6 +1506,13 @@
         // ============================================
         // EVENT LISTENERS
         // ============================================
+        document.getElementById('addEmployeeBtn').addEventListener('click', function() {
+            document.getElementById('editEmpId').value = '';
+            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+            document.getElementById('employeeForm').reset();
+            openModal('employeeModal');
+        });
+
         document.getElementById('addUserBtn').addEventListener('click', function() {
             document.getElementById('editUserId').value = '';
             document.getElementById('userModalTitle').textContent = 'Create User';
@@ -1330,6 +1542,10 @@
         });
 
         document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
+
+        document.getElementById('empSearch').addEventListener('input', loadEmployees);
+        document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
+        document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
 
         // ============================================
         // AUTO REFRESH
@@ -1363,6 +1579,7 @@
 
         loadDropdowns();
         loadStats();
+        loadEmployees();
         loadUsers();
         loadDepartments();
         loadRoles();
