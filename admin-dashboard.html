@@ -45,6 +45,11 @@
                     <span>Check In/Out</span>
                 </div>
                 <div class="admin-sidebar-divider"></div>
+                <div class="nav-item" data-section="whitelist">
+                    <span class="icon">📧</span>
+                    <span>Email Whitelist</span>
+                </div>
+                <div class="admin-sidebar-divider"></div>
                 <div class="nav-item" style="opacity:0.5;cursor:default;border-left-color:transparent;">
                     <span class="icon">👤</span>
                     <span style="font-size:12px;color:#999;">Logged in as <span id="sidebarAdminName">Admin</span></span>
@@ -126,7 +131,7 @@
                         </div>
                     </div>
 
-                    <!-- User Management - FIXED: 100% width table -->
+                    <!-- User Management -->
                     <div id="sub-user-management" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -153,7 +158,7 @@
                         </div>
                     </div>
 
-                    <!-- Role - FIXED: Add and Edit Role -->
+                    <!-- Role -->
                     <div id="sub-role" class="admin-section">
                         <div class="card">
                             <div class="card-header">
@@ -300,6 +305,37 @@
                     </div>
                 </div>
 
+                <!-- Whitelist Section -->
+                <div id="section-whitelist" class="admin-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>📧 Email Whitelist Management</h2>
+                            <div>
+                                <button id="addWhitelistBtn" class="btn-primary">+ Add Email</button>
+                                <button id="bulkAddWhitelistBtn" class="btn-outline" style="margin-left:8px;">📋 Bulk Add</button>
+                            </div>
+                        </div>
+                        <div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin-bottom:16px;border-left:4px solid #667eea;">
+                            <p style="margin:0;font-size:14px;color:#555;">
+                                <strong>ℹ️ How it works:</strong> Only emails added to this whitelist can login to the system. 
+                                Each whitelisted email will have a default password <strong>123456</strong> and can be changed by the user.
+                                <br><small style="color:#999;">Total whitelisted emails: <strong id="whitelistCount">0</strong></small>
+                            </p>
+                        </div>
+                        <div class="filters">
+                            <input type="text" id="whitelistSearch" placeholder="Search whitelisted emails...">
+                            <select id="whitelistStatusFilter">
+                                <option value="all">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="table-container">
+                            <div id="whitelistList"><p class="empty">Loading whitelist...</p></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -350,7 +386,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit User Modal - FIXED: Role dropdown populated -->
+    <!-- Add/Edit User Modal -->
     <div id="userModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -417,7 +453,7 @@
         </div>
     </div>
 
-    <!-- Role Modal - FIXED: Permissions included -->
+    <!-- Role Modal -->
     <div id="roleModal" class="modal">
         <div class="modal-content wide">
             <button class="modal-close" onclick="closeModal('roleModal')">&times;</button>
@@ -440,6 +476,88 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-outline" onclick="closeModal('roleModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Save Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Whitelist Modal -->
+    <div id="whitelistModal" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('whitelistModal')">&times;</button>
+            <h2 id="whitelistModalTitle">Add Email to Whitelist</h2>
+            <form id="whitelistForm">
+                <input type="hidden" id="editWhitelistId">
+                <div class="form-group">
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="whitelistEmail" required placeholder="user@company.com">
+                    <small>This email will be allowed to login with default password: 123456</small>
+                </div>
+                <div class="form-group">
+                    <label>User Name (Optional)</label>
+                    <input type="text" id="whitelistName" placeholder="John Doe">
+                    <small>If not provided, the email username will be used</small>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="whitelistDepartment">
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="IT">IT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Employee Type</label>
+                    <select id="whitelistEmployeeType">
+                        <option value="Local">Local</option>
+                        <option value="Expat">Expat</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('whitelistModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add to Whitelist</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Add Whitelist Modal -->
+    <div id="bulkWhitelistModal" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('bulkWhitelistModal')">&times;</button>
+            <h2>📋 Bulk Add Emails</h2>
+            <form id="bulkWhitelistForm">
+                <div class="form-group">
+                    <label>Email List <span class="required">*</span></label>
+                    <textarea id="bulkWhitelistEmails" rows="8" placeholder="Enter one email per line&#10;example:&#10;john@company.com&#10;jane@company.com&#10;mike@company.com" required></textarea>
+                    <small>Each email will be added with default password: 123456</small>
+                </div>
+                <div class="form-group">
+                    <label>Department (Optional - applies to all)</label>
+                    <select id="bulkWhitelistDepartment">
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="IT">IT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Employee Type (Optional - applies to all)</label>
+                    <select id="bulkWhitelistEmployeeType">
+                        <option value="Local">Local</option>
+                        <option value="Expat">Expat</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('bulkWhitelistModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add All to Whitelist</button>
                 </div>
             </form>
         </div>
@@ -491,7 +609,7 @@
 
     <script>
         // ============================================
-        // ADMIN DASHBOARD - COMPLETE SCRIPT (FIXED)
+        // ADMIN DASHBOARD - COMPLETE SCRIPT WITH WHITELIST
         // ============================================
 
         (function() {
@@ -546,8 +664,10 @@
             document.getElementById('adminRole').textContent = 'Admin';
 
             document.getElementById('logoutBtn').addEventListener('click', function() {
-                localStorage.removeItem('adminSession');
-                window.location.href = 'admin-login.html';
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('adminSession');
+                    window.location.href = 'admin-login.html';
+                }
             });
 
             // ============================================
@@ -572,6 +692,180 @@
             function getCheckins() { return getLocalStorage('checkins'); }
             function saveCheckins(c) { setLocalStorage('checkins', c); }
 
+            // ============================================
+            // WHITELIST FUNCTIONS
+            // ============================================
+            function getWhitelist() {
+                try {
+                    return JSON.parse(localStorage.getItem('emailWhitelist') || '[]');
+                } catch {
+                    return [];
+                }
+            }
+
+            function saveWhitelist(whitelist) {
+                localStorage.setItem('emailWhitelist', JSON.stringify(whitelist));
+            }
+
+            function isEmailWhitelisted(email) {
+                const whitelist = getWhitelist();
+                return whitelist.some(item => item.email.toLowerCase() === email.toLowerCase() && item.status === 'active');
+            }
+
+            function getWhitelistedUser(email) {
+                const whitelist = getWhitelist();
+                return whitelist.find(item => item.email.toLowerCase() === email.toLowerCase());
+            }
+
+            function addToWhitelist(email, name, department, employeeType) {
+                const whitelist = getWhitelist();
+                
+                // Check if already exists
+                if (whitelist.some(item => item.email.toLowerCase() === email.toLowerCase())) {
+                    return { success: false, error: 'Email already in whitelist!' };
+                }
+
+                const newItem = {
+                    id: 'wl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    email: email.trim().toLowerCase(),
+                    name: name || email.split('@')[0] || 'User',
+                    department: department || 'Engineering',
+                    employeeType: employeeType || 'Local',
+                    status: 'active',
+                    password: '123456',
+                    addedDate: new Date().toISOString(),
+                    lastLogin: null
+                };
+
+                whitelist.push(newItem);
+                saveWhitelist(whitelist);
+
+                // Also create user in appUsers for login
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                if (!users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                    users.push({
+                        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        name: newItem.name,
+                        email: newItem.email,
+                        password: '123456',
+                        role: 'employee',
+                        department: newItem.department,
+                        employeeType: newItem.employeeType,
+                        created_at: new Date().toISOString(),
+                        whitelisted: true
+                    });
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                }
+
+                return { success: true, data: newItem };
+            }
+
+            function toggleWhitelistStatus(id) {
+                const whitelist = getWhitelist();
+                const index = whitelist.findIndex(item => item.id === id);
+                if (index === -1) return;
+
+                whitelist[index].status = whitelist[index].status === 'active' ? 'inactive' : 'active';
+                saveWhitelist(whitelist);
+                loadWhitelist();
+                
+                // Also update user status
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                const userIndex = users.findIndex(u => u.email.toLowerCase() === whitelist[index].email.toLowerCase());
+                if (userIndex !== -1) {
+                    users[userIndex].whitelisted = whitelist[index].status === 'active';
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                }
+            }
+
+            window.toggleWhitelistStatus = toggleWhitelistStatus;
+
+            function deleteFromWhitelist(id) {
+                let whitelist = getWhitelist();
+                const item = whitelist.find(w => w.id === id);
+                whitelist = whitelist.filter(w => w.id !== id);
+                saveWhitelist(whitelist);
+
+                // Remove from appUsers if it's a whitelisted user
+                if (item) {
+                    const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                    const filteredUsers = users.filter(u => u.email.toLowerCase() !== item.email.toLowerCase());
+                    localStorage.setItem('appUsers', JSON.stringify(filteredUsers));
+                }
+
+                loadWhitelist();
+                alert('✅ Email removed from whitelist!');
+            }
+
+            window.deleteFromWhitelist = deleteFromWhitelist;
+
+            function loadWhitelist() {
+                const whitelist = getWhitelist();
+                const search = document.getElementById('whitelistSearch').value.toLowerCase();
+                const statusFilter = document.getElementById('whitelistStatusFilter').value;
+
+                let filtered = whitelist;
+                if (search) {
+                    filtered = filtered.filter(item => 
+                        item.email.toLowerCase().includes(search) || 
+                        (item.name && item.name.toLowerCase().includes(search))
+                    );
+                }
+                if (statusFilter !== 'all') {
+                    filtered = filtered.filter(item => item.status === statusFilter);
+                }
+
+                document.getElementById('whitelistCount').textContent = whitelist.length;
+
+                const list = document.getElementById('whitelistList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No emails in whitelist</p>';
+                    return;
+                }
+
+                let html = `<table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Employee Type</th>
+                            <th>Status</th>
+                            <th>Added Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                filtered.forEach(item => {
+                    const statusColor = item.status === 'active' ? 'badge-green' : 'badge-red';
+                    const statusText = item.status === 'active' ? '✅ Active' : '❌ Inactive';
+                    
+                    html += `<tr>
+                        <td><strong>${item.email}</strong></td>
+                        <td>${item.name || 'N/A'}</td>
+                        <td>${item.department || 'N/A'}</td>
+                        <td><span class="badge badge-purple">${item.employeeType || 'Local'}</span></td>
+                        <td><span class="badge ${statusColor}">${statusText}</span></td>
+                        <td>${item.addedDate ? formatDateFull(item.addedDate) : 'N/A'}</td>
+                        <td>
+                            <button class="btn-warning btn-sm" onclick="toggleWhitelistStatus('${item.id}')">
+                                ${item.status === 'active' ? '🔒 Disable' : '🔓 Enable'}
+                            </button>
+                            <button class="btn-danger btn-sm" onclick="confirmDelete('whitelist','${item.id}','${item.email}')">
+                                🗑️ Delete
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            // ============================================
+            // FORMAT FUNCTIONS
+            // ============================================
             function formatDuration(startTime, endTime) {
                 endTime = endTime || null;
                 var start = new Date(startTime);
@@ -620,7 +914,6 @@
                 var depts = getDepartments();
                 var roles = getRoles();
 
-                // Department dropdowns
                 ['empDepartment', 'userDepartment'].forEach(function(id) {
                     var select = document.getElementById(id);
                     if (select) {
@@ -631,16 +924,13 @@
                     }
                 });
 
-                // Role dropdown for User Management - FIXED
                 var userRoleSelect = document.getElementById('userRole');
                 if (userRoleSelect) {
                     userRoleSelect.innerHTML = '';
-                    // Add default roles
                     var defaultRoles = ['employee', 'manager', 'admin'];
                     defaultRoles.forEach(function(r) {
                         userRoleSelect.innerHTML += '<option value="' + r + '">' + r.charAt(0).toUpperCase() + r.slice(1) + '</option>';
                     });
-                    // Add custom roles from storage
                     roles.forEach(function(r) {
                         if (!defaultRoles.includes(r.name.toLowerCase())) {
                             userRoleSelect.innerHTML += '<option value="' + r.name.toLowerCase() + '">' + r.name + '</option>';
@@ -709,6 +999,8 @@
                         loadVacations('pending');
                     } else if (section === 'checkin') {
                         loadCheckins('pending');
+                    } else if (section === 'whitelist') {
+                        loadWhitelist();
                     }
                 });
             });
@@ -852,7 +1144,7 @@
             });
 
             // ============================================
-            // USER FUNCTIONS - FIXED: Role in edit
+            // USER FUNCTIONS
             // ============================================
             function loadUsers() {
                 var users = getUsers();
@@ -865,10 +1157,11 @@
                     return;
                 }
 
-                var html = '<table style="width:100%;"><thead><tr><th><input type="checkbox" id="selectAllUsers"></th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Employee Type</th><th>Actions</th></tr></thead><tbody>';
+                var html = '<table style="width:100%;"><thead><tr><th><input type="checkbox" id="selectAllUsers"></th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Employee Type</th><th>Whitelisted</th><th>Actions</th></tr></thead><tbody>';
                 allUsers.forEach(function(u) {
                     var isAdmin = u.role === 'admin';
-                    html += '<tr><td>' + (!isAdmin ? '<input type="checkbox" class="user-checkbox" value="' + u.id + '">' : '') + '</td><td><strong>' + u.name + '</strong></td><td>' + u.email + '</td><td><span class="badge ' + (isAdmin ? 'badge-orange' : 'badge-blue') + '">' + (u.role || 'employee') + '</span></td><td>' + (u.department || 'N/A') + '</td><td><span class="badge badge-purple">' + (u.employeeType || 'Local') + '</span></td><td>' + (!isAdmin ? '<button class="btn-primary btn-sm" onclick="editUser(\'' + u.id + '\')">✏️ Edit</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'user\',\'' + u.id + '\',\'' + u.name + '\')">🗑️ Delete</button>' : '<span class="badge badge-orange">Protected</span>') + '</td></tr>';
+                    var isWhitelisted = u.whitelisted === true;
+                    html += '<tr><td>' + (!isAdmin ? '<input type="checkbox" class="user-checkbox" value="' + u.id + '">' : '') + '</td><td><strong>' + u.name + '</strong></td><td>' + u.email + '</td><td><span class="badge ' + (isAdmin ? 'badge-orange' : 'badge-blue') + '">' + (u.role || 'employee') + '</span></td><td>' + (u.department || 'N/A') + '</td><td><span class="badge badge-purple">' + (u.employeeType || 'Local') + '</span></td><td>' + (isWhitelisted ? '✅ Yes' : '❌ No') + '</td><td>' + (!isAdmin ? '<button class="btn-primary btn-sm" onclick="editUser(\'' + u.id + '\')">✏️ Edit</button> <button class="btn-danger btn-sm" onclick="confirmDelete(\'user\',\'' + u.id + '\',\'' + u.name + '\')">🗑️ Delete</button>' : '<span class="badge badge-orange">Protected</span>') + '</td></tr>';
                 });
                 html += '</tbody></table>';
                 list.innerHTML = html;
@@ -891,7 +1184,6 @@
                 document.getElementById('userEmail').value = user.email;
                 document.getElementById('userPassword').value = user.password || '123456';
                 
-                // FIXED: Set role in dropdown
                 var roleSelect = document.getElementById('userRole');
                 var roleValue = user.role || 'employee';
                 for (var i = 0; i < roleSelect.options.length; i++) {
@@ -939,6 +1231,7 @@
                         role: role || 'employee',
                         department: department || 'Engineering',
                         employeeType: employeeType || 'Local',
+                        whitelisted: isEmailWhitelisted(email),
                         created_at: new Date().toISOString()
                     };
                     var allUsers = getUsers();
@@ -1017,7 +1310,7 @@
             });
 
             // ============================================
-            // ROLE FUNCTIONS - FIXED: Add and Edit Role
+            // ROLE FUNCTIONS
             // ============================================
             function loadRoles() {
                 var roles = getRoles();
@@ -1306,453 +1599,4 @@
 
                 var totalDays = calculateDays(vacation.startDate, vacation.endDate);
 
-                document.getElementById('adjustVacationId').value = id;
-                document.getElementById('adjustStartDate').value = vacation.startDate;
-                document.getElementById('adjustEndDate').value = vacation.endDate;
-                document.getElementById('currentDays').value = totalDays;
-                document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
-                openModal('adjustModal');
-            }
-
-            window.openAdjustModal = openAdjustModal;
-
-            document.getElementById('adjustForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                var id = document.getElementById('adjustVacationId').value;
-                var startDate = document.getElementById('adjustStartDate').value;
-                var endDate = document.getElementById('adjustEndDate').value;
-                var adjustedDays = parseInt(document.getElementById('adjustedDays').value);
-
-                if (!startDate || !endDate) {
-                    alert('Please select both start and end dates!');
-                    return;
-                }
-
-                if (new Date(startDate) > new Date(endDate)) {
-                    alert('Start date cannot be after end date!');
-                    return;
-                }
-
-                if (adjustedDays < 1) {
-                    alert('Days must be at least 1!');
-                    return;
-                }
-
-                var vacations = getVacations();
-                var index = vacations.findIndex(function(v) { return v.id === id; });
-                if (index === -1) return;
-
-                vacations[index].startDate = startDate;
-                vacations[index].endDate = endDate;
-                vacations[index].adjustedDays = adjustedDays;
-                saveVacations(vacations);
-
-                closeModal('adjustModal');
-                var activeTab = document.querySelector('.vacation-tab-btn.active');
-                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
-                alert('✅ Vacation adjusted successfully!');
-            });
-
-            // ============================================
-            // CHECK IN/OUT FUNCTIONS
-            // ============================================
-            function loadCheckins(filter) {
-                filter = filter || 'pending';
-                var checkins = getCheckins();
-                var employees = getEmployees();
-                var admins = getAdmins();
-
-                var filtered = checkins.slice();
-
-                if (filter === 'pending') {
-                    filtered = filtered.filter(function(c) { return c.status === 'pending'; });
-                } else if (filter === 'approved') {
-                    filtered = filtered.filter(function(c) { return c.status === 'approved'; });
-                } else if (filter === 'rejected') {
-                    filtered = filtered.filter(function(c) { return c.status === 'rejected'; });
-                } else if (filter === 'checkedout') {
-                    filtered = filtered.filter(function(c) { return c.status === 'checkedout'; });
-                }
-
-                filtered.sort(function(a, b) {
-                    return new Date(b.created_at) - new Date(a.created_at);
-                });
-
-                var list = document.getElementById('checkinList');
-                if (filtered.length === 0) {
-                    list.innerHTML = '<p class="empty">No ' + filter + ' check in/out records found</p>';
-                    return;
-                }
-
-                var html = '<table class="checkin-table"><thead><tr><th>Employee</th><th>Department</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Approved By</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-
-                filtered.forEach(function(c) {
-                    var emp = employees.find(function(e) { return e.id === c.employee_id; });
-                    var checkinFull = formatDateFull(c.checkin_time);
-                    var checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
-                    var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
-
-                    var approverName = '-';
-                    if (c.approved_by) {
-                        var approver = admins.find(function(a) { return a.id === c.approved_by; });
-                        approverName = approver?.name || 'Unknown Admin';
-                    }
-
-                    var statusClass = '';
-                    var statusText = c.status;
-                    if (c.status === 'pending') {
-                        statusClass = 'checkin-status-pending';
-                        statusText = '⏳ Pending';
-                    } else if (c.status === 'approved') {
-                        statusClass = 'checkin-status-approved';
-                        statusText = '✅ Approved';
-                    } else if (c.status === 'rejected') {
-                        statusClass = 'checkin-status-rejected';
-                        statusText = '❌ Rejected';
-                    } else if (c.status === 'checkedout') {
-                        statusClass = 'checkin-status-checkedout';
-                        statusText = '📤 Checked Out';
-                    }
-
-                    var isPending = c.status === 'pending';
-
-                    html += '<tr><td><strong>' + (c.employee_name || 'Unknown') + '</strong></td><td>' + (c.department || 'N/A') + '</td><td>' + checkinFull + '</td><td>' + checkoutFull + '</td><td>' + duration + '</td><td>' + approverName + '</td><td><span class="checkin-status-badge ' + statusClass + '">' + statusText + '</span></td><td><div class="checkin-actions-cell">' + (isPending ? '<button class="btn-approve-checkin" onclick="updateCheckinStatus(\'' + c.id + '\',\'approved\')">✅ Approve</button> <button class="btn-reject-checkin" onclick="updateCheckinStatus(\'' + c.id + '\',\'rejected\')">❌ Reject</button>' : '') + ' <button class="btn-delete-checkin" onclick="deleteCheckin(\'' + c.id + '\')">🗑️ Delete</button></div></td></tr>';
-                });
-
-                html += '</tbody></table>';
-                list.innerHTML = html;
-            }
-
-            window.updateCheckinStatus = function(id, status) {
-                if (!confirm('Are you sure you want to ' + status + ' this check-in request?')) return;
-
-                var checkins = getCheckins();
-                var index = checkins.findIndex(function(c) { return c.id === id; });
-                if (index === -1) return;
-
-                checkins[index].status = status;
-                if (status === 'approved' || status === 'rejected') {
-                    checkins[index].approved_by = adminSession.id;
-                    checkins[index].approved_name = adminSession.name || 'Admin';
-                }
-                saveCheckins(checkins);
-
-                var activeTab = document.querySelector('.checkin-tab-btn.active');
-                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
-                alert('✅ Check-in ' + status + '!');
-            };
-
-            window.deleteCheckin = function(id) {
-                if (!confirm('Delete this check-in record?')) return;
-
-                var checkins = getCheckins();
-                checkins = checkins.filter(function(c) { return c.id !== id; });
-                saveCheckins(checkins);
-
-                var activeTab = document.querySelector('.checkin-tab-btn.active');
-                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
-                alert('✅ Check-in deleted!');
-            };
-
-            // ============================================
-            // SETTINGS
-            // ============================================
-            function loadSettings() {
-                var settings = getSettings();
-                document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
-                document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
-                document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
-
-                document.getElementById('currentSettings').innerHTML = '<div class="config-item"><span>Local Employee Break Duration</span><span><strong>' + (settings.localBreakMinutes || 30) + ' minutes</strong></span></div><div class="config-item"><span>Expat Employee Break Duration</span><span><strong>' + (settings.expatBreakMinutes || 45) + ' minutes</strong></span></div><div class="config-item"><span>Warning Time</span><span><strong>' + (settings.warningMinutes || 5) + ' minutes before overdue</strong></span></div>';
-            }
-
-            document.getElementById('settingsForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                var localBreakMinutes = parseInt(document.getElementById('localBreakMinutes').value);
-                var expatBreakMinutes = parseInt(document.getElementById('expatBreakMinutes').value);
-                var warningMinutes = parseInt(document.getElementById('warningMinutes').value);
-                saveSettings({ localBreakMinutes: localBreakMinutes, expatBreakMinutes: expatBreakMinutes, warningMinutes: warningMinutes });
-                loadSettings();
-                alert('✅ Settings saved successfully!');
-            });
-
-            // ============================================
-            // EXPORT FUNCTIONS
-            // ============================================
-            document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
-                var breaks = getBreaks();
-                var employees = getEmployees();
-
-                if (breaks.length === 0) {
-                    alert('No data to export!');
-                    return;
-                }
-
-                var csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
-                breaks.forEach(function(b) {
-                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
-                    var breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
-                    var duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
-                    csv += (emp?.name || 'Unknown') + ',' + (emp?.department || 'N/A') + ',' + (breakLabels[b.break_type] || 'Short') + ',' + formatDateFull(b.start_time) + ',' + (b.end_time ? formatDateFull(b.end_time) : '-') + ',' + duration + ',' + b.status + '\n';
-                });
-
-                var blob = new Blob([csv], { type: 'text/csv' });
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = 'break_log_' + new Date().toISOString().split('T')[0] + '.csv';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
-
-            document.getElementById('exportCheckinBtn').addEventListener('click', function() {
-                var checkins = getCheckins();
-                var admins = getAdmins();
-
-                if (checkins.length === 0) {
-                    alert('No data to export!');
-                    return;
-                }
-
-                var csv = 'Employee,Department,Check In,Check Out,Duration,Status,Approved By\n';
-                checkins.forEach(function(c) {
-                    var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
-                    var approverName = '-';
-                    if (c.approved_by) {
-                        var approver = admins.find(function(a) { return a.id === c.approved_by; });
-                        approverName = approver?.name || 'Unknown Admin';
-                    }
-                    csv += (c.employee_name || 'Unknown') + ',' + (c.department || 'N/A') + ',' + formatDateFull(c.checkin_time) + ',' + (c.checkout_time ? formatDateFull(c.checkout_time) : '-') + ',' + duration + ',' + c.status + ',' + approverName + '\n';
-                });
-
-                var blob = new Blob([csv], { type: 'text/csv' });
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = 'checkin_log_' + new Date().toISOString().split('T')[0] + '.csv';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
-
-            document.getElementById('exportVacationBtn').addEventListener('click', function() {
-                var vacations = getVacations();
-                var employees = getEmployees();
-
-                if (vacations.length === 0) {
-                    alert('No data to export!');
-                    return;
-                }
-
-                var csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
-                vacations.forEach(function(v) {
-                    var emp = employees.find(function(e) { return e.id === v.employee_id; });
-                    var totalDays = calculateDays(v.startDate, v.endDate);
-                    var adjustedDays = v.adjustedDays || totalDays;
-                    var isAccepted = v.userAccepted ? 'Yes' : 'No';
-                    csv += (emp?.name || 'Unknown') + ',' + (emp?.department || 'N/A') + ',' + (v.vacationType || 'Local') + ',' + v.startDate + ',' + v.endDate + ',' + totalDays + ',' + adjustedDays + ',' + v.status + ',' + isAccepted + '\n';
-                });
-
-                var blob = new Blob([csv], { type: 'text/csv' });
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = 'vacation_log_' + new Date().toISOString().split('T')[0] + '.csv';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
-
-            document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
-                if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
-                    saveBreaks([]);
-                    loadBreakLog();
-                    loadStats();
-                    alert('✅ All break records cleared!');
-                }
-            });
-
-            // ============================================
-            // DELETE CONFIRMATION
-            // ============================================
-            window.confirmDelete = function(type, id, name) {
-                deleteTarget = id;
-                deleteType = type;
-                document.getElementById('deleteMessage').textContent = 'Delete "' + name + '"? This cannot be undone!';
-                openModal('deleteModal');
-            };
-
-            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-                if (deleteType === 'employee') {
-                    var employees = getEmployees();
-                    employees = employees.filter(function(e) { return e.id !== deleteTarget; });
-                    saveEmployees(employees);
-                    loadEmployees();
-                } else if (deleteType === 'user') {
-                    var users = getUsers();
-                    users = users.filter(function(u) { return u.id !== deleteTarget; });
-                    saveUsers(users);
-                    loadUsers();
-                } else if (deleteType === 'department') {
-                    var depts = getDepartments();
-                    depts.splice(parseInt(deleteTarget), 1);
-                    saveDepartments(depts);
-                    loadDepartments();
-                    loadDropdowns();
-                } else if (deleteType === 'role') {
-                    var roles = getRoles();
-                    roles.splice(parseInt(deleteTarget), 1);
-                    saveRoles(roles);
-                    loadRoles();
-                    loadDropdowns();
-                } else if (deleteType === 'vacation') {
-                    window.deleteVacation(deleteTarget);
-                } else if (deleteType === 'checkin') {
-                    window.deleteCheckin(deleteTarget);
-                }
-                loadStats();
-                closeModal('deleteModal');
-                deleteTarget = null;
-                deleteType = null;
-                alert('✅ Deleted successfully!');
-            });
-
-            document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-                closeModal('deleteModal');
-                deleteTarget = null;
-                deleteType = null;
-            });
-
-            // ============================================
-            // MODAL FUNCTIONS
-            // ============================================
-            window.openModal = function(id) {
-                document.getElementById(id).style.display = 'block';
-            };
-
-            window.closeModal = function(id) {
-                document.getElementById(id).style.display = 'none';
-            };
-
-            window.addEventListener('click', function(e) {
-                document.querySelectorAll('.modal').forEach(function(modal) {
-                    if (e.target === modal) {
-                        modal.style.display = 'none';
-                    }
-                });
-            });
-
-            // ============================================
-            // EVENT LISTENERS
-            // ============================================
-            document.getElementById('addEmployeeBtn').addEventListener('click', function() {
-                document.getElementById('editEmpId').value = '';
-                document.getElementById('employeeModalTitle').textContent = 'Add Employee';
-                document.getElementById('employeeForm').reset();
-                openModal('employeeModal');
-            });
-
-            document.getElementById('addUserBtn').addEventListener('click', function() {
-                document.getElementById('editUserId').value = '';
-                document.getElementById('userModalTitle').textContent = 'Create User';
-                document.getElementById('userForm').reset();
-                document.getElementById('userPassword').value = '123456';
-                openModal('userModal');
-            });
-
-            document.getElementById('addDeptBtn').addEventListener('click', function() {
-                document.getElementById('editDeptId').value = '';
-                document.getElementById('deptModalTitle').textContent = 'Add Department';
-                document.getElementById('deptForm').reset();
-                openModal('deptModal');
-            });
-
-            document.getElementById('addRoleBtn').addEventListener('click', function() {
-                document.getElementById('editRoleId').value = '';
-                document.getElementById('roleModalTitle').textContent = 'Add Role';
-                document.getElementById('roleForm').reset();
-                openModal('roleModal');
-            });
-
-            document.getElementById('deleteSelectedUsersBtn').addEventListener('click', function() {
-                var selected = document.querySelectorAll('.user-checkbox:checked');
-                if (selected.length === 0) {
-                    alert('Please select users to delete!');
-                    return;
-                }
-                if (confirm('Delete ' + selected.length + ' selected user(s)?')) {
-                    var users = getUsers();
-                    selected.forEach(function(cb) {
-                        users = users.filter(function(u) { return u.id !== cb.value; });
-                    });
-                    saveUsers(users);
-                    loadUsers();
-                    loadStats();
-                    alert('✅ Deleted ' + selected.length + ' users!');
-                }
-            });
-
-            document.getElementById('refreshBreakStatus').addEventListener('click', function() {
-                loadBreakStatus();
-                alert('✅ Break status refreshed!');
-            });
-
-            document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
-
-            document.getElementById('empSearch').addEventListener('input', loadEmployees);
-            document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
-            document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
-
-            // ============================================
-            // AUTO REFRESH
-            // ============================================
-            function refreshAll() {
-                loadStats();
-                loadBreakStatus();
-            }
-
-            setInterval(refreshAll, 30000);
-            refreshAll();
-
-            // ============================================
-            // INITIALIZE
-            // ============================================
-            if (!localStorage.getItem('breakSettings')) {
-                saveSettings({ localBreakMinutes: 30, expatBreakMinutes: 45, warningMinutes: 5 });
-            }
-            if (!localStorage.getItem('departments')) {
-                saveDepartments(['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations']);
-            }
-            if (!localStorage.getItem('roles')) {
-                saveRoles([
-                    { name: 'Sub-Admin', createUser: true, deleteUser: true, viewAll: true, manageSettings: false },
-                    { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
-                ]);
-            }
-            if (!localStorage.getItem('vacations')) {
-                saveVacations([]);
-            }
-            if (!localStorage.getItem('checkins')) {
-                saveCheckins([]);
-            }
-
-            loadDropdowns();
-            loadStats();
-            loadEmployees();
-            loadUsers();
-            loadDepartments();
-            loadRoles();
-            loadBreakStatus();
-            loadBreakLog();
-            loadVacations('pending');
-            loadCheckins('pending');
-            loadSettings();
-
-            console.log('✅ Admin Dashboard loaded successfully!');
-            console.log('✅ All functions working: Check In/Out Approve/Reject/Delete, Vacation Approve/Reject/Delete');
-            console.log('✅ User Management table is 100% width');
-            console.log('✅ Role dropdown in User Edit is populated');
-            console.log('✅ Role tab Add/Edit works with permissions');
-        })();
-    </script>
-</body>
-</html>
+                document.getElementById('adjustVacationId
