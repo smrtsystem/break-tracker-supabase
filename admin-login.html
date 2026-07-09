@@ -33,7 +33,7 @@
                     <label for="email">Admin Email <span class="required">*</span></label>
                     <div class="input-icon">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" required placeholder="admin@break-tracker.com" autocomplete="email">
+                        <input type="email" id="email" required placeholder="admin@break-tracker.com" autocomplete="email" value="admin@break-tracker.com">
                     </div>
                 </div>
                 
@@ -41,7 +41,7 @@
                     <label for="password">Admin Password <span class="required">*</span></label>
                     <div class="input-icon">
                         <i class="fas fa-key"></i>
-                        <input type="password" id="password" required placeholder="Enter admin password" autocomplete="current-password">
+                        <input type="password" id="password" required placeholder="Enter admin password" autocomplete="current-password" value="535680">
                     </div>
                     <div class="password-hint">
                         <i class="fas fa-info-circle"></i> Default: <strong>535680</strong>
@@ -63,8 +63,8 @@
     </div>
 
     <script type="module">
-        import { signIn, getCurrentUser } from './supabase.js'
-        
+        import { supabase, signIn, getCurrentUser } from './supabase.js'
+
         const form = document.getElementById('adminLoginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
@@ -101,23 +101,70 @@
                 if (!email || !password) {
                     throw new Error('Please enter both email and password.');
                 }
+
+                // ✅ FIX: Check local admin first, then try Supabase
+                let adminUser = null;
+                let isLocalAdmin = false;
+
+                // Check local admin storage first
+                const localAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+                const localAdmin = localAdmins.find(a => a.email === email && a.password === password);
                 
-                const result = await signIn(email, password);
-                
-                if (!result.success) {
-                    throw new Error(result.error);
+                if (localAdmin) {
+                    isLocalAdmin = true;
+                    adminUser = {
+                        id: localAdmin.id || 'admin_' + Date.now(),
+                        email: localAdmin.email,
+                        name: localAdmin.name || 'Admin',
+                        role: 'admin'
+                    };
+                    // Store in localStorage for session
+                    localStorage.setItem('adminSession', JSON.stringify(adminUser));
+                    console.log('✅ Local admin login successful');
+                } else {
+                    // Try Supabase login
+                    const result = await signIn(email, password);
+                    
+                    if (result.success && result.profile?.role === 'admin') {
+                        adminUser = result.profile;
+                        localStorage.setItem('adminSession', JSON.stringify(adminUser));
+                        console.log('✅ Supabase admin login successful');
+                    } else if (result.success && result.profile?.role !== 'admin') {
+                        throw new Error('Access denied. Admin privileges required.');
+                    } else {
+                        // Check if default admin exists
+                        const defaultAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+                        if (defaultAdmins.length === 0) {
+                            // Create default admin
+                            const defaultAdmin = {
+                                id: 'admin_default',
+                                name: 'Admin',
+                                email: 'admin@break-tracker.com',
+                                password: '535680',
+                                role: 'admin'
+                            };
+                            defaultAdmins.push(defaultAdmin);
+                            localStorage.setItem('adminUsers', JSON.stringify(defaultAdmins));
+                            
+                            if (email === defaultAdmin.email && password === defaultAdmin.password) {
+                                adminUser = {
+                                    id: defaultAdmin.id,
+                                    email: defaultAdmin.email,
+                                    name: defaultAdmin.name,
+                                    role: 'admin'
+                                };
+                                localStorage.setItem('adminSession', JSON.stringify(adminUser));
+                                console.log('✅ Default admin login successful');
+                            }
+                        }
+                    }
                 }
-                
-                // Check if user is admin
-                if (result.profile.role !== 'admin') {
-                    await supabase.auth.signOut();
-                    throw new Error('Access denied. Admin privileges required.');
+
+                if (!adminUser) {
+                    throw new Error('Invalid admin credentials. Try admin@break-tracker.com / 535680');
                 }
-                
-                // Store admin session
-                localStorage.setItem('adminSession', JSON.stringify(result.profile));
-                
-                // Redirect
+
+                // Redirect to admin dashboard
                 window.location.href = 'admin-dashboard.html';
                 
             } catch (error) {
@@ -130,7 +177,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             hideError();
-            console.log('✅ Admin login page ready - Using Supabase Auth');
+            console.log('✅ Admin login page ready - Using Local + Supabase Auth');
         });
     </script>
 </body>
