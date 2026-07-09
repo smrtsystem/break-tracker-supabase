@@ -25,12 +25,12 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email Address <span class="required">*</span></label>
-                    <input type="email" id="email" required placeholder="your@email.com" autocomplete="email">
+                    <input type="email" id="email" required placeholder="your@email.com" autocomplete="email" value="employee@company.com">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password <span class="required">*</span></label>
-                    <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+                    <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password" value="123456">
                 </div>
                 
                 <button type="submit" class="btn-primary" id="loginBtn">
@@ -45,13 +45,13 @@
                 <a href="admin-login.html"><i class="fas fa-user-shield"></i> Admin Login</a>
             </p>
             <p class="small-text">
-                <i class="fas fa-info-circle"></i> Accounts are created by administrators only
+                <i class="fas fa-info-circle"></i> Default: employee@company.com / 123456
             </p>
         </div>
     </div>
 
     <script type="module">
-        import { signIn, getCurrentUser } from './supabase.js'
+        import { supabase, signIn, getCurrentUser } from './supabase.js'
         
         const form = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
@@ -99,13 +99,65 @@
                 if (!email || !password) {
                     throw new Error('Please enter both email and password.');
                 }
+
+                // ✅ FIX: Check local users first, then try Supabase
+                let userProfile = null;
+
+                // Check local users storage
+                const localUsers = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                const localUser = localUsers.find(u => u.email === email && u.password === password);
                 
-                const result = await signIn(email, password);
-                
-                if (!result.success) {
-                    throw new Error(result.error);
+                if (localUser) {
+                    userProfile = {
+                        id: localUser.id || 'user_' + Date.now(),
+                        email: localUser.email,
+                        name: localUser.name || 'User',
+                        role: localUser.role || 'employee',
+                        department: localUser.department || 'Engineering',
+                        employeeType: localUser.employeeType || 'Local'
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userProfile));
+                    console.log('✅ Local user login successful');
+                } else {
+                    // Try Supabase login
+                    const result = await signIn(email, password);
+                    
+                    if (result.success && result.profile) {
+                        userProfile = result.profile;
+                        localStorage.setItem('currentUser', JSON.stringify(userProfile));
+                        console.log('✅ Supabase user login successful');
+                    } else {
+                        // Check if default users exist, if not create them
+                        const defaultUsers = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                        if (defaultUsers.length === 0) {
+                            // Create default users
+                            const defaults = [
+                                { id: 'user_1', name: 'John Doe', email: 'employee@company.com', password: '123456', role: 'employee', department: 'Engineering', employeeType: 'Local' },
+                                { id: 'user_2', name: 'Jane Smith', email: 'jane@company.com', password: '123456', role: 'employee', department: 'Marketing', employeeType: 'Expat' }
+                            ];
+                            localStorage.setItem('appUsers', JSON.stringify(defaults));
+                            
+                            const found = defaults.find(u => u.email === email && u.password === password);
+                            if (found) {
+                                userProfile = {
+                                    id: found.id,
+                                    email: found.email,
+                                    name: found.name,
+                                    role: found.role,
+                                    department: found.department,
+                                    employeeType: found.employeeType
+                                };
+                                localStorage.setItem('currentUser', JSON.stringify(userProfile));
+                                console.log('✅ Default user login successful');
+                            }
+                        }
+                    }
                 }
-                
+
+                if (!userProfile) {
+                    throw new Error('Invalid credentials. Try employee@company.com / 123456');
+                }
+
                 showSuccess('✅ Login successful! Redirecting...');
                 
                 setTimeout(function() {
@@ -120,10 +172,9 @@
             }
         });
 
-        // Check if there's a saved session
         document.addEventListener('DOMContentLoaded', function() {
             hideMessages();
-            console.log('✅ Login page ready - Using Supabase Auth');
+            console.log('✅ Login page ready - Using Local + Supabase Auth');
         });
     </script>
 </body>
