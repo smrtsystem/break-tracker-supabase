@@ -45,14 +45,14 @@
                 <a href="admin-login.html"><i class="fas fa-user-shield"></i> Admin Login</a>
             </p>
             <p class="small-text">
-                <i class="fas fa-info-circle"></i> Default: employee@company.com / 123456
+                <i class="fas fa-info-circle"></i> Only whitelisted emails can login. Contact admin for access.
             </p>
         </div>
     </div>
 
     <script>
         // ============================================
-        // USER LOGIN - FIXED
+        // USER LOGIN WITH WHITELIST CHECK
         // ============================================
         
         const form = document.getElementById('loginForm');
@@ -81,7 +81,36 @@
             successMsg.style.display = 'none';
         }
 
-        // Check if already logged in
+        // ============================================
+        // WHITELIST FUNCTIONS
+        // ============================================
+        function getWhitelist() {
+            try {
+                return JSON.parse(localStorage.getItem('emailWhitelist') || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function isEmailWhitelisted(email) {
+            const whitelist = getWhitelist();
+            return whitelist.some(item => 
+                item.email.toLowerCase() === email.toLowerCase() && 
+                item.status === 'active'
+            );
+        }
+
+        function getWhitelistedUser(email) {
+            const whitelist = getWhitelist();
+            return whitelist.find(item => 
+                item.email.toLowerCase() === email.toLowerCase() && 
+                item.status === 'active'
+            );
+        }
+
+        // ============================================
+        // CHECK SESSION
+        // ============================================
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             try {
@@ -94,39 +123,41 @@
             }
         }
 
-        // Ensure default users exist
-        function ensureDefaultUsers() {
-            const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-            if (users.length === 0) {
-                const defaultUsers = [
-                    { 
-                        id: 'user_1', 
-                        name: 'John Doe', 
-                        email: 'employee@company.com', 
-                        password: '123456', 
-                        role: 'employee', 
-                        department: 'Engineering', 
-                        employeeType: 'Local',
-                        created_at: new Date().toISOString()
-                    },
-                    { 
-                        id: 'user_2', 
-                        name: 'Jane Smith', 
-                        email: 'jane@company.com', 
-                        password: '123456', 
-                        role: 'employee', 
-                        department: 'Marketing', 
-                        employeeType: 'Expat',
-                        created_at: new Date().toISOString()
-                    }
+        // ============================================
+        // ENSURE DEFAULT DATA
+        // ============================================
+        function ensureDefaultData() {
+            // Ensure whitelist exists
+            const whitelist = getWhitelist();
+            if (whitelist.length === 0) {
+                const defaultWhitelist = [
+                    { id: 'wl_1', email: 'employee@company.com', name: 'John Doe', department: 'Engineering', employeeType: 'Local', status: 'active', password: '123456', addedDate: new Date().toISOString() },
+                    { id: 'wl_2', email: 'jane@company.com', name: 'Jane Smith', department: 'Marketing', employeeType: 'Expat', status: 'active', password: '123456', addedDate: new Date().toISOString() }
                 ];
-                localStorage.setItem('appUsers', JSON.stringify(defaultUsers));
-                console.log('✅ Default users created');
+                localStorage.setItem('emailWhitelist', JSON.stringify(defaultWhitelist));
+                
+                // Also add to appUsers
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                defaultWhitelist.forEach(w => {
+                    if (!users.some(u => u.email === w.email)) {
+                        users.push({
+                            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                            name: w.name,
+                            email: w.email,
+                            password: '123456',
+                            role: 'employee',
+                            department: w.department,
+                            employeeType: w.employeeType,
+                            created_at: new Date().toISOString(),
+                            whitelisted: true
+                        });
+                    }
+                });
+                localStorage.setItem('appUsers', JSON.stringify(users));
+                console.log('✅ Default whitelist created');
             }
-        }
 
-        // Also ensure admin exists
-        function ensureDefaultAdmin() {
+            // Ensure admin exists
             const admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
             if (admins.length === 0) {
                 const defaultAdmin = {
@@ -143,11 +174,9 @@
             }
         }
 
-        // Call this on page load
-        ensureDefaultUsers();
-        ensureDefaultAdmin();
+        ensureDefaultData();
 
-        form.addEventListener('submit', async function(e) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const email = emailInput.value.trim();
@@ -162,66 +191,76 @@
                     throw new Error('Please enter both email and password.');
                 }
 
-                // ✅ CHECK LOCAL USERS FIRST
-                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                const foundUser = users.find(u => u.email === email && u.password === password);
-                
-                if (foundUser) {
-                    // Create session
-                    const userSession = {
-                        id: foundUser.id,
-                        email: foundUser.email,
-                        name: foundUser.name || 'User',
-                        role: foundUser.role || 'employee',
-                        department: foundUser.department || 'Engineering',
-                        employeeType: foundUser.employeeType || 'Local'
-                    };
-                    localStorage.setItem('currentUser', JSON.stringify(userSession));
-                    console.log('✅ User login successful:', foundUser.name);
-                    
-                    showSuccess('✅ Login successful! Redirecting...');
-                    
-                    setTimeout(function() {
-                        window.location.href = 'index.html';
-                    }, 800);
-                } else {
-                    // Check if this is a new user, create them
-                    const existing = users.find(u => u.email === email);
-                    if (!existing) {
-                        // Create new user
-                        const newUser = {
-                            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                            name: email.split('@')[0] || 'User',
-                            email: email,
-                            password: password,
-                            role: 'employee',
-                            department: 'Engineering',
-                            employeeType: 'Local',
-                            created_at: new Date().toISOString()
-                        };
-                        users.push(newUser);
-                        localStorage.setItem('appUsers', JSON.stringify(users));
-                        
-                        // Auto login
-                        const userSession = {
-                            id: newUser.id,
-                            email: newUser.email,
-                            name: newUser.name,
-                            role: newUser.role,
-                            department: newUser.department,
-                            employeeType: newUser.employeeType
-                        };
-                        localStorage.setItem('currentUser', JSON.stringify(userSession));
-                        console.log('✅ New user created and logged in:', newUser.name);
-                        
-                        showSuccess('✅ Account created! Redirecting...');
-                        setTimeout(function() {
-                            window.location.href = 'index.html';
-                        }, 800);
-                    } else {
-                        throw new Error('Invalid credentials. Try employee@company.com / 123456');
-                    }
+                // ============================================
+                // STEP 1: CHECK WHITELIST
+                // ============================================
+                if (!isEmailWhitelisted(email)) {
+                    throw new Error('❌ This email is not whitelisted. Please contact your administrator.');
                 }
+
+                // ============================================
+                // STEP 2: CHECK USER CREDENTIALS
+                // ============================================
+                const whitelistedUser = getWhitelistedUser(email);
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                
+                // Find user in appUsers
+                let foundUser = users.find(u => 
+                    u.email.toLowerCase() === email.toLowerCase() && 
+                    u.password === password
+                );
+
+                // If not found in appUsers but is whitelisted, create user
+                if (!foundUser && whitelistedUser) {
+                    const newUser = {
+                        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        name: whitelistedUser.name || email.split('@')[0],
+                        email: email,
+                        password: password || '123456',
+                        role: 'employee',
+                        department: whitelistedUser.department || 'Engineering',
+                        employeeType: whitelistedUser.employeeType || 'Local',
+                        created_at: new Date().toISOString(),
+                        whitelisted: true
+                    };
+                    users.push(newUser);
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                    foundUser = newUser;
+                    console.log('✅ User created from whitelist:', email);
+                }
+
+                if (!foundUser) {
+                    throw new Error('❌ Invalid credentials. Please check your password.');
+                }
+
+                // ============================================
+                // STEP 3: CREATE SESSION
+                // ============================================
+                const userSession = {
+                    id: foundUser.id,
+                    email: foundUser.email,
+                    name: foundUser.name || 'User',
+                    role: foundUser.role || 'employee',
+                    department: foundUser.department || 'Engineering',
+                    employeeType: foundUser.employeeType || 'Local',
+                    whitelisted: true
+                };
+                localStorage.setItem('currentUser', JSON.stringify(userSession));
+                
+                // Update last login in whitelist
+                const whitelist = getWhitelist();
+                const wlIndex = whitelist.findIndex(w => w.email.toLowerCase() === email.toLowerCase());
+                if (wlIndex !== -1) {
+                    whitelist[wlIndex].lastLogin = new Date().toISOString();
+                    localStorage.setItem('emailWhitelist', JSON.stringify(whitelist));
+                }
+
+                console.log('✅ Login successful:', foundUser.name);
+                showSuccess('✅ Login successful! Redirecting...');
+                
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 800);
                 
             } catch (error) {
                 console.error('Login error:', error);
@@ -233,7 +272,8 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             hideMessages();
-            console.log('✅ Login page ready');
+            console.log('✅ Login page ready with Whitelist System');
+            console.log('📧 Only whitelisted emails can login');
         });
     </script>
 </body>
