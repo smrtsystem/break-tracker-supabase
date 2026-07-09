@@ -1599,4 +1599,596 @@
 
                 var totalDays = calculateDays(vacation.startDate, vacation.endDate);
 
-                document.getElementById('adjustVacationId
+                document.getElementById('adjustVacationId').value = id;
+                document.getElementById('adjustStartDate').value = vacation.startDate;
+                document.getElementById('adjustEndDate').value = vacation.endDate;
+                document.getElementById('currentDays').value = totalDays;
+                document.getElementById('adjustedDays').value = vacation.adjustedDays || totalDays;
+                openModal('adjustModal');
+            }
+
+            window.openAdjustModal = openAdjustModal;
+
+            document.getElementById('adjustForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                var id = document.getElementById('adjustVacationId').value;
+                var startDate = document.getElementById('adjustStartDate').value;
+                var endDate = document.getElementById('adjustEndDate').value;
+                var adjustedDays = parseInt(document.getElementById('adjustedDays').value);
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates!');
+                    return;
+                }
+
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('Start date cannot be after end date!');
+                    return;
+                }
+
+                if (adjustedDays < 1) {
+                    alert('Days must be at least 1!');
+                    return;
+                }
+
+                var vacations = getVacations();
+                var index = vacations.findIndex(function(v) { return v.id === id; });
+                if (index === -1) return;
+
+                vacations[index].startDate = startDate;
+                vacations[index].endDate = endDate;
+                vacations[index].adjustedDays = adjustedDays;
+                saveVacations(vacations);
+
+                closeModal('adjustModal');
+                var activeTab = document.querySelector('.vacation-tab-btn.active');
+                loadVacations(activeTab ? activeTab.dataset.vacationType : 'pending');
+                alert('✅ Vacation adjusted successfully!');
+            });
+
+            // ============================================
+            // CHECK IN/OUT FUNCTIONS
+            // ============================================
+            function loadCheckins(filter) {
+                filter = filter || 'pending';
+                var checkins = getCheckins();
+                var employees = getEmployees();
+                var admins = getAdmins();
+
+                var filtered = checkins.slice();
+
+                if (filter === 'pending') {
+                    filtered = filtered.filter(function(c) { return c.status === 'pending'; });
+                } else if (filter === 'approved') {
+                    filtered = filtered.filter(function(c) { return c.status === 'approved'; });
+                } else if (filter === 'rejected') {
+                    filtered = filtered.filter(function(c) { return c.status === 'rejected'; });
+                } else if (filter === 'checkedout') {
+                    filtered = filtered.filter(function(c) { return c.status === 'checkedout'; });
+                }
+
+                filtered.sort(function(a, b) {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+
+                var list = document.getElementById('checkinList');
+                if (filtered.length === 0) {
+                    list.innerHTML = '<p class="empty">No ' + filter + ' check in/out records found</p>';
+                    return;
+                }
+
+                var html = '<table class="checkin-table"><thead><tr><th>Employee</th><th>Department</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Approved By</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+
+                filtered.forEach(function(c) {
+                    var emp = employees.find(function(e) { return e.id === c.employee_id; });
+                    var checkinFull = formatDateFull(c.checkin_time);
+                    var checkoutFull = c.checkout_time ? formatDateFull(c.checkout_time) : '-';
+                    var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+
+                    var approverName = '-';
+                    if (c.approved_by) {
+                        var approver = admins.find(function(a) { return a.id === c.approved_by; });
+                        approverName = approver?.name || 'Unknown Admin';
+                    }
+
+                    var statusClass = '';
+                    var statusText = c.status;
+                    if (c.status === 'pending') {
+                        statusClass = 'checkin-status-pending';
+                        statusText = '⏳ Pending';
+                    } else if (c.status === 'approved') {
+                        statusClass = 'checkin-status-approved';
+                        statusText = '✅ Approved';
+                    } else if (c.status === 'rejected') {
+                        statusClass = 'checkin-status-rejected';
+                        statusText = '❌ Rejected';
+                    } else if (c.status === 'checkedout') {
+                        statusClass = 'checkin-status-checkedout';
+                        statusText = '📤 Checked Out';
+                    }
+
+                    var isPending = c.status === 'pending';
+
+                    html += '<tr><td><strong>' + (c.employee_name || 'Unknown') + '</strong></td><td>' + (c.department || 'N/A') + '</td><td>' + checkinFull + '</td><td>' + checkoutFull + '</td><td>' + duration + '</td><td>' + approverName + '</td><td><span class="checkin-status-badge ' + statusClass + '">' + statusText + '</span></td><td><div class="checkin-actions-cell">' + (isPending ? '<button class="btn-approve-checkin" onclick="updateCheckinStatus(\'' + c.id + '\',\'approved\')">✅ Approve</button> <button class="btn-reject-checkin" onclick="updateCheckinStatus(\'' + c.id + '\',\'rejected\')">❌ Reject</button>' : '') + ' <button class="btn-delete-checkin" onclick="deleteCheckin(\'' + c.id + '\')">🗑️ Delete</button></div></td></tr>';
+                });
+
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            }
+
+            window.updateCheckinStatus = function(id, status) {
+                if (!confirm('Are you sure you want to ' + status + ' this check-in request?')) return;
+
+                var checkins = getCheckins();
+                var index = checkins.findIndex(function(c) { return c.id === id; });
+                if (index === -1) return;
+
+                checkins[index].status = status;
+                if (status === 'approved' || status === 'rejected') {
+                    checkins[index].approved_by = adminSession.id;
+                    checkins[index].approved_name = adminSession.name || 'Admin';
+                }
+                saveCheckins(checkins);
+
+                var activeTab = document.querySelector('.checkin-tab-btn.active');
+                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+                alert('✅ Check-in ' + status + '!');
+            };
+
+            window.deleteCheckin = function(id) {
+                if (!confirm('Delete this check-in record?')) return;
+
+                var checkins = getCheckins();
+                checkins = checkins.filter(function(c) { return c.id !== id; });
+                saveCheckins(checkins);
+
+                var activeTab = document.querySelector('.checkin-tab-btn.active');
+                loadCheckins(activeTab ? activeTab.dataset.checkinType : 'pending');
+                alert('✅ Check-in deleted!');
+            };
+
+            // ============================================
+            // SETTINGS
+            // ============================================
+            function loadSettings() {
+                var settings = getSettings();
+                document.getElementById('localBreakMinutes').value = settings.localBreakMinutes || 30;
+                document.getElementById('expatBreakMinutes').value = settings.expatBreakMinutes || 45;
+                document.getElementById('warningMinutes').value = settings.warningMinutes || 5;
+
+                document.getElementById('currentSettings').innerHTML = '<div class="config-item"><span>Local Employee Break Duration</span><span><strong>' + (settings.localBreakMinutes || 30) + ' minutes</strong></span></div><div class="config-item"><span>Expat Employee Break Duration</span><span><strong>' + (settings.expatBreakMinutes || 45) + ' minutes</strong></span></div><div class="config-item"><span>Warning Time</span><span><strong>' + (settings.warningMinutes || 5) + ' minutes before overdue</strong></span></div>';
+            }
+
+            document.getElementById('settingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var localBreakMinutes = parseInt(document.getElementById('localBreakMinutes').value);
+                var expatBreakMinutes = parseInt(document.getElementById('expatBreakMinutes').value);
+                var warningMinutes = parseInt(document.getElementById('warningMinutes').value);
+                saveSettings({ localBreakMinutes: localBreakMinutes, expatBreakMinutes: expatBreakMinutes, warningMinutes: warningMinutes });
+                loadSettings();
+                alert('✅ Settings saved successfully!');
+            });
+
+            // ============================================
+            // EXPORT FUNCTIONS
+            // ============================================
+            document.getElementById('exportBreakLogBtn').addEventListener('click', function() {
+                var breaks = getBreaks();
+                var employees = getEmployees();
+
+                if (breaks.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                var csv = 'Employee,Department,Type,Start,End,Duration,Status\n';
+                breaks.forEach(function(b) {
+                    var emp = employees.find(function(e) { return e.id === b.employee_id; });
+                    var breakLabels = { short: 'Short', lunch: 'Lunch', personal: 'Personal', meeting: 'Meeting' };
+                    var duration = b.duration ? formatDuration(b.start_time, b.end_time) : 'In progress';
+                    csv += (emp?.name || 'Unknown') + ',' + (emp?.department || 'N/A') + ',' + (breakLabels[b.break_type] || 'Short') + ',' + formatDateFull(b.start_time) + ',' + (b.end_time ? formatDateFull(b.end_time) : '-') + ',' + duration + ',' + b.status + '\n';
+                });
+
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'break_log_' + new Date().toISOString().split('T')[0] + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('exportCheckinBtn').addEventListener('click', function() {
+                var checkins = getCheckins();
+                var admins = getAdmins();
+
+                if (checkins.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                var csv = 'Employee,Department,Check In,Check Out,Duration,Status,Approved By\n';
+                checkins.forEach(function(c) {
+                    var duration = c.checkout_time ? formatDuration(c.checkin_time, c.checkout_time) : 'In progress';
+                    var approverName = '-';
+                    if (c.approved_by) {
+                        var approver = admins.find(function(a) { return a.id === c.approved_by; });
+                        approverName = approver?.name || 'Unknown Admin';
+                    }
+                    csv += (c.employee_name || 'Unknown') + ',' + (c.department || 'N/A') + ',' + formatDateFull(c.checkin_time) + ',' + (c.checkout_time ? formatDateFull(c.checkout_time) : '-') + ',' + duration + ',' + c.status + ',' + approverName + '\n';
+                });
+
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'checkin_log_' + new Date().toISOString().split('T')[0] + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('exportVacationBtn').addEventListener('click', function() {
+                var vacations = getVacations();
+                var employees = getEmployees();
+
+                if (vacations.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                var csv = 'Employee,Department,Type,Start Date,End Date,Total Days,Adjusted Days,Status,Accepted\n';
+                vacations.forEach(function(v) {
+                    var emp = employees.find(function(e) { return e.id === v.employee_id; });
+                    var totalDays = calculateDays(v.startDate, v.endDate);
+                    var adjustedDays = v.adjustedDays || totalDays;
+                    var isAccepted = v.userAccepted ? 'Yes' : 'No';
+                    csv += (emp?.name || 'Unknown') + ',' + (emp?.department || 'N/A') + ',' + (v.vacationType || 'Local') + ',' + v.startDate + ',' + v.endDate + ',' + totalDays + ',' + adjustedDays + ',' + v.status + ',' + isAccepted + '\n';
+                });
+
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'vacation_log_' + new Date().toISOString().split('T')[0] + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('clearBreakLogBtn').addEventListener('click', function() {
+                if (confirm('⚠️ Are you sure you want to delete ALL break records? This cannot be undone!')) {
+                    saveBreaks([]);
+                    loadBreakLog();
+                    loadStats();
+                    alert('✅ All break records cleared!');
+                }
+            });
+
+            // ============================================
+            // WHITELIST EVENT LISTENERS
+            // ============================================
+            document.getElementById('addWhitelistBtn').addEventListener('click', function() {
+                document.getElementById('editWhitelistId').value = '';
+                document.getElementById('whitelistModalTitle').textContent = 'Add Email to Whitelist';
+                document.getElementById('whitelistForm').reset();
+                openModal('whitelistModal');
+            });
+
+            document.getElementById('bulkAddWhitelistBtn').addEventListener('click', function() {
+                document.getElementById('bulkWhitelistForm').reset();
+                openModal('bulkWhitelistModal');
+            });
+
+            document.getElementById('whitelistForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('whitelistEmail').value.trim();
+                const name = document.getElementById('whitelistName').value.trim();
+                const department = document.getElementById('whitelistDepartment').value;
+                const employeeType = document.getElementById('whitelistEmployeeType').value;
+
+                if (!email) {
+                    alert('Please enter an email address!');
+                    return;
+                }
+
+                const result = addToWhitelist(email, name, department, employeeType);
+                
+                if (result.success) {
+                    closeModal('whitelistModal');
+                    document.getElementById('whitelistForm').reset();
+                    loadWhitelist();
+                    loadUsers();
+                    alert(`✅ Email added to whitelist!\nEmail: ${email}\nPassword: 123456`);
+                } else {
+                    alert(result.error);
+                }
+            });
+
+            document.getElementById('bulkWhitelistForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const emailsText = document.getElementById('bulkWhitelistEmails').value;
+                const department = document.getElementById('bulkWhitelistDepartment').value;
+                const employeeType = document.getElementById('bulkWhitelistEmployeeType').value;
+
+                if (!emailsText) {
+                    alert('Please enter at least one email!');
+                    return;
+                }
+
+                const emailList = emailsText.split('\n')
+                    .map(e => e.trim())
+                    .filter(e => e && e.includes('@'));
+
+                if (emailList.length === 0) {
+                    alert('No valid emails found!');
+                    return;
+                }
+
+                let added = 0;
+                let failed = 0;
+
+                emailList.forEach(email => {
+                    const result = addToWhitelist(email, email.split('@')[0], department, employeeType);
+                    if (result.success) {
+                        added++;
+                    } else {
+                        failed++;
+                    }
+                });
+
+                closeModal('bulkWhitelistModal');
+                document.getElementById('bulkWhitelistForm').reset();
+                loadWhitelist();
+                loadUsers();
+                alert(`✅ Bulk add complete!\nAdded: ${added}\nFailed (already exist): ${failed}`);
+            });
+
+            // Whitelist search and filter
+            document.getElementById('whitelistSearch').addEventListener('input', loadWhitelist);
+            document.getElementById('whitelistStatusFilter').addEventListener('change', loadWhitelist);
+
+            // ============================================
+            // DELETE CONFIRMATION
+            // ============================================
+            window.confirmDelete = function(type, id, name) {
+                deleteTarget = id;
+                deleteType = type;
+                document.getElementById('deleteMessage').textContent = 'Delete "' + name + '"? This cannot be undone!';
+                openModal('deleteModal');
+            };
+
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (deleteType === 'employee') {
+                    var employees = getEmployees();
+                    employees = employees.filter(function(e) { return e.id !== deleteTarget; });
+                    saveEmployees(employees);
+                    loadEmployees();
+                } else if (deleteType === 'user') {
+                    var users = getUsers();
+                    users = users.filter(function(u) { return u.id !== deleteTarget; });
+                    saveUsers(users);
+                    loadUsers();
+                } else if (deleteType === 'department') {
+                    var depts = getDepartments();
+                    depts.splice(parseInt(deleteTarget), 1);
+                    saveDepartments(depts);
+                    loadDepartments();
+                    loadDropdowns();
+                } else if (deleteType === 'role') {
+                    var roles = getRoles();
+                    roles.splice(parseInt(deleteTarget), 1);
+                    saveRoles(roles);
+                    loadRoles();
+                    loadDropdowns();
+                } else if (deleteType === 'vacation') {
+                    window.deleteVacation(deleteTarget);
+                } else if (deleteType === 'checkin') {
+                    window.deleteCheckin(deleteTarget);
+                } else if (deleteType === 'whitelist') {
+                    window.deleteFromWhitelist(deleteTarget);
+                }
+                loadStats();
+                closeModal('deleteModal');
+                deleteTarget = null;
+                deleteType = null;
+                alert('✅ Deleted successfully!');
+            });
+
+            document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+                closeModal('deleteModal');
+                deleteTarget = null;
+                deleteType = null;
+            });
+
+            // ============================================
+            // MODAL FUNCTIONS
+            // ============================================
+            window.openModal = function(id) {
+                document.getElementById(id).style.display = 'block';
+            };
+
+            window.closeModal = function(id) {
+                document.getElementById(id).style.display = 'none';
+            };
+
+            window.addEventListener('click', function(e) {
+                document.querySelectorAll('.modal').forEach(function(modal) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+
+            // ============================================
+            // EVENT LISTENERS
+            // ============================================
+            document.getElementById('addEmployeeBtn').addEventListener('click', function() {
+                document.getElementById('editEmpId').value = '';
+                document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+                document.getElementById('employeeForm').reset();
+                openModal('employeeModal');
+            });
+
+            document.getElementById('addUserBtn').addEventListener('click', function() {
+                document.getElementById('editUserId').value = '';
+                document.getElementById('userModalTitle').textContent = 'Create User';
+                document.getElementById('userForm').reset();
+                document.getElementById('userPassword').value = '123456';
+                openModal('userModal');
+            });
+
+            document.getElementById('addDeptBtn').addEventListener('click', function() {
+                document.getElementById('editDeptId').value = '';
+                document.getElementById('deptModalTitle').textContent = 'Add Department';
+                document.getElementById('deptForm').reset();
+                openModal('deptModal');
+            });
+
+            document.getElementById('addRoleBtn').addEventListener('click', function() {
+                document.getElementById('editRoleId').value = '';
+                document.getElementById('roleModalTitle').textContent = 'Add Role';
+                document.getElementById('roleForm').reset();
+                openModal('roleModal');
+            });
+
+            document.getElementById('deleteSelectedUsersBtn').addEventListener('click', function() {
+                var selected = document.querySelectorAll('.user-checkbox:checked');
+                if (selected.length === 0) {
+                    alert('Please select users to delete!');
+                    return;
+                }
+                if (confirm('Delete ' + selected.length + ' selected user(s)?')) {
+                    var users = getUsers();
+                    selected.forEach(function(cb) {
+                        users = users.filter(function(u) { return u.id !== cb.value; });
+                    });
+                    saveUsers(users);
+                    loadUsers();
+                    loadStats();
+                    alert('✅ Deleted ' + selected.length + ' users!');
+                }
+            });
+
+            document.getElementById('refreshBreakStatus').addEventListener('click', function() {
+                loadBreakStatus();
+                alert('✅ Break status refreshed!');
+            });
+
+            document.getElementById('applyBreakLogFilter').addEventListener('click', loadBreakLog);
+
+            document.getElementById('empSearch').addEventListener('input', loadEmployees);
+            document.getElementById('empStatusFilter').addEventListener('change', loadEmployees);
+            document.getElementById('empTypeFilter').addEventListener('change', loadEmployees);
+
+            // ============================================
+            // ENSURE DEFAULT DATA
+            // ============================================
+            function ensureDefaultData() {
+                // Whitelist
+                if (getWhitelist().length === 0) {
+                    const defaultWhitelist = [
+                        { id: 'wl_1', email: 'employee@company.com', name: 'John Doe', department: 'Engineering', employeeType: 'Local', status: 'active', password: '123456', addedDate: new Date().toISOString() },
+                        { id: 'wl_2', email: 'jane@company.com', name: 'Jane Smith', department: 'Marketing', employeeType: 'Expat', status: 'active', password: '123456', addedDate: new Date().toISOString() }
+                    ];
+                    localStorage.setItem('emailWhitelist', JSON.stringify(defaultWhitelist));
+                    
+                    // Also add to appUsers
+                    const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                    defaultWhitelist.forEach(w => {
+                        if (!users.some(u => u.email === w.email)) {
+                            users.push({
+                                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                                name: w.name,
+                                email: w.email,
+                                password: '123456',
+                                role: 'employee',
+                                department: w.department,
+                                employeeType: w.employeeType,
+                                created_at: new Date().toISOString(),
+                                whitelisted: true
+                            });
+                        }
+                    });
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                }
+
+                // Employees
+                if (getEmployees().length === 0) {
+                    saveEmployees([
+                        { id: 'emp_1', name: 'John Doe', email: 'john@company.com', department: 'Engineering', employeeType: 'Local', position: 'Developer', status: 'active' },
+                        { id: 'emp_2', name: 'Jane Smith', email: 'jane@company.com', department: 'Marketing', employeeType: 'Expat', position: 'Manager', status: 'active' }
+                    ]);
+                }
+
+                // Settings
+                if (!localStorage.getItem('breakSettings')) {
+                    saveSettings({ localBreakMinutes: 30, expatBreakMinutes: 45, warningMinutes: 5 });
+                }
+
+                // Departments
+                if (!localStorage.getItem('departments')) {
+                    saveDepartments(['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations', 'IT']);
+                }
+
+                // Roles
+                if (!localStorage.getItem('roles')) {
+                    saveRoles([
+                        { name: 'Sub-Admin', createUser: true, deleteUser: true, viewAll: true, manageSettings: false },
+                        { name: 'View-Only', createUser: false, deleteUser: false, viewAll: true, manageSettings: false }
+                    ]);
+                }
+
+                // Vacations
+                if (!localStorage.getItem('vacations')) {
+                    saveVacations([]);
+                }
+
+                // Checkins
+                if (!localStorage.getItem('checkins')) {
+                    saveCheckins([]);
+                }
+
+                // Breaks
+                if (!localStorage.getItem('breaks')) {
+                    saveBreaks([]);
+                }
+            }
+
+            ensureDefaultData();
+
+            // ============================================
+            // AUTO REFRESH
+            // ============================================
+            function refreshAll() {
+                loadStats();
+                loadBreakStatus();
+            }
+
+            setInterval(refreshAll, 30000);
+            refreshAll();
+
+            // ============================================
+            // INITIALIZE
+            // ============================================
+            loadDropdowns();
+            loadStats();
+            loadEmployees();
+            loadUsers();
+            loadDepartments();
+            loadRoles();
+            loadBreakStatus();
+            loadBreakLog();
+            loadVacations('pending');
+            loadCheckins('pending');
+            loadSettings();
+            loadWhitelist();
+
+            console.log('✅ Admin Dashboard loaded successfully with Whitelist!');
+            console.log('✅ Email Whitelist: Only whitelisted emails can login');
+            console.log('✅ Default whitelist: employee@company.com, jane@company.com');
+        })();
+    </script>
+</body>
+</html>
