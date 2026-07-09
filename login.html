@@ -25,7 +25,7 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email Address <span class="required">*</span></label>
-                    <input type="email" id="email" required placeholder="your@email.com" autocomplete="email" value="employee@company.com">
+                    <input type="email" id="email" required placeholder="your@email.com" autocomplete="email" value="skybetrelated@gmail.com">
                 </div>
                 
                 <div class="form-group">
@@ -52,7 +52,7 @@
 
     <script>
         // ============================================
-        // USER LOGIN WITH WHITELIST CHECK
+        // COMPLETE USER LOGIN WITH WHITELIST CHECK
         // ============================================
         
         const form = document.getElementById('loginForm');
@@ -86,26 +86,128 @@
         // ============================================
         function getWhitelist() {
             try {
-                return JSON.parse(localStorage.getItem('emailWhitelist') || '[]');
-            } catch {
+                const data = localStorage.getItem('emailWhitelist');
+                if (!data) {
+                    // Create default whitelist if not exists
+                    const defaultWhitelist = [
+                        { 
+                            id: 'wl_1', 
+                            email: 'employee@company.com', 
+                            name: 'John Doe', 
+                            department: 'Engineering', 
+                            employeeType: 'Local', 
+                            status: 'active', 
+                            password: '123456', 
+                            addedDate: new Date().toISOString() 
+                        },
+                        { 
+                            id: 'wl_2', 
+                            email: 'jane@company.com', 
+                            name: 'Jane Smith', 
+                            department: 'Marketing', 
+                            employeeType: 'Expat', 
+                            status: 'active', 
+                            password: '123456', 
+                            addedDate: new Date().toISOString() 
+                        },
+                        { 
+                            id: 'wl_3', 
+                            email: 'skybetrelated@gmail.com', 
+                            name: 'Acharya', 
+                            department: 'IT', 
+                            employeeType: 'Local', 
+                            status: 'active', 
+                            password: '123456', 
+                            addedDate: new Date().toISOString() 
+                        }
+                    ];
+                    localStorage.setItem('emailWhitelist', JSON.stringify(defaultWhitelist));
+                    return defaultWhitelist;
+                }
+                return JSON.parse(data);
+            } catch (e) {
+                console.error('Error reading whitelist:', e);
                 return [];
             }
         }
 
+        function saveWhitelist(whitelist) {
+            try {
+                localStorage.setItem('emailWhitelist', JSON.stringify(whitelist));
+                console.log('✅ Whitelist saved:', whitelist.length, 'entries');
+                syncWhitelistWithUsers(whitelist);
+            } catch (e) {
+                console.error('Error saving whitelist:', e);
+            }
+        }
+
+        function syncWhitelistWithUsers(whitelist) {
+            try {
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                const activeWhitelist = whitelist.filter(w => w.status === 'active');
+                
+                activeWhitelist.forEach(w => {
+                    const existingIndex = users.findIndex(u => u.email.toLowerCase() === w.email.toLowerCase());
+                    if (existingIndex === -1) {
+                        users.push({
+                            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                            name: w.name || w.email.split('@')[0],
+                            email: w.email,
+                            password: w.password || '123456',
+                            role: 'employee',
+                            department: w.department || 'Engineering',
+                            employeeType: w.employeeType || 'Local',
+                            created_at: new Date().toISOString(),
+                            whitelisted: true
+                        });
+                    } else {
+                        users[existingIndex].whitelisted = true;
+                        users[existingIndex].name = w.name || users[existingIndex].name;
+                        users[existingIndex].department = w.department || users[existingIndex].department;
+                        users[existingIndex].employeeType = w.employeeType || users[existingIndex].employeeType;
+                    }
+                });
+                
+                localStorage.setItem('appUsers', JSON.stringify(users));
+                console.log('✅ Synced whitelist with users');
+            } catch (e) {
+                console.error('Error syncing whitelist:', e);
+            }
+        }
+
         function isEmailWhitelisted(email) {
+            if (!email) return false;
             const whitelist = getWhitelist();
-            return whitelist.some(item => 
-                item.email.toLowerCase() === email.toLowerCase() && 
-                item.status === 'active'
-            );
+            const emailLower = email.toLowerCase().trim();
+            
+            console.log('🔍 Checking whitelist for:', emailLower);
+            console.log('📋 Current whitelist entries:', whitelist.map(w => ({ 
+                email: w.email, 
+                status: w.status 
+            })));
+            
+            const result = whitelist.some(item => {
+                const itemEmail = (item.email || '').toLowerCase().trim();
+                const isActive = item.status === 'active';
+                const match = itemEmail === emailLower && isActive;
+                if (match) {
+                    console.log('✅ Found match:', item);
+                }
+                return match;
+            });
+            
+            console.log('📊 Is whitelisted?', result);
+            return result;
         }
 
         function getWhitelistedUser(email) {
+            if (!email) return null;
             const whitelist = getWhitelist();
-            return whitelist.find(item => 
-                item.email.toLowerCase() === email.toLowerCase() && 
-                item.status === 'active'
-            );
+            const emailLower = email.toLowerCase().trim();
+            return whitelist.find(item => {
+                const itemEmail = (item.email || '').toLowerCase().trim();
+                return itemEmail === emailLower && item.status === 'active';
+            });
         }
 
         // ============================================
@@ -116,7 +218,11 @@
             try {
                 const user = JSON.parse(savedUser);
                 if (user && user.email) {
-                    window.location.href = 'index.html';
+                    if (isEmailWhitelisted(user.email)) {
+                        window.location.href = 'index.html';
+                    } else {
+                        localStorage.removeItem('currentUser');
+                    }
                 }
             } catch(e) {
                 localStorage.removeItem('currentUser');
@@ -127,34 +233,43 @@
         // ENSURE DEFAULT DATA
         // ============================================
         function ensureDefaultData() {
-            // Ensure whitelist exists
             const whitelist = getWhitelist();
             if (whitelist.length === 0) {
                 const defaultWhitelist = [
-                    { id: 'wl_1', email: 'employee@company.com', name: 'John Doe', department: 'Engineering', employeeType: 'Local', status: 'active', password: '123456', addedDate: new Date().toISOString() },
-                    { id: 'wl_2', email: 'jane@company.com', name: 'Jane Smith', department: 'Marketing', employeeType: 'Expat', status: 'active', password: '123456', addedDate: new Date().toISOString() }
+                    { 
+                        id: 'wl_1', 
+                        email: 'employee@company.com', 
+                        name: 'John Doe', 
+                        department: 'Engineering', 
+                        employeeType: 'Local', 
+                        status: 'active', 
+                        password: '123456', 
+                        addedDate: new Date().toISOString() 
+                    },
+                    { 
+                        id: 'wl_2', 
+                        email: 'jane@company.com', 
+                        name: 'Jane Smith', 
+                        department: 'Marketing', 
+                        employeeType: 'Expat', 
+                        status: 'active', 
+                        password: '123456', 
+                        addedDate: new Date().toISOString() 
+                    },
+                    { 
+                        id: 'wl_3', 
+                        email: 'skybetrelated@gmail.com', 
+                        name: 'Acharya', 
+                        department: 'IT', 
+                        employeeType: 'Local', 
+                        status: 'active', 
+                        password: '123456', 
+                        addedDate: new Date().toISOString() 
+                    }
                 ];
                 localStorage.setItem('emailWhitelist', JSON.stringify(defaultWhitelist));
-                
-                // Also add to appUsers
-                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                defaultWhitelist.forEach(w => {
-                    if (!users.some(u => u.email === w.email)) {
-                        users.push({
-                            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                            name: w.name,
-                            email: w.email,
-                            password: '123456',
-                            role: 'employee',
-                            department: w.department,
-                            employeeType: w.employeeType,
-                            created_at: new Date().toISOString(),
-                            whitelisted: true
-                        });
-                    }
-                });
-                localStorage.setItem('appUsers', JSON.stringify(users));
-                console.log('✅ Default whitelist created');
+                syncWhitelistWithUsers(defaultWhitelist);
+                console.log('✅ Default whitelist created with 3 users');
             }
 
             // Ensure admin exists
@@ -172,10 +287,25 @@
                 localStorage.setItem('adminUsers', JSON.stringify(admins));
                 console.log('✅ Default admin created');
             }
+
+            // Ensure employees exist
+            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            if (employees.length === 0) {
+                const defaultEmployees = [
+                    { id: 'emp_1', name: 'John Doe', email: 'john@company.com', department: 'Engineering', employeeType: 'Local', position: 'Developer', status: 'active' },
+                    { id: 'emp_2', name: 'Jane Smith', email: 'jane@company.com', department: 'Marketing', employeeType: 'Expat', position: 'Manager', status: 'active' },
+                    { id: 'emp_3', name: 'Acharya', email: 'skybetrelated@gmail.com', department: 'IT', employeeType: 'Local', position: 'Developer', status: 'active' }
+                ];
+                localStorage.setItem('employees', JSON.stringify(defaultEmployees));
+                console.log('✅ Default employees created');
+            }
         }
 
         ensureDefaultData();
 
+        // ============================================
+        // FORM SUBMIT
+        // ============================================
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -191,10 +321,17 @@
                     throw new Error('Please enter both email and password.');
                 }
 
+                console.log('🔑 Login attempt for:', email);
+
                 // ============================================
                 // STEP 1: CHECK WHITELIST
                 // ============================================
                 if (!isEmailWhitelisted(email)) {
+                    const whitelist = getWhitelist();
+                    console.log('📋 Current whitelist:', whitelist.map(w => ({ 
+                        email: w.email, 
+                        status: w.status 
+                    })));
                     throw new Error('❌ This email is not whitelisted. Please contact your administrator.');
                 }
 
@@ -202,12 +339,10 @@
                 // STEP 2: CHECK USER CREDENTIALS
                 // ============================================
                 const whitelistedUser = getWhitelistedUser(email);
-                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                let users = JSON.parse(localStorage.getItem('appUsers') || '[]');
                 
-                // Find user in appUsers
                 let foundUser = users.find(u => 
-                    u.email.toLowerCase() === email.toLowerCase() && 
-                    u.password === password
+                    u.email.toLowerCase() === email.toLowerCase()
                 );
 
                 // If not found in appUsers but is whitelisted, create user
@@ -216,7 +351,7 @@
                         id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                         name: whitelistedUser.name || email.split('@')[0],
                         email: email,
-                        password: password || '123456',
+                        password: whitelistedUser.password || '123456',
                         role: 'employee',
                         department: whitelistedUser.department || 'Engineering',
                         employeeType: whitelistedUser.employeeType || 'Local',
@@ -229,8 +364,13 @@
                     console.log('✅ User created from whitelist:', email);
                 }
 
+                // Check password
+                if (foundUser && foundUser.password !== password) {
+                    throw new Error('❌ Invalid password. Please try again.');
+                }
+
                 if (!foundUser) {
-                    throw new Error('❌ Invalid credentials. Please check your password.');
+                    throw new Error('❌ User not found. Please contact administrator.');
                 }
 
                 // ============================================
@@ -270,10 +410,23 @@
             }
         });
 
+        // ============================================
+        // DEBUG HELP
+        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             hideMessages();
+            const whitelist = getWhitelist();
             console.log('✅ Login page ready with Whitelist System');
-            console.log('📧 Only whitelisted emails can login');
+            console.log('📧 Current whitelisted emails:');
+            whitelist.forEach(w => {
+                console.log(`   - ${w.email} (${w.status}) - ${w.name || 'No name'}`);
+            });
+            console.log('💡 Total whitelisted: ' + whitelist.length);
+            
+            if (whitelist.length === 0) {
+                console.warn('⚠️ No whitelist found! Creating default...');
+                ensureDefaultData();
+            }
         });
     </script>
 </body>
