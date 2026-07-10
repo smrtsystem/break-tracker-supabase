@@ -52,7 +52,7 @@
 
     <script>
         // ============================================
-        // COMPLETE LOGIN WITH WHITELIST - FIXED
+        // USER LOGIN - COMPLETE WORKING VERSION
         // ============================================
         
         // Get DOM elements
@@ -66,7 +66,7 @@
         var successText = document.getElementById('successText');
 
         // ============================================
-        // FUNCTIONS
+        // UTILITY FUNCTIONS
         // ============================================
         
         function showError(message) {
@@ -86,22 +86,32 @@
             successMsg.style.display = 'none';
         }
 
+        function getLocalStorage(key) {
+            try {
+                var data = localStorage.getItem(key);
+                if (data) {
+                    return JSON.parse(data);
+                }
+            } catch (e) {
+                console.error('Error reading', key, ':', e);
+            }
+            return null;
+        }
+
+        function setLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error('Error saving', key, ':', e);
+            }
+        }
+
         // ============================================
         // WHITELIST FUNCTIONS
         // ============================================
         
-        function getHardcodedWhitelist() {
-            try {
-                var storedData = localStorage.getItem('hardcodedWhitelist');
-                if (storedData) {
-                    return JSON.parse(storedData);
-                }
-            } catch (e) {
-                console.error('Error reading hardcoded whitelist:', e);
-            }
-            
-            // Default hardcoded whitelist
-            var defaultList = [
+        function getDefaultWhitelist() {
+            return [
                 {
                     id: 'hc_default_1',
                     email: 'admin@break-tracker.com',
@@ -158,39 +168,34 @@
                     isHardcoded: true
                 }
             ];
-            
-            // Save default to localStorage
-            localStorage.setItem('hardcodedWhitelist', JSON.stringify(defaultList));
-            return defaultList;
-        }
-
-        function getStoredWhitelist() {
-            try {
-                var data = localStorage.getItem('emailWhitelist');
-                if (data) {
-                    return JSON.parse(data);
-                }
-            } catch (e) {
-                console.error('Error reading stored whitelist:', e);
-            }
-            return [];
         }
 
         function getWhitelist() {
-            var hardcoded = getHardcodedWhitelist();
-            var stored = getStoredWhitelist();
+            // Try to get from localStorage
+            var stored = getLocalStorage('emailWhitelist');
+            var hardcoded = getLocalStorage('hardcodedWhitelist');
             
-            var merged = hardcoded.slice(); // Copy array
-            for (var i = 0; i < stored.length; i++) {
-                var exists = false;
-                for (var j = 0; j < merged.length; j++) {
-                    if (merged[j].email.toLowerCase() === stored[i].email.toLowerCase()) {
-                        exists = true;
-                        break;
+            // If no hardcoded in localStorage, use default
+            if (!hardcoded) {
+                hardcoded = getDefaultWhitelist();
+                setLocalStorage('hardcodedWhitelist', hardcoded);
+            }
+            
+            // Merge hardcoded + stored
+            var merged = hardcoded.slice();
+            
+            if (stored) {
+                for (var i = 0; i < stored.length; i++) {
+                    var exists = false;
+                    for (var j = 0; j < merged.length; j++) {
+                        if (merged[j].email.toLowerCase() === stored[i].email.toLowerCase()) {
+                            exists = true;
+                            break;
+                        }
                     }
-                }
-                if (!exists) {
-                    merged.push(stored[i]);
+                    if (!exists) {
+                        merged.push(stored[i]);
+                    }
                 }
             }
             
@@ -205,8 +210,7 @@
             for (var i = 0; i < whitelist.length; i++) {
                 var item = whitelist[i];
                 var itemEmail = (item.email || '').toLowerCase().trim();
-                var isActive = item.status === 'active';
-                if (itemEmail === emailLower && isActive) {
+                if (itemEmail === emailLower && item.status === 'active') {
                     return true;
                 }
             }
@@ -228,20 +232,17 @@
         }
 
         // ============================================
-        // CHECK SESSION - FIXED (no return outside function)
+        // CHECK SESSION
         // ============================================
-        function checkSession() {
+        function checkUserSession() {
             try {
-                var savedUser = localStorage.getItem('currentUser');
-                if (savedUser) {
-                    var user = JSON.parse(savedUser);
-                    if (user && user.email) {
-                        if (isEmailWhitelisted(user.email)) {
-                            window.location.href = 'index.html';
-                            return true;
-                        } else {
-                            localStorage.removeItem('currentUser');
-                        }
+                var currentUser = getLocalStorage('currentUser');
+                if (currentUser && currentUser.email) {
+                    if (isEmailWhitelisted(currentUser.email)) {
+                        window.location.href = 'index.html';
+                        return true;
+                    } else {
+                        localStorage.removeItem('currentUser');
                     }
                 }
             } catch(e) {
@@ -251,50 +252,57 @@
         }
 
         // Run session check
-        var isLoggedIn = checkSession();
-        if (isLoggedIn) {
-            // Already redirected
-        }
+        checkUserSession();
 
         // ============================================
         // ENSURE DEFAULT DATA
         // ============================================
         function ensureDefaultData() {
-            // Ensure hardcoded whitelist exists
-            getHardcodedWhitelist();
+            // Ensure hardcoded whitelist
+            var hardcoded = getLocalStorage('hardcodedWhitelist');
+            if (!hardcoded) {
+                setLocalStorage('hardcodedWhitelist', getDefaultWhitelist());
+                console.log('✅ Default hardcoded whitelist created');
+            }
             
             // Ensure admin exists
-            var admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+            var admins = getLocalStorage('adminUsers');
+            if (!admins) {
+                admins = [];
+            }
             if (admins.length === 0) {
-                var defaultAdmin = {
+                admins.push({
                     id: 'admin_default',
                     name: 'Admin',
                     email: 'admin@break-tracker.com',
                     password: '535680',
                     role: 'admin',
                     created_at: new Date().toISOString()
-                };
-                admins.push(defaultAdmin);
-                localStorage.setItem('adminUsers', JSON.stringify(admins));
+                });
+                setLocalStorage('adminUsers', admins);
                 console.log('✅ Default admin created');
             }
 
             // Ensure employees exist
-            var employees = JSON.parse(localStorage.getItem('employees') || '[]');
-            if (employees.length === 0) {
-                var defaultEmployees = [
+            var employees = getLocalStorage('employees');
+            if (!employees || employees.length === 0) {
+                employees = [
                     { id: 'emp_1', name: 'John Doe', email: 'john@company.com', department: 'Engineering', employeeType: 'Local', position: 'Developer', status: 'active' },
                     { id: 'emp_2', name: 'Jane Smith', email: 'jane@company.com', department: 'Marketing', employeeType: 'Expat', position: 'Manager', status: 'active' },
                     { id: 'emp_3', name: 'Acharya', email: 'skybetrelated@gmail.com', department: 'IT', employeeType: 'Expat', position: 'Developer', status: 'active' },
                     { id: 'emp_4', name: 'Chandan', email: 'chandan@betrelated.com', department: 'Operations', employeeType: 'Expat', position: 'Manager', status: 'active' }
                 ];
-                localStorage.setItem('employees', JSON.stringify(defaultEmployees));
+                setLocalStorage('employees', employees);
                 console.log('✅ Default employees created');
             }
 
             // Ensure appUsers exist with whitelisted users
+            var users = getLocalStorage('appUsers');
+            if (!users) {
+                users = [];
+            }
+            
             var whitelist = getWhitelist();
-            var users = JSON.parse(localStorage.getItem('appUsers') || '[]');
             for (var i = 0; i < whitelist.length; i++) {
                 var w = whitelist[i];
                 if (w.status === 'active') {
@@ -321,13 +329,13 @@
                     }
                 }
             }
-            localStorage.setItem('appUsers', JSON.stringify(users));
+            setLocalStorage('appUsers', users);
         }
 
         ensureDefaultData();
 
         // ============================================
-        // FORM SUBMIT - FIXED
+        // FORM SUBMIT
         // ============================================
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -346,41 +354,23 @@
 
                 console.log('🔑 Login attempt for:', email);
 
-                // ============================================
                 // STEP 1: CHECK WHITELIST
-                // ============================================
-                var whitelist = getWhitelist();
-                console.log('📋 Whitelist entries:', whitelist.length);
-                
-                var whitelistEntry = null;
-                for (var i = 0; i < whitelist.length; i++) {
-                    if (whitelist[i].email.toLowerCase() === email.toLowerCase()) {
-                        whitelistEntry = whitelist[i];
-                        break;
-                    }
-                }
+                var whitelistEntry = getWhitelistedUser(email);
                 
                 if (!whitelistEntry) {
                     console.log('❌ Email not found in whitelist');
                     throw new Error('❌ This email is not whitelisted. Please contact your administrator.');
                 }
                 
-                if (whitelistEntry.status !== 'active') {
-                    console.log('❌ Email is inactive');
-                    throw new Error('❌ This email is inactive. Please contact your administrator.');
-                }
-                
                 console.log('✅ Email found in whitelist:', whitelistEntry);
 
-                // ============================================
                 // STEP 2: CHECK USER CREDENTIALS
-                // ============================================
-                var users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                var users = getLocalStorage('appUsers') || [];
                 
                 var foundUser = null;
-                for (var j = 0; j < users.length; j++) {
-                    if (users[j].email.toLowerCase() === email.toLowerCase()) {
-                        foundUser = users[j];
+                for (var i = 0; i < users.length; i++) {
+                    if (users[i].email.toLowerCase() === email.toLowerCase()) {
+                        foundUser = users[i];
                         break;
                     }
                 }
@@ -400,7 +390,7 @@
                         isHardcoded: whitelistEntry.isHardcoded || false
                     };
                     users.push(newUser);
-                    localStorage.setItem('appUsers', JSON.stringify(users));
+                    setLocalStorage('appUsers', users);
                     foundUser = newUser;
                     console.log('✅ User created:', email);
                 }
@@ -410,9 +400,7 @@
                     throw new Error('❌ Invalid password. Please try again.');
                 }
 
-                // ============================================
                 // STEP 3: CREATE SESSION
-                // ============================================
                 var userSession = {
                     id: foundUser.id,
                     email: foundUser.email,
@@ -423,13 +411,10 @@
                     whitelisted: true
                 };
                 
-                // Save session
-                localStorage.setItem('currentUser', JSON.stringify(userSession));
+                setLocalStorage('currentUser', userSession);
                 console.log('✅ Session created for:', foundUser.name);
 
-                // ============================================
                 // STEP 4: REDIRECT
-                // ============================================
                 showSuccess('✅ Login successful! Redirecting...');
                 
                 setTimeout(function() {
@@ -445,18 +430,19 @@
         });
 
         // ============================================
-        // DEBUG HELP
+        // PAGE LOAD
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             hideMessages();
             var whitelist = getWhitelist();
-            console.log('✅ Login page ready');
+            console.log('✅ User Login page ready');
             console.log('📧 Whitelisted emails:');
             for (var i = 0; i < whitelist.length; i++) {
                 var w = whitelist[i];
                 var source = w.isHardcoded ? '📌 Hardcoded' : '💾 Stored';
                 console.log('   - ' + w.email + ' (' + w.status + ') [' + source + ']');
             }
+            console.log('💡 Total whitelisted: ' + whitelist.length);
         });
     </script>
 </body>
