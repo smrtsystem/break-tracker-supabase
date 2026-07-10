@@ -83,16 +83,33 @@
             errorMsg.style.display = 'none';
         }
 
+        function getLocalStorage(key) {
+            try {
+                var data = localStorage.getItem(key);
+                if (data) {
+                    return JSON.parse(data);
+                }
+            } catch (e) {
+                console.error('Error reading', key, ':', e);
+            }
+            return null;
+        }
+
+        function setLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error('Error saving', key, ':', e);
+            }
+        }
+
         // Check if already logged in as admin
         function checkAdminSession() {
             try {
-                var adminSession = localStorage.getItem('adminSession');
-                if (adminSession) {
-                    var session = JSON.parse(adminSession);
-                    if (session && session.role === 'admin') {
-                        window.location.href = 'admin-dashboard.html';
-                        return true;
-                    }
+                var adminSession = getLocalStorage('adminSession');
+                if (adminSession && adminSession.role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                    return true;
                 }
             } catch(e) {
                 localStorage.removeItem('adminSession');
@@ -100,22 +117,25 @@
             return false;
         }
 
+        // Run session check
         checkAdminSession();
 
         // Ensure default admin exists
         function ensureDefaultAdmin() {
-            var admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+            var admins = getLocalStorage('adminUsers');
+            if (!admins) {
+                admins = [];
+            }
             if (admins.length === 0) {
-                var defaultAdmin = {
+                admins.push({
                     id: 'admin_default',
                     name: 'Admin',
                     email: 'admin@break-tracker.com',
                     password: '535680',
                     role: 'admin',
                     created_at: new Date().toISOString()
-                };
-                admins.push(defaultAdmin);
-                localStorage.setItem('adminUsers', JSON.stringify(admins));
+                });
+                setLocalStorage('adminUsers', admins);
                 console.log('✅ Default admin created');
             }
         }
@@ -138,7 +158,7 @@
                 }
 
                 // Check local admin storage
-                var admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+                var admins = getLocalStorage('adminUsers') || [];
                 var foundAdmin = null;
                 for (var i = 0; i < admins.length; i++) {
                     if (admins[i].email.toLowerCase() === email.toLowerCase() && admins[i].password === password) {
@@ -158,11 +178,11 @@
                     name: foundAdmin.name || 'Admin',
                     role: 'admin'
                 };
-                localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                setLocalStorage('adminSession', adminSession);
                 
                 console.log('✅ Admin login successful:', foundAdmin.name);
                 
-                // Redirect
+                // Redirect to admin dashboard
                 window.location.href = 'admin-dashboard.html';
                 
             } catch (error) {
@@ -175,7 +195,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             hideError();
-            console.log('✅ Admin login page ready');
+            console.log('✅ Admin Login page ready');
         });
     </script>
 </body>
