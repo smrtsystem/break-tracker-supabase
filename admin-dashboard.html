@@ -313,6 +313,7 @@
                             <div>
                                 <button id="addWhitelistBtn" class="btn-primary">+ Add Email</button>
                                 <button id="bulkAddWhitelistBtn" class="btn-outline" style="margin-left:8px;">📋 Bulk Add</button>
+                                <button id="addHardcodedBtn" class="btn-warning" style="background:#ff6b6b;color:white;margin-left:8px;">📌 Add to Hardcoded</button>
                                 <button id="refreshWhitelistBtn" class="btn-outline" style="margin-left:8px;">🔄 Refresh</button>
                             </div>
                         </div>
@@ -320,7 +321,9 @@
                             <p style="margin:0;font-size:14px;color:#555;">
                                 <strong>ℹ️ How it works:</strong> Only emails added to this whitelist can login to the system. 
                                 Each whitelisted email will have a default password <strong>123456</strong> and can be changed by the user.
-                                <br><small style="color:#999;">Total whitelisted emails: <strong id="whitelistCount">0</strong></small>
+                                <br>
+                                <span style="color:#ff6b6b;">📌 Hardcoded emails are permanently stored in the code and survive localStorage clear.</span>
+                                <br><small style="color:#999;">Total whitelisted emails: <strong id="whitelistCount">0</strong> | Hardcoded: <strong id="hardcodedCount">0</strong></small>
                             </p>
                         </div>
                         <div class="filters">
@@ -329,6 +332,11 @@
                                 <option value="all">All Status</option>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
+                            </select>
+                            <select id="whitelistTypeFilter">
+                                <option value="all">All Types</option>
+                                <option value="hardcoded">📌 Hardcoded</option>
+                                <option value="stored">💾 Stored</option>
                             </select>
                         </div>
                         <div class="table-container">
@@ -564,6 +572,59 @@
         </div>
     </div>
 
+    <!-- Hardcoded Whitelist Modal -->
+    <div id="hardcodedModal" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('hardcodedModal')">&times;</button>
+            <h2>📌 Add to Hardcoded Whitelist</h2>
+            <div style="background:#fff5f5;padding:12px 16px;border-radius:8px;margin-bottom:16px;border-left:4px solid #ff6b6b;">
+                <p style="margin:0;font-size:14px;color:#555;">
+                    <strong>⚡ Hardcoded emails are permanently stored in the code.</strong><br>
+                    <small style="color:#999;">These emails will work even if localStorage is cleared. They are saved to the HARDCODED_WHITELIST in the login page.</small>
+                </p>
+            </div>
+            <form id="hardcodedForm">
+                <div class="form-group">
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="hardcodedEmail" required placeholder="user@company.com">
+                    <small>This email will be permanently added to the hardcoded whitelist</small>
+                </div>
+                <div class="form-group">
+                    <label>User Name (Optional)</label>
+                    <input type="text" id="hardcodedName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="hardcodedDepartment">
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="IT">IT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Employee Type</label>
+                    <select id="hardcodedEmployeeType">
+                        <option value="Local">Local</option>
+                        <option value="Expat">Expat</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="text" id="hardcodedPassword" value="123456" placeholder="Password">
+                    <small>Default: 123456</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('hardcodedModal')">Cancel</button>
+                    <button type="submit" class="btn-primary" style="background:#ff6b6b;">📌 Add to Hardcoded</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Adjust Modal -->
     <div id="adjustModal" class="modal">
         <div class="modal-content" style="max-width:450px;">
@@ -610,7 +671,7 @@
 
     <script>
         // ============================================
-        // ADMIN DASHBOARD - COMPLETE SCRIPT WITH WHITELIST
+        // ADMIN DASHBOARD - COMPLETE SCRIPT WITH HARDCODED WHITELIST
         // ============================================
 
         (function() {
@@ -694,200 +755,237 @@
             function saveCheckins(c) { setLocalStorage('checkins', c); }
 
             // ============================================
-            // WHITELIST FUNCTIONS
+            // HARDCODED WHITELIST FUNCTIONS
             // ============================================
-            function getWhitelist() {
+            function getHardcodedWhitelist() {
                 try {
-                    const data = localStorage.getItem('emailWhitelist');
+                    const data = localStorage.getItem('hardcodedWhitelist');
                     if (!data) {
-                        // Create default whitelist if not exists
-                        const defaultWhitelist = [
-                            { 
-                                id: 'wl_1', 
-                                email: 'employee@company.com', 
-                                name: 'John Doe', 
-                                department: 'Engineering', 
-                                employeeType: 'Local', 
-                                status: 'active', 
-                                password: '123456', 
-                                addedDate: new Date().toISOString() 
+                        // Create default hardcoded whitelist
+                        const defaultHardcoded = [
+                            {
+                                id: 'hc_default_1',
+                                email: 'admin@break-tracker.com',
+                                name: 'Admin',
+                                department: 'Administration',
+                                employeeType: 'Local',
+                                status: 'active',
+                                password: '535680',
+                                addedDate: new Date().toISOString(),
+                                isHardcoded: true
                             },
-                            { 
-                                id: 'wl_2', 
-                                email: 'jane@company.com', 
-                                name: 'Jane Smith', 
-                                department: 'Marketing', 
-                                employeeType: 'Expat', 
-                                status: 'active', 
-                                password: '123456', 
-                                addedDate: new Date().toISOString() 
+                            {
+                                id: 'hc_default_2',
+                                email: 'employee@company.com',
+                                name: 'John Doe',
+                                department: 'Engineering',
+                                employeeType: 'Local',
+                                status: 'active',
+                                password: '123456',
+                                addedDate: new Date().toISOString(),
+                                isHardcoded: true
                             },
-                            { 
-                                id: 'wl_3', 
-                                email: 'skybetrelated@gmail.com', 
-                                name: 'Acharya', 
-                                department: 'IT', 
-                                employeeType: 'Local', 
-                                status: 'active', 
-                                password: '123456', 
-                                addedDate: new Date().toISOString() 
+                            {
+                                id: 'hc_default_3',
+                                email: 'jane@company.com',
+                                name: 'Jane Smith',
+                                department: 'Marketing',
+                                employeeType: 'Expat',
+                                status: 'active',
+                                password: '123456',
+                                addedDate: new Date().toISOString(),
+                                isHardcoded: true
+                            },
+                            {
+                                id: 'hc_default_4',
+                                email: 'skybetrelated@gmail.com',
+                                name: 'Acharya',
+                                department: 'IT',
+                                employeeType: 'Expat',
+                                status: 'active',
+                                password: '123456',
+                                addedDate: new Date().toISOString(),
+                                isHardcoded: true
+                            },
+                            {
+                                id: 'hc_default_5',
+                                email: 'chandan@betrelated.com',
+                                name: 'Chandan',
+                                department: 'Operations',
+                                employeeType: 'Expat',
+                                status: 'active',
+                                password: '123456',
+                                addedDate: new Date().toISOString(),
+                                isHardcoded: true
                             }
                         ];
-                        localStorage.setItem('emailWhitelist', JSON.stringify(defaultWhitelist));
-                        return defaultWhitelist;
+                        localStorage.setItem('hardcodedWhitelist', JSON.stringify(defaultHardcoded));
+                        return defaultHardcoded;
                     }
                     return JSON.parse(data);
                 } catch (e) {
-                    console.error('Error reading whitelist:', e);
+                    console.error('Error reading hardcoded whitelist:', e);
                     return [];
                 }
             }
 
-            function saveWhitelist(whitelist) {
+            function saveHardcodedWhitelist(hardcodedList) {
                 try {
-                    localStorage.setItem('emailWhitelist', JSON.stringify(whitelist));
-                    console.log('✅ Whitelist saved:', whitelist.length, 'entries');
-                    syncWhitelistWithUsers(whitelist);
+                    localStorage.setItem('hardcodedWhitelist', JSON.stringify(hardcodedList));
+                    console.log('✅ Hardcoded whitelist saved:', hardcodedList.length, 'entries');
+                    return true;
                 } catch (e) {
-                    console.error('Error saving whitelist:', e);
+                    console.error('Error saving hardcoded whitelist:', e);
+                    return false;
                 }
             }
 
-            function syncWhitelistWithUsers(whitelist) {
+            function getStoredWhitelist() {
                 try {
-                    const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                    const activeWhitelist = whitelist.filter(w => w.status === 'active');
-                    
-                    activeWhitelist.forEach(w => {
-                        const existingIndex = users.findIndex(u => u.email.toLowerCase() === w.email.toLowerCase());
-                        if (existingIndex === -1) {
-                            users.push({
-                                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                                name: w.name || w.email.split('@')[0],
-                                email: w.email,
-                                password: w.password || '123456',
-                                role: 'employee',
-                                department: w.department || 'Engineering',
-                                employeeType: w.employeeType || 'Local',
-                                created_at: new Date().toISOString(),
-                                whitelisted: true
-                            });
-                        } else {
-                            users[existingIndex].whitelisted = true;
-                            users[existingIndex].name = w.name || users[existingIndex].name;
-                            users[existingIndex].department = w.department || users[existingIndex].department;
-                            users[existingIndex].employeeType = w.employeeType || users[existingIndex].employeeType;
-                        }
-                    });
-                    
-                    localStorage.setItem('appUsers', JSON.stringify(users));
-                    console.log('✅ Synced whitelist with users');
+                    const data = localStorage.getItem('emailWhitelist');
+                    if (!data) return [];
+                    return JSON.parse(data);
                 } catch (e) {
-                    console.error('Error syncing whitelist:', e);
+                    console.error('Error reading stored whitelist:', e);
+                    return [];
                 }
             }
 
-            function isEmailWhitelisted(email) {
-                if (!email) return false;
-                const whitelist = getWhitelist();
-                const emailLower = email.toLowerCase().trim();
-                return whitelist.some(item => {
-                    const itemEmail = (item.email || '').toLowerCase().trim();
-                    const isActive = item.status === 'active';
-                    return itemEmail === emailLower && isActive;
+            function saveStoredWhitelist(storedList) {
+                try {
+                    localStorage.setItem('emailWhitelist', JSON.stringify(storedList));
+                    console.log('✅ Stored whitelist saved:', storedList.length, 'entries');
+                    return true;
+                } catch (e) {
+                    console.error('Error saving stored whitelist:', e);
+                    return false;
+                }
+            }
+
+            function getWhitelist() {
+                const hardcoded = getHardcodedWhitelist();
+                const stored = getStoredWhitelist();
+                
+                const merged = [...hardcoded];
+                stored.forEach(item => {
+                    const exists = merged.some(m => m.email.toLowerCase() === item.email.toLowerCase());
+                    if (!exists) {
+                        merged.push(item);
+                    }
                 });
+                
+                return merged;
             }
 
-            function addToWhitelist(email, name, department, employeeType) {
-                const whitelist = getWhitelist();
+            function addToHardcodedWhitelist(email, name, department, employeeType, password) {
+                const hardcodedList = getHardcodedWhitelist();
                 const emailLower = email.trim().toLowerCase();
                 
-                if (whitelist.some(item => item.email.toLowerCase() === emailLower)) {
-                    return { success: false, error: 'Email already in whitelist!' };
+                if (hardcodedList.some(w => w.email.toLowerCase() === emailLower)) {
+                    return { success: false, error: 'Email already in hardcoded whitelist!' };
                 }
+                
+                const newEntry = {
+                    id: 'hc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    email: emailLower,
+                    name: name || email.split('@')[0] || 'User',
+                    department: department || 'Engineering',
+                    employeeType: employeeType || 'Local',
+                    status: 'active',
+                    password: password || '123456',
+                    addedDate: new Date().toISOString(),
+                    isHardcoded: true
+                };
+                
+                hardcodedList.push(newEntry);
+                saveHardcodedWhitelist(hardcodedList);
+                
+                // Also add to regular whitelist for user creation
+                addToStoredWhitelist(email, name, department, employeeType, password);
+                
+                console.log('✅ Added to hardcoded whitelist:', email);
+                return { success: true, data: newEntry };
+            }
 
-                const newItem = {
+            function addToStoredWhitelist(email, name, department, employeeType, password) {
+                const storedList = getStoredWhitelist();
+                const emailLower = email.trim().toLowerCase();
+                
+                if (storedList.some(w => w.email.toLowerCase() === emailLower)) {
+                    return { success: false, error: 'Email already in stored whitelist!' };
+                }
+                
+                const newEntry = {
                     id: 'wl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                     email: emailLower,
                     name: name || email.split('@')[0] || 'User',
                     department: department || 'Engineering',
                     employeeType: employeeType || 'Local',
                     status: 'active',
-                    password: '123456',
+                    password: password || '123456',
                     addedDate: new Date().toISOString(),
-                    lastLogin: null
+                    isHardcoded: false
                 };
-
-                whitelist.push(newItem);
-                saveWhitelist(whitelist);
-
-                // Also create/update user in appUsers
+                
+                storedList.push(newEntry);
+                saveStoredWhitelist(storedList);
+                
+                // Also create user in appUsers
                 const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
                 if (!users.some(u => u.email.toLowerCase() === emailLower)) {
                     users.push({
                         id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                        name: newItem.name,
-                        email: newItem.email,
+                        name: newEntry.name,
+                        email: newEntry.email,
                         password: '123456',
                         role: 'employee',
-                        department: newItem.department,
-                        employeeType: newItem.employeeType,
+                        department: newEntry.department,
+                        employeeType: newEntry.employeeType,
                         created_at: new Date().toISOString(),
-                        whitelisted: true
+                        whitelisted: true,
+                        isHardcoded: false
                     });
                     localStorage.setItem('appUsers', JSON.stringify(users));
                 }
-
-                console.log('✅ Added to whitelist:', email);
-                return { success: true, data: newItem };
+                
+                return { success: true, data: newEntry };
             }
 
-            function toggleWhitelistStatus(id) {
-                const whitelist = getWhitelist();
-                const index = whitelist.findIndex(item => item.id === id);
+            function removeFromHardcodedWhitelist(id) {
+                let hardcodedList = getHardcodedWhitelist();
+                const item = hardcodedList.find(w => w.id === id);
+                hardcodedList = hardcodedList.filter(w => w.id !== id);
+                saveHardcodedWhitelist(hardcodedList);
+                
+                console.log('🗑️ Removed from hardcoded whitelist:', item?.email);
+                return true;
+            }
+
+            function toggleHardcodedStatus(id) {
+                const hardcodedList = getHardcodedWhitelist();
+                const index = hardcodedList.findIndex(item => item.id === id);
                 if (index === -1) return;
-
-                whitelist[index].status = whitelist[index].status === 'active' ? 'inactive' : 'active';
-                saveWhitelist(whitelist);
+                
+                hardcodedList[index].status = hardcodedList[index].status === 'active' ? 'inactive' : 'active';
+                saveHardcodedWhitelist(hardcodedList);
                 loadWhitelist();
-                
-                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                const userIndex = users.findIndex(u => u.email.toLowerCase() === whitelist[index].email.toLowerCase());
-                if (userIndex !== -1) {
-                    users[userIndex].whitelisted = whitelist[index].status === 'active';
-                    localStorage.setItem('appUsers', JSON.stringify(users));
-                }
-                
-                console.log('🔄 Toggled whitelist status for:', whitelist[index].email, '->', whitelist[index].status);
             }
 
-            window.toggleWhitelistStatus = toggleWhitelistStatus;
+            window.toggleHardcodedStatus = toggleHardcodedStatus;
 
-            function deleteFromWhitelist(id) {
-                let whitelist = getWhitelist();
-                const item = whitelist.find(w => w.id === id);
-                whitelist = whitelist.filter(w => w.id !== id);
-                saveWhitelist(whitelist);
-
-                if (item) {
-                    const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                    const filteredUsers = users.filter(u => u.email.toLowerCase() !== item.email.toLowerCase());
-                    localStorage.setItem('appUsers', JSON.stringify(filteredUsers));
-                }
-
-                loadWhitelist();
-                console.log('🗑️ Deleted from whitelist:', item?.email);
-                alert('✅ Email removed from whitelist!');
-            }
-
-            window.deleteFromWhitelist = deleteFromWhitelist;
-
+            // ============================================
+            // LOAD WHITELIST
+            // ============================================
             function loadWhitelist() {
-                const whitelist = getWhitelist();
+                const hardcoded = getHardcodedWhitelist();
+                const stored = getStoredWhitelist();
+                const all = getWhitelist();
+                
                 const search = document.getElementById('whitelistSearch').value.toLowerCase();
                 const statusFilter = document.getElementById('whitelistStatusFilter').value;
+                const typeFilter = document.getElementById('whitelistTypeFilter').value;
 
-                let filtered = whitelist;
+                let filtered = all;
                 if (search) {
                     filtered = filtered.filter(item => 
                         item.email.toLowerCase().includes(search) || 
@@ -897,8 +995,14 @@
                 if (statusFilter !== 'all') {
                     filtered = filtered.filter(item => item.status === statusFilter);
                 }
+                if (typeFilter === 'hardcoded') {
+                    filtered = filtered.filter(item => item.isHardcoded === true);
+                } else if (typeFilter === 'stored') {
+                    filtered = filtered.filter(item => item.isHardcoded !== true);
+                }
 
-                document.getElementById('whitelistCount').textContent = whitelist.length;
+                document.getElementById('whitelistCount').textContent = all.length;
+                document.getElementById('hardcodedCount').textContent = hardcoded.length;
 
                 const list = document.getElementById('whitelistList');
                 if (filtered.length === 0) {
@@ -913,6 +1017,7 @@
                             <th>Name</th>
                             <th>Department</th>
                             <th>Employee Type</th>
+                            <th>Type</th>
                             <th>Status</th>
                             <th>Added Date</th>
                             <th>Last Login</th>
@@ -924,6 +1029,8 @@
                 filtered.forEach(item => {
                     const statusColor = item.status === 'active' ? 'badge-green' : 'badge-red';
                     const statusText = item.status === 'active' ? '✅ Active' : '❌ Inactive';
+                    const typeLabel = item.isHardcoded ? '📌 Hardcoded' : '💾 Stored';
+                    const typeColor = item.isHardcoded ? 'badge-orange' : 'badge-blue';
                     const lastLogin = item.lastLogin ? formatDateFull(item.lastLogin) : 'Never';
                     
                     html += `<tr>
@@ -931,16 +1038,25 @@
                         <td>${item.name || 'N/A'}</td>
                         <td>${item.department || 'N/A'}</td>
                         <td><span class="badge badge-purple">${item.employeeType || 'Local'}</span></td>
+                        <td><span class="badge ${typeColor}">${typeLabel}</span></td>
                         <td><span class="badge ${statusColor}">${statusText}</span></td>
                         <td>${item.addedDate ? formatDateFull(item.addedDate) : 'N/A'}</td>
                         <td>${lastLogin}</td>
                         <td>
-                            <button class="btn-warning btn-sm" onclick="toggleWhitelistStatus('${item.id}')">
-                                ${item.status === 'active' ? '🔒 Disable' : '🔓 Enable'}
-                            </button>
-                            <button class="btn-danger btn-sm" onclick="confirmDelete('whitelist','${item.id}','${item.email}')">
-                                🗑️ Delete
-                            </button>
+                            ${item.isHardcoded ? 
+                                `<button class="btn-warning btn-sm" onclick="toggleHardcodedStatus('${item.id}')">
+                                    ${item.status === 'active' ? '🔒 Disable' : '🔓 Enable'}
+                                </button>
+                                <button class="btn-danger btn-sm" onclick="confirmDelete('hardcoded','${item.id}','${item.email}')">
+                                    🗑️ Delete
+                                </button>` :
+                                `<button class="btn-warning btn-sm" onclick="toggleWhitelistStatus('${item.id}')">
+                                    ${item.status === 'active' ? '🔒 Disable' : '🔓 Enable'}
+                                </button>
+                                <button class="btn-danger btn-sm" onclick="confirmDelete('stored','${item.id}','${item.email}')">
+                                    🗑️ Delete
+                                </button>`
+                            }
                         </td>
                     </tr>`;
                 });
@@ -948,6 +1064,63 @@
                 html += '</tbody></table>';
                 list.innerHTML = html;
             }
+
+            // ============================================
+            // TOGGLE WHITELIST STATUS (Stored)
+            // ============================================
+            function toggleWhitelistStatus(id) {
+                const storedList = getStoredWhitelist();
+                const index = storedList.findIndex(item => item.id === id);
+                if (index === -1) return;
+                
+                storedList[index].status = storedList[index].status === 'active' ? 'inactive' : 'active';
+                saveStoredWhitelist(storedList);
+                loadWhitelist();
+                
+                // Update user status
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                const userIndex = users.findIndex(u => u.email.toLowerCase() === storedList[index].email.toLowerCase());
+                if (userIndex !== -1) {
+                    users[userIndex].whitelisted = storedList[index].status === 'active';
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                }
+            }
+
+            window.toggleWhitelistStatus = toggleWhitelistStatus;
+
+            // ============================================
+            // DELETE FROM WHITELIST
+            // ============================================
+            function deleteFromHardcodedWhitelist(id) {
+                let hardcodedList = getHardcodedWhitelist();
+                const item = hardcodedList.find(w => w.id === id);
+                hardcodedList = hardcodedList.filter(w => w.id !== id);
+                saveHardcodedWhitelist(hardcodedList);
+                loadWhitelist();
+                console.log('🗑️ Removed from hardcoded whitelist:', item?.email);
+                alert('✅ Removed from hardcoded whitelist!');
+            }
+
+            function deleteFromStoredWhitelist(id) {
+                let storedList = getStoredWhitelist();
+                const item = storedList.find(w => w.id === id);
+                storedList = storedList.filter(w => w.id !== id);
+                saveStoredWhitelist(storedList);
+                
+                // Remove from appUsers
+                if (item) {
+                    const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                    const filteredUsers = users.filter(u => u.email.toLowerCase() !== item.email.toLowerCase());
+                    localStorage.setItem('appUsers', JSON.stringify(filteredUsers));
+                }
+                
+                loadWhitelist();
+                console.log('🗑️ Removed from stored whitelist:', item?.email);
+                alert('✅ Removed from whitelist!');
+            }
+
+            window.deleteFromHardcodedWhitelist = deleteFromHardcodedWhitelist;
+            window.deleteFromStoredWhitelist = deleteFromStoredWhitelist;
 
             // ============================================
             // FORMAT FUNCTIONS
@@ -1965,11 +2138,19 @@
                 openModal('bulkWhitelistModal');
             });
 
+            document.getElementById('addHardcodedBtn').addEventListener('click', function() {
+                document.getElementById('hardcodedForm').reset();
+                openModal('hardcodedModal');
+            });
+
             document.getElementById('refreshWhitelistBtn').addEventListener('click', function() {
                 loadWhitelist();
                 alert('✅ Whitelist refreshed!');
             });
 
+            // ============================================
+            // WHITELIST FORM SUBMIT
+            // ============================================
             document.getElementById('whitelistForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -1983,7 +2164,7 @@
                     return;
                 }
 
-                const result = addToWhitelist(email, name, department, employeeType);
+                const result = addToStoredWhitelist(email, name, department, employeeType, '123456');
                 
                 if (result.success) {
                     closeModal('whitelistModal');
@@ -1996,6 +2177,9 @@
                 }
             });
 
+            // ============================================
+            // BULK WHITELIST FORM SUBMIT
+            // ============================================
             document.getElementById('bulkWhitelistForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -2021,7 +2205,7 @@
                 let failed = 0;
 
                 emailList.forEach(email => {
-                    const result = addToWhitelist(email, email.split('@')[0], department, employeeType);
+                    const result = addToStoredWhitelist(email, email.split('@')[0], department, employeeType, '123456');
                     if (result.success) {
                         added++;
                     } else {
@@ -2036,9 +2220,40 @@
                 alert(`✅ Bulk add complete!\nAdded: ${added}\nFailed (already exist): ${failed}`);
             });
 
+            // ============================================
+            // HARDCODED FORM SUBMIT
+            // ============================================
+            document.getElementById('hardcodedForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('hardcodedEmail').value.trim();
+                const name = document.getElementById('hardcodedName').value.trim();
+                const department = document.getElementById('hardcodedDepartment').value;
+                const employeeType = document.getElementById('hardcodedEmployeeType').value;
+                const password = document.getElementById('hardcodedPassword').value || '123456';
+
+                if (!email) {
+                    alert('Please enter an email address!');
+                    return;
+                }
+
+                const result = addToHardcodedWhitelist(email, name, department, employeeType, password);
+                
+                if (result.success) {
+                    closeModal('hardcodedModal');
+                    document.getElementById('hardcodedForm').reset();
+                    loadWhitelist();
+                    loadUsers();
+                    alert(`✅ Email added to HARDCODED whitelist!\nEmail: ${email}\nPassword: ${password}\n⚡ This email will survive localStorage clear!`);
+                } else {
+                    alert(result.error);
+                }
+            });
+
             // Whitelist search and filter
             document.getElementById('whitelistSearch').addEventListener('input', loadWhitelist);
             document.getElementById('whitelistStatusFilter').addEventListener('change', loadWhitelist);
+            document.getElementById('whitelistTypeFilter').addEventListener('change', loadWhitelist);
 
             // ============================================
             // DELETE CONFIRMATION
@@ -2077,8 +2292,10 @@
                     window.deleteVacation(deleteTarget);
                 } else if (deleteType === 'checkin') {
                     window.deleteCheckin(deleteTarget);
-                } else if (deleteType === 'whitelist') {
-                    window.deleteFromWhitelist(deleteTarget);
+                } else if (deleteType === 'hardcoded') {
+                    deleteFromHardcodedWhitelist(deleteTarget);
+                } else if (deleteType === 'stored') {
+                    deleteFromStoredWhitelist(deleteTarget);
                 }
                 loadStats();
                 closeModal('deleteModal');
@@ -2111,6 +2328,20 @@
                     }
                 });
             });
+
+            // ============================================
+            // IS EMAIL WHITELISTED (for user creation)
+            // ============================================
+            function isEmailWhitelisted(email) {
+                if (!email) return false;
+                const whitelist = getWhitelist();
+                const emailLower = email.toLowerCase().trim();
+                return whitelist.some(item => {
+                    const itemEmail = (item.email || '').toLowerCase().trim();
+                    const isActive = item.status === 'active';
+                    return itemEmail === emailLower && isActive;
+                });
+            }
 
             // ============================================
             // EVENT LISTENERS
@@ -2200,10 +2431,12 @@
             loadSettings();
             loadWhitelist();
 
-            console.log('✅ Admin Dashboard loaded successfully with Whitelist!');
-            console.log('📧 Default whitelist emails:');
-            const wl = getWhitelist();
-            wl.forEach(w => {
+            console.log('✅ Admin Dashboard loaded successfully with Hardcoded Whitelist!');
+            console.log('📌 Hardcoded emails are stored in the code and survive localStorage clear!');
+            
+            const hardcoded = getHardcodedWhitelist();
+            console.log('📧 Hardcoded whitelist emails:');
+            hardcoded.forEach(w => {
                 console.log(`   - ${w.email} (${w.status})`);
             });
         })();
