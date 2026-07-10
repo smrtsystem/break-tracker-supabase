@@ -53,8 +53,9 @@
     <script>
         // ============================================
         // HARDCODED WHITELIST - Edit this array to add emails
+        // These are the DEFAULT emails that come with the system
         // ============================================
-        const HARDCODED_WHITELIST = [
+        const DEFAULT_HARDCODED_WHITELIST = [
             {
                 id: 'wl_hard_1',
                 email: 'admin@break-tracker.com',
@@ -105,105 +106,75 @@
                 password: '123456',
                 addedDate: new Date().toISOString()
             }
-            // 👇 Add more emails here following the same format
-            // {
-            //     id: 'wl_hard_6',
-            //     email: 'newuser@company.com',
-            //     name: 'New User',
-            //     department: 'IT',
-            //     employeeType: 'Local',
-            //     status: 'active',
-            //     password: '123456',
-            //     addedDate: new Date().toISOString()
-            // }
         ];
 
         // ============================================
         // COMPLETE WHITELIST FUNCTIONS
         // ============================================
         
-        function getWhitelist() {
+        function getHardcodedWhitelist() {
             try {
-                // First try to get from localStorage (admin added emails)
-                let storedData = localStorage.getItem('emailWhitelist');
-                let storedWhitelist = [];
+                // First try to get from localStorage (web-added hardcoded emails)
+                let storedData = localStorage.getItem('hardcodedWhitelist');
+                let storedList = [];
                 
                 if (storedData) {
                     try {
-                        storedWhitelist = JSON.parse(storedData);
+                        storedList = JSON.parse(storedData);
+                        console.log('📋 Loaded stored hardcoded whitelist:', storedList.length, 'entries');
                     } catch (e) {
-                        console.error('Error parsing stored whitelist:', e);
+                        console.error('Error parsing stored hardcoded whitelist:', e);
                     }
                 }
                 
-                // Merge hardcoded + stored whitelist
-                // Stored whitelist takes priority (can override hardcoded)
-                const merged = [...HARDCODED_WHITELIST];
+                // Merge default + stored hardcoded
+                // Stored takes priority (can override defaults)
+                const merged = [...DEFAULT_HARDCODED_WHITELIST];
                 
-                // Add stored items that don't exist in hardcoded
-                storedWhitelist.forEach(stored => {
+                // Add stored items that don't exist in default
+                storedList.forEach(stored => {
                     const exists = merged.some(m => m.email.toLowerCase() === stored.email.toLowerCase());
                     if (!exists) {
                         merged.push(stored);
                     }
                 });
                 
-                console.log('📋 Merged whitelist:', merged.length, 'entries');
                 return merged;
             } catch (e) {
-                console.error('Error reading whitelist:', e);
-                return HARDCODED_WHITELIST;
+                console.error('Error reading hardcoded whitelist:', e);
+                return DEFAULT_HARDCODED_WHITELIST;
             }
         }
 
-        function saveWhitelist(whitelist) {
+        function getStoredWhitelist() {
             try {
-                // Save only non-hardcoded items to localStorage
-                const hardcodedEmails = HARDCODED_WHITELIST.map(w => w.email.toLowerCase());
-                const toStore = whitelist.filter(w => !hardcodedEmails.includes(w.email.toLowerCase()));
-                
-                localStorage.setItem('emailWhitelist', JSON.stringify(toStore));
-                console.log('✅ Whitelist saved to localStorage:', toStore.length, 'entries');
-                
-                // Also sync with appUsers
-                syncWhitelistWithUsers(whitelist);
+                let data = localStorage.getItem('emailWhitelist');
+                if (!data) return [];
+                return JSON.parse(data);
             } catch (e) {
-                console.error('Error saving whitelist:', e);
+                console.error('Error reading stored whitelist:', e);
+                return [];
             }
         }
 
-        function syncWhitelistWithUsers(whitelist) {
-            try {
-                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
-                const activeWhitelist = whitelist.filter(w => w.status === 'active');
-                
-                activeWhitelist.forEach(w => {
-                    const existingIndex = users.findIndex(u => u.email.toLowerCase() === w.email.toLowerCase());
-                    if (existingIndex === -1) {
-                        users.push({
-                            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                            name: w.name || w.email.split('@')[0],
-                            email: w.email,
-                            password: w.password || '123456',
-                            role: w.email === 'admin@break-tracker.com' ? 'admin' : 'employee',
-                            department: w.department || 'Engineering',
-                            employeeType: w.employeeType || 'Local',
-                            created_at: new Date().toISOString(),
-                            whitelisted: true
-                        });
-                    } else {
-                        users[existingIndex].whitelisted = true;
-                        users[existingIndex].name = w.name || users[existingIndex].name;
-                        users[existingIndex].department = w.department || users[existingIndex].department;
-                        users[existingIndex].employeeType = w.employeeType || users[existingIndex].employeeType;
-                    }
-                });
-                
-                localStorage.setItem('appUsers', JSON.stringify(users));
-                console.log('✅ Synced whitelist with users');
-            } catch (e) {
-                console.error('Error syncing whitelist:', e);
-            }
+        function getWhitelist() {
+            // Merge hardcoded + stored whitelist
+            const hardcoded = getHardcodedWhitelist();
+            const stored = getStoredWhitelist();
+            
+            // Start with hardcoded
+            const merged = [...hardcoded];
+            
+            // Add stored items that don't exist in hardcoded
+            stored.forEach(item => {
+                const exists = merged.some(m => m.email.toLowerCase() === item.email.toLowerCase());
+                if (!exists) {
+                    merged.push(item);
+                }
+            });
+            
+            console.log('📋 Total whitelist:', merged.length, 'entries (Hardcoded:', hardcoded.length, '+ Stored:', stored.length, ')');
+            return merged;
         }
 
         function isEmailWhitelisted(email) {
@@ -257,41 +228,59 @@
         }
 
         // ============================================
-        // INITIALIZE - Merge hardcoded with stored
+        // INITIALIZE - Ensure all whitelists exist
         // ============================================
         function initializeWhitelist() {
-            // Get current stored whitelist
-            let storedData = localStorage.getItem('emailWhitelist');
-            let storedWhitelist = [];
-            
-            if (storedData) {
-                try {
-                    storedWhitelist = JSON.parse(storedData);
-                } catch (e) {
-                    console.error('Error parsing stored whitelist:', e);
-                }
+            // Ensure hardcoded whitelist exists in localStorage
+            let hardcodedData = localStorage.getItem('hardcodedWhitelist');
+            if (!hardcodedData) {
+                // Save default hardcoded to localStorage
+                localStorage.setItem('hardcodedWhitelist', JSON.stringify(DEFAULT_HARDCODED_WHITELIST));
+                console.log('✅ Default hardcoded whitelist saved to localStorage');
             }
             
-            // Merge hardcoded with stored
-            const merged = [...HARDCODED_WHITELIST];
+            // Get all whitelist
+            const whitelist = getWhitelist();
             
-            // Add stored items that don't exist in hardcoded
-            storedWhitelist.forEach(stored => {
-                const exists = merged.some(m => m.email.toLowerCase() === stored.email.toLowerCase());
-                if (!exists) {
-                    merged.push(stored);
-                }
-            });
+            // Sync with appUsers
+            syncWhitelistWithUsers(whitelist);
             
-            // Save merged back to localStorage (only non-hardcoded items)
-            const hardcodedEmails = HARDCODED_WHITELIST.map(w => w.email.toLowerCase());
-            const toStore = merged.filter(w => !hardcodedEmails.includes(w.email.toLowerCase()));
-            localStorage.setItem('emailWhitelist', JSON.stringify(toStore));
-            
-            // Sync with users
-            syncWhitelistWithUsers(merged);
-            
-            console.log('✅ Whitelist initialized with', HARDCODED_WHITELIST.length, 'hardcoded +', toStore.length, 'stored =', merged.length, 'total');
+            console.log('✅ Whitelist initialized with', whitelist.length, 'total entries');
+        }
+
+        function syncWhitelistWithUsers(whitelist) {
+            try {
+                const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+                const activeWhitelist = whitelist.filter(w => w.status === 'active');
+                
+                activeWhitelist.forEach(w => {
+                    const existingIndex = users.findIndex(u => u.email.toLowerCase() === w.email.toLowerCase());
+                    if (existingIndex === -1) {
+                        users.push({
+                            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                            name: w.name || w.email.split('@')[0],
+                            email: w.email,
+                            password: w.password || '123456',
+                            role: w.email === 'admin@break-tracker.com' ? 'admin' : 'employee',
+                            department: w.department || 'Engineering',
+                            employeeType: w.employeeType || 'Local',
+                            created_at: new Date().toISOString(),
+                            whitelisted: true,
+                            isHardcoded: w.isHardcoded || false
+                        });
+                    } else {
+                        users[existingIndex].whitelisted = true;
+                        users[existingIndex].name = w.name || users[existingIndex].name;
+                        users[existingIndex].department = w.department || users[existingIndex].department;
+                        users[existingIndex].employeeType = w.employeeType || users[existingIndex].employeeType;
+                    }
+                });
+                
+                localStorage.setItem('appUsers', JSON.stringify(users));
+                console.log('✅ Synced whitelist with users');
+            } catch (e) {
+                console.error('Error syncing whitelist:', e);
+            }
         }
 
         initializeWhitelist();
@@ -358,7 +347,8 @@
                         department: whitelistEntry.department || 'Engineering',
                         employeeType: whitelistEntry.employeeType || 'Local',
                         created_at: new Date().toISOString(),
-                        whitelisted: true
+                        whitelisted: true,
+                        isHardcoded: whitelistEntry.isHardcoded || false
                     };
                     users.push(newUser);
                     localStorage.setItem('appUsers', JSON.stringify(users));
@@ -390,7 +380,24 @@
                 const wlIndex = updatedWhitelist.findIndex(w => w.email.toLowerCase() === email.toLowerCase());
                 if (wlIndex !== -1) {
                     updatedWhitelist[wlIndex].lastLogin = new Date().toISOString();
-                    saveWhitelist(updatedWhitelist);
+                    // Save back to appropriate storage
+                    if (updatedWhitelist[wlIndex].isHardcoded) {
+                        // Update hardcoded list
+                        const hardcoded = getHardcodedWhitelist();
+                        const hcIndex = hardcoded.findIndex(w => w.email.toLowerCase() === email.toLowerCase());
+                        if (hcIndex !== -1) {
+                            hardcoded[hcIndex].lastLogin = new Date().toISOString();
+                            localStorage.setItem('hardcodedWhitelist', JSON.stringify(hardcoded));
+                        }
+                    } else {
+                        // Update stored list
+                        const stored = getStoredWhitelist();
+                        const sIndex = stored.findIndex(w => w.email.toLowerCase() === email.toLowerCase());
+                        if (sIndex !== -1) {
+                            stored[sIndex].lastLogin = new Date().toISOString();
+                            localStorage.setItem('emailWhitelist', JSON.stringify(stored));
+                        }
+                    }
                 }
 
                 console.log('✅ Login successful:', foundUser.name);
@@ -417,11 +424,11 @@
             console.log('✅ Login page ready with Hardcoded + Stored Whitelist');
             console.log('📧 Current whitelisted emails:');
             whitelist.forEach(w => {
-                const source = HARDCODED_WHITELIST.some(h => h.email.toLowerCase() === w.email.toLowerCase()) ? '📌 Hardcoded' : '💾 Stored';
+                const source = w.isHardcoded ? '📌 Hardcoded' : '💾 Stored';
                 console.log(`   - ${w.email} (${w.status}) - ${w.name || 'No name'} [${source}]`);
             });
             console.log('💡 Total whitelisted: ' + whitelist.length);
-            console.log('📝 To add hardcoded emails, edit the HARDCODED_WHITELIST array in the script.');
+            console.log('📝 To add hardcoded emails, use the admin panel or edit DEFAULT_HARDCODED_WHITELIST');
         });
 
         // ============================================
@@ -429,37 +436,40 @@
         // ============================================
         window.__debug = {
             getWhitelist: getWhitelist,
+            getHardcodedWhitelist: getHardcodedWhitelist,
+            getStoredWhitelist: getStoredWhitelist,
             isEmailWhitelisted: isEmailWhitelisted,
-            HARDCODED_WHITELIST: HARDCODED_WHITELIST,
-            addEmail: function(email, name, department, employeeType, password) {
-                const whitelist = getWhitelist();
+            DEFAULT_HARDCODED_WHITELIST: DEFAULT_HARDCODED_WHITELIST,
+            addHardcodedEmail: function(email, name, department, employeeType, password) {
+                const hardcoded = getHardcodedWhitelist();
                 const emailLower = email.toLowerCase().trim();
                 
-                if (whitelist.some(w => w.email.toLowerCase() === emailLower)) {
-                    console.log('❌ Email already exists');
+                if (hardcoded.some(w => w.email.toLowerCase() === emailLower)) {
+                    console.log('❌ Email already exists in hardcoded whitelist');
                     return false;
                 }
                 
                 const newEntry = {
-                    id: 'wl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    id: 'hc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                     email: emailLower,
                     name: name || email.split('@')[0],
                     department: department || 'Engineering',
                     employeeType: employeeType || 'Local',
                     status: 'active',
                     password: password || '123456',
-                    addedDate: new Date().toISOString()
+                    addedDate: new Date().toISOString(),
+                    isHardcoded: true
                 };
                 
-                whitelist.push(newEntry);
-                saveWhitelist(whitelist);
-                console.log('✅ Added to whitelist:', email);
+                hardcoded.push(newEntry);
+                localStorage.setItem('hardcodedWhitelist', JSON.stringify(hardcoded));
+                console.log('✅ Added to hardcoded whitelist:', email);
                 return true;
             }
         };
         
         console.log('🛠️ Debug functions available: window.__debug');
-        console.log('📝 To add an email: window.__debug.addEmail("user@email.com", "User Name", "Department", "Local", "123456")');
+        console.log('📝 To add an email: window.__debug.addHardcodedEmail("user@email.com", "User Name", "Department", "Local", "123456")');
     </script>
 </body>
 </html>
