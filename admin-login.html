@@ -62,15 +62,17 @@
         </div>
     </div>
 
-    <script type="module">
-        import { supabase, signIn, getCurrentUser } from './supabase.js'
-
-        const form = document.getElementById('adminLoginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorMsg = document.getElementById('errorMsg');
-        const errorText = document.getElementById('errorText');
+    <script>
+        // ============================================
+        // ADMIN LOGIN - COMPLETE
+        // ============================================
+        
+        var form = document.getElementById('adminLoginForm');
+        var emailInput = document.getElementById('email');
+        var passwordInput = document.getElementById('password');
+        var loginBtn = document.getElementById('loginBtn');
+        var errorMsg = document.getElementById('errorMsg');
+        var errorText = document.getElementById('errorText');
 
         function showError(message) {
             errorText.textContent = message;
@@ -82,16 +84,49 @@
         }
 
         // Check if already logged in as admin
-        const currentUser = await getCurrentUser();
-        if (currentUser && currentUser.role === 'admin') {
-            window.location.href = 'admin-dashboard.html';
+        function checkAdminSession() {
+            try {
+                var adminSession = localStorage.getItem('adminSession');
+                if (adminSession) {
+                    var session = JSON.parse(adminSession);
+                    if (session && session.role === 'admin') {
+                        window.location.href = 'admin-dashboard.html';
+                        return true;
+                    }
+                }
+            } catch(e) {
+                localStorage.removeItem('adminSession');
+            }
+            return false;
         }
 
-        form.addEventListener('submit', async function(e) {
+        checkAdminSession();
+
+        // Ensure default admin exists
+        function ensureDefaultAdmin() {
+            var admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+            if (admins.length === 0) {
+                var defaultAdmin = {
+                    id: 'admin_default',
+                    name: 'Admin',
+                    email: 'admin@break-tracker.com',
+                    password: '535680',
+                    role: 'admin',
+                    created_at: new Date().toISOString()
+                };
+                admins.push(defaultAdmin);
+                localStorage.setItem('adminUsers', JSON.stringify(admins));
+                console.log('✅ Default admin created');
+            }
+        }
+
+        ensureDefaultAdmin();
+
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
+            var email = emailInput.value.trim();
+            var password = passwordInput.value.trim();
             
             hideError();
             loginBtn.classList.add('loading');
@@ -102,69 +137,32 @@
                     throw new Error('Please enter both email and password.');
                 }
 
-                // ✅ FIX: Check local admin first, then try Supabase
-                let adminUser = null;
-                let isLocalAdmin = false;
-
-                // Check local admin storage first
-                const localAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-                const localAdmin = localAdmins.find(a => a.email === email && a.password === password);
-                
-                if (localAdmin) {
-                    isLocalAdmin = true;
-                    adminUser = {
-                        id: localAdmin.id || 'admin_' + Date.now(),
-                        email: localAdmin.email,
-                        name: localAdmin.name || 'Admin',
-                        role: 'admin'
-                    };
-                    // Store in localStorage for session
-                    localStorage.setItem('adminSession', JSON.stringify(adminUser));
-                    console.log('✅ Local admin login successful');
-                } else {
-                    // Try Supabase login
-                    const result = await signIn(email, password);
-                    
-                    if (result.success && result.profile?.role === 'admin') {
-                        adminUser = result.profile;
-                        localStorage.setItem('adminSession', JSON.stringify(adminUser));
-                        console.log('✅ Supabase admin login successful');
-                    } else if (result.success && result.profile?.role !== 'admin') {
-                        throw new Error('Access denied. Admin privileges required.');
-                    } else {
-                        // Check if default admin exists
-                        const defaultAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-                        if (defaultAdmins.length === 0) {
-                            // Create default admin
-                            const defaultAdmin = {
-                                id: 'admin_default',
-                                name: 'Admin',
-                                email: 'admin@break-tracker.com',
-                                password: '535680',
-                                role: 'admin'
-                            };
-                            defaultAdmins.push(defaultAdmin);
-                            localStorage.setItem('adminUsers', JSON.stringify(defaultAdmins));
-                            
-                            if (email === defaultAdmin.email && password === defaultAdmin.password) {
-                                adminUser = {
-                                    id: defaultAdmin.id,
-                                    email: defaultAdmin.email,
-                                    name: defaultAdmin.name,
-                                    role: 'admin'
-                                };
-                                localStorage.setItem('adminSession', JSON.stringify(adminUser));
-                                console.log('✅ Default admin login successful');
-                            }
-                        }
+                // Check local admin storage
+                var admins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+                var foundAdmin = null;
+                for (var i = 0; i < admins.length; i++) {
+                    if (admins[i].email.toLowerCase() === email.toLowerCase() && admins[i].password === password) {
+                        foundAdmin = admins[i];
+                        break;
                     }
                 }
-
-                if (!adminUser) {
+                
+                if (!foundAdmin) {
                     throw new Error('Invalid admin credentials. Try admin@break-tracker.com / 535680');
                 }
 
-                // Redirect to admin dashboard
+                // Create session
+                var adminSession = {
+                    id: foundAdmin.id,
+                    email: foundAdmin.email,
+                    name: foundAdmin.name || 'Admin',
+                    role: 'admin'
+                };
+                localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                
+                console.log('✅ Admin login successful:', foundAdmin.name);
+                
+                // Redirect
                 window.location.href = 'admin-dashboard.html';
                 
             } catch (error) {
@@ -177,7 +175,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             hideError();
-            console.log('✅ Admin login page ready - Using Local + Supabase Auth');
+            console.log('✅ Admin login page ready');
         });
     </script>
 </body>
